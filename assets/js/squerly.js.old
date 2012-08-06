@@ -1,0 +1,102 @@
+if(typeof squerly != 'object') { var squerly = {}; }
+
+/*
+  Methods to implement:
+    -cancel (ajax call)
+    -clear form
+    -email (ajax call)
+    -enable/disable buttons
+    -render (ajax call)
+      -load report results into table/div or highcharts
+    -load config - $j('#form').unserializeForm(serialized_form_data);
+    -save config JSON.stringify (or jQuery serialize?)
+    -update form action (for IE's sake)
+*/
+
+//Get the input widgets/parameters for the selected report
+squerly.get_input_wigets = new function() {
+  //reset_graph(false);
+  if(parseInt($('#report_id').val()) > 0) {
+    var strGraphParamURL = 'chart_data.php?mode=widget&report_id=' + $('#report_id').val() + '&rand=' + parseInt((Math.random() * 9999));
+    //$('#imgAjax').show();
+    $('#divWidgets').html("");
+    $('#divWidgets').load(strGraphParamURL);
+    $('#divButtons').show();
+  } else {
+    reset_graph();
+    return false;
+  };
+}
+
+
+//Loads form values through AJAX and populates the inputs with their values
+squerly.load_config = new function() {
+
+
+}
+
+
+//Serializes report form values and sends them back to the server via AJAX
+squerly.save_config = new function() {
+
+}
+
+
+//Set the page back to it's default state
+squerly.reset = new function() {
+  $('#divButtons').hide();
+  $('#imgAjax').hide();
+  $('#divWidgets').html("");
+  $('#divGraph').html("").hide();
+  document.getElementById('report_id').selectedIndex = 0;
+  //$('#report_id').show(); $('#report_idLabel').show();
+  $('#imgHeader').show();
+}
+
+
+//Get the data for the chart and display it
+squerly.render = new function() {
+  if($('#report_id').val() < 1) { alert('Please choose a chart from the list to continue...'); }
+  if(!validate_widgets()) { return false; }
+  //$('#report_id').hide(); $('#report_idLabel').hide();
+  $('#divGraph').hide();
+  $('#imgHeader').show();
+  var strGraphParams = "";
+  $('.widget').each(function() { strGraphParams+= '&'+$(this).attr('name')+'='+$(this).val(); }); //Get values for everything with 'widget' class
+  var strQueryString = 'chart_data.php?mode=json&report_id=' + $('#report_id').val() + strGraphParams + '&rand=' + parseInt((Math.random() * 9999));
+  //alert(strQueryString);
+  $.get(strQueryString, function(strResult) {
+    $('#imgHeader').hide();
+    eval(strResult); //TO-DO: This needs to be a JSON parser
+    $('#divGraph').show();
+    var chart = new Highcharts.Chart(objGraphOptions);
+  }, 'JSON');
+}
+
+
+//Validate each of the input fields to make sure the are not empty (basic validation)
+squerly.validate_widgets = new function() {
+  $('.widget').each(
+    function() {
+      validation_passed = true;
+      if($(this).val() == "") {
+        $(this).css('background-color', '#7F0000').css('color', 'white');
+        alert('Please enter data for the field highlighted.');
+        validation_passed = false;
+        return false;
+      } else {
+          $(this).css('background-color', 'white').css('color', 'black');
+      }
+    });
+  return (typeof(validation_passed) == 'boolean') ? validation_passed : true;
+}
+
+
+$(document).ready(function() {
+  //Generate the jQuery-ui selectmenu
+  $('#report_list').selectmenu({ maxHeight: 350, style: 'dropdown', width: 600, transferClasses: true });
+
+  //Show/hide the AJAX spinner
+  $('#imgAjax').hide().ajaxStart(function() { $(this).show(); }).ajaxStop(function() { $(this).hide();})
+;
+});
