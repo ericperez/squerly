@@ -1,8 +1,19 @@
 <?php
-//TODO namespace Squerly;
+/**
+  *
+  * Squerly - Report Abstract
+  * 
+  * This class defines all the methods that report sub-classes should have.
+  * 
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  * 
+  */
+abstract class Report_Abstract extends CRUD implements Report_Interface {
 
-abstract class Report_Abstract extends CRUD implements Report_Interface
-{
   /**
    *
    * _isValid - checks report validity

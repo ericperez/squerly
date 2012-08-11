@@ -34,7 +34,7 @@ class String {
   }
 
 
-  //Strips 'C'-style comments off of a string (single and multiline)
+  //Strips 'C'-style comments off of a string (single line and multiline)
   public static function stripComments($input) {
     return trim(preg_replace('/((\/\/).*)|(\/\\*).*(\*\/)/', '', $input));
   }
@@ -44,5 +44,14 @@ class String {
   public static function modelToClass($model) {
     return str_replace(' ', '_', ucwords(str_replace('_', ' ', strtolower($model))));
   }
+
+
+ /**
+  *
+  * Prevents the class from being instantiated--all of it's methods should be called statically
+  *
+  */
+  final private function __construct() {}
+
 
 }

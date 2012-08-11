@@ -1,4 +1,20 @@
-<?php 
+<?php
+/**
+  *
+  * Squerly - Auth Controller
+  * 
+  * This file contains all the additional routes needed for user authentication
+  * 
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  * 
+  * @todo Flesh this out; it is currently unused
+  * 
+  */
+
 
 class Auth_Controller {
 

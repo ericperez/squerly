@@ -1,4 +1,17 @@
 <?php
+/**
+  *
+  * Squerly - Application Configuration
+  *
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  *
+  */
+
+
 //TODO: Move all (or most) of this into it's own .ini configuration file.
 
 /*
@@ -23,7 +36,7 @@ F3::set('DEBUG', 3); //Debug output verbosity
 F3::set('UI', 'views/'); //Path to Views
 F3::set('AUTOLOAD', 'lib/; models/; controllers/; helpers/; forms/; vendor/; vendor/php_kml/;');
 F3::set('IMPORTS', 'views/');
-F3::set('CACHE', FALSE); //Enable or disable caching globally
+F3::set('CACHE', FALSE); //Enable or disable caching globally TODO: temporary set to false for testing/dev
 //F3::set('PLUGINS', '');
 
 //Squerly Setup Variables

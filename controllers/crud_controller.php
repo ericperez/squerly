@@ -1,4 +1,24 @@
 <?php
+/**
+  *
+  * Squerly - CRUD Controller
+  * 
+  * Squerly is built on top of the 'Fat-Free Framework (F3)' (@link http://bcosca.github.com/fatfree/)
+  * F3 contains an amazing CRUD/ORM system named 'Axon' which automatically derives the model structure 
+  * and properties based on the database table the model is sync'd to. This controller defines very generic 
+  * routes that complement the 'CRUD' interface that Axon provides so you can add/edit/delete/view/export/search
+  * records from any database table by simply adding them to the 'CRUD_TABLE_WHITELIST' array defined in the
+  * squerly.config.php file under '[Squerly_Root]/config/'
+  * 
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  * 
+  */
+
+
 class Crud_Controller {
   //TODO: consolidate shared code that exists across actions
 
@@ -117,7 +137,6 @@ class Crud_Controller {
     list($model, $model_friendly) = CRUD_Helper::getModelName();
     $record = CRUD::loadRecord($model);
     $record[0]->copyTo('record');
-    F3::set('page_title', 'View ' . $model_friendly . $id . F3::get('PAGE_TITLE_BASE'));
     echo Export::render(array(F3::get('record')), $model);
   }
 
@@ -129,7 +148,7 @@ class Crud_Controller {
     F3::set('page_title', $model_friendly . ' Home ' . F3::get('PAGE_TITLE_BASE'));
     $limit = F3::get('RECORDS_PER_PAGE'); //TODO: Update limit/page to only apply on 'table' view??
     $page = (int) F3::get('GET.page') ?: 1;
-    //TODO: fix issue with {{id}} being parse by F3 templater
+    //TODO: fix issue with {{id}} being parsed by F3 templating system
     echo Export::render(CRUD::loadRecords($limit, $page, false), $model);
   }
 
@@ -165,6 +184,7 @@ class Crud_Controller {
     echo Template::serve('layout.html');
   }
 
+
   //'Search Results' action
   public static function searchResults() {
     list($model, $model_friendly) = CRUD_Helper::getModelName();
@@ -173,7 +193,6 @@ class Crud_Controller {
     F3::set('title', $title);
     F3::set('page_title', $title . F3::get('PAGE_TITLE_BASE'));
     $form_action = F3::get('URL_BASE_PATH') . $model . "/searchresults";
-    //TODO: fix issue with required fields on default search form
     F3::set('form', CRUD_Helper::buildFormFromModel($model, array(), F3::get('GET'), $form_action, 'get'));
     $limit = F3::get('RECORDS_PER_PAGE');
     $page = (int) F3::get('GET.page') ?: 1;
@@ -186,12 +205,13 @@ class Crud_Controller {
 
 
 //Define all the CRUD routes
+//TODO: add permissions handling
 F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model', 'Crud_Controller::index');
 F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/add', 'Crud_Controller::add');
 F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/delete/@id', 'Crud_Controller::delete');
 F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/edit/@id', 'Crud_Controller::edit');
-F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export/@id', 'Crud_Controller::exportOne');
 F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export', 'Crud_Controller::exportMultiple');
+F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export/@id', 'Crud_Controller::exportOne');
 F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/search', 'Crud_Controller::search');
 F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/searchresults', 'Crud_Controller::searchResults');
 F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/view/@id', 'Crud_Controller::view');

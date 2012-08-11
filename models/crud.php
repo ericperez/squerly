@@ -1,9 +1,31 @@
 <?php
-
-//@todo - Add Doc Blocks to all methods
+/**
+  *
+  * Squerly - CRUD class
+  * 
+  * Squerly is built on top of the 'Fat-Free Framework (F3)' (@link http://bcosca.github.com/fatfree/)
+  * F3 contains an amazing CRUD/ORM system named 'Axon' which automatically derives the model structure 
+  * and properties based on the database table the model is sync'd to. This model extends the Axon class
+  * and adds some supporting methods to allow delegation/factory-generation of Axon-based models and
+  * figuring out which record/reocords to load based on $_GET parameters
+  * 
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  * 
+  */
 class CRUD extends Axon {
 
-  //CRUD Factory
+ /**
+  *
+  * CRUD Factory (makes CRUD haha)
+  *
+  * @param string $model CRUD model to instantiate
+  * @return object Instance of CRUD-subclass specified in $model
+  *
+  */
   public static function delegate($model) {
     $class_name = String::modelToClass($model);
     if(@class_exists($class_name) && is_subclass_of($class_name, 'CRUD')) {
@@ -14,8 +36,21 @@ class CRUD extends Axon {
   }
 
 
-  //Load a single record using the AXON ORM
-  //TODO: Clean this up
+ /**
+  *
+  * Load a single record using the AXON ORM
+  * 
+  * This static method tried to determine the record's model + primary ID from $_GET and returns
+  * a CRUD/Axon model object (in an array)
+  *
+  * @param string $model - Name of whitelisted DB table
+  * @see Squerly.config.php - CRUD_TABLE_WHITELIST config item to see what tables are currently whitelisted
+  * @see Crud_Controller
+  * @return array Array with one element containing a CRUD Model instance
+  *
+  * @todo Clean this up
+  * 
+  */
   public static function loadRecord($model, $id = null) {
     $id = is_int($id) ? $id : (int) F3::get('PARAMS["id"]');
     if(empty($id)) { return null; }
@@ -36,7 +71,24 @@ class CRUD extends Axon {
   }
 
 
-  //Load a collection of records using the AXON ORM
+ /**
+  *
+  * Loads a collection of records using the AXON ORM
+  * 
+  * This static method tried to determine the record's model + primary ID from $_GET and returns
+  * a collection of CRUD/Axon model object (in an array)
+  *
+  * @param int $limit Maximum number of records to be returned in one call
+  * @param int $page Pagination control (which 'page' of items is returns)
+  * @param boolean $use_default_model if true, loads records from the 'default model' (@see squerly.config.php)
+  * @param string $where SQL 'WHERE' clause (defaults to building a WHERE clause from $_GET if not explicitly set)
+  * @see Squerly.config.php - RECORDS_PER_PAGE to see/configure the default records per page (pagination) value
+  * @see Crud_Controller
+  * @return array Array with multiple elements each containing a CRUD Model instance
+  *
+  * @todo Consolidate with 'loadRecord' ??
+  * 
+  */
   public static function loadRecords($limit = 0, $page = 0, $use_default_model = false, $where = NULL) {
     list($model, $model_friendly) = CRUD_Helper::getModelName($use_default_model);
     $offset = ($page > 0 && $limit > 0) ? (int) ($page * $limit) - $limit : 0;
@@ -45,12 +97,26 @@ class CRUD extends Axon {
     if($offset > $model_count - ($limit - F3::get('RECORDS_PER_PAGE'))) { 
       $offset = $limit - F3::get('RECORDS_PER_PAGE');
     }
-    $where = SQL::buildWhereFromArray($model, F3::get('GET'));
+    $where = !is_null($where) ? $where : SQL::buildWhereFromArray($model, F3::get('GET'));
     return $records->afind($where, Db_Meta::getPrimaryKeys($model), $limit, $offset);
   }
 
 
-  //Builds a key => name array from a given model
+ /**
+  *
+  * Builds a SQL query from a given database table/model name ($model) which is passed to
+  * SQL::DBOptionlist which returns a key/value array of records in that table.
+  *
+  * This method is very useful for building HTML SELECT option lists where ids/names for one DB table are needed.
+  *
+  * @param string $model - Name of whitelisted DB table
+  * @param string $order_by - SQL 'ORDER BY' clause value that determined the order the records are returned in
+  * @see SQL::DBOptionlist()
+  * @return array Array containing key/value pairs for the specified table
+  *
+  * @todo Consolidate with 'loadRecord' ??
+  * 
+  */
   public static function pairs($model, $order_by = 'pkey ASC') {
     $primary_key = Db_Meta::getPrimaryKeys($model);
     $name_field = Db_Meta::getNameColumn($model);

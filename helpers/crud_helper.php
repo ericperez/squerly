@@ -1,16 +1,49 @@
 <?php 
-
+ /**
+  *
+  * Squerly - CRUD Helpers
+  * 
+  * The methods in CRUD_Helper are supporting functionality for the Squerly CRUD Controller & CRUD/Axon Models
+  *
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  *
+  */
 class CRUD_Helper {
   
-  //Adds the 'universal' prefix defined in the configuration to the model name
-  //TODO: fix this
+
+ /**
+  *
+  * Adds the 'universal' prefix defined in the configuration to the model name
+  *
+  * @param string $model - DB Table/model name
+  * @return string Prefix and Table name concatenated together
+  * 
+  * @todo Fix this! (Currently this does nothing)
+  *
+  */
   public static function addTablePrefix($model) {
     return F3::get('DB_TABLE_PREFIX') . $model;
   }
 
 
-  //Builds a basic HTML Form from a given model/database table based on it's structure
-  //TODO: refactor this to use the depage-form model
+ /**
+  *
+  * Builds a basic HTML Form from a given model/database table based on it's structure
+  *
+  * @param string $model - DB Table/model name
+  * @param array $field_configs Field configuration settings (HTML attributes)
+  * @param array $values Mapping of field values
+  * @param string $form_action URI string describing where the form values should be sent
+  * @param string $form_method GET/POST/etc.
+  * @return string HTML form that mirrors the data structure of DB table
+  * 
+  * @todo refactor this to use the depage-form model
+  * 
+  */
   public static function buildFormFromModel($model, array $field_configs = array(), array $values = array(), $form_action, $form_method = 'post') {
     $output = Form::open($form_action, array('method' => $form_method));
     $output .= '<table><tbody>';
@@ -64,31 +97,31 @@ class CRUD_Helper {
           unset($field_attribs['value'], $field_attribs['type']);
           $options = array('' => '(No Selection)') + CRUD::pairs(Db_Meta::colToTable($field['COLUMN_NAME']));
           $output .= '<td>' . Form::select($field_attribs['name'], $options, $value, $field_attribs) . "</td></tr>\n";
-        break;
+          break;
 
         case 'boolean':
           $value = $field_attribs['value'];
           unset($field_attribs['value'], $field_attribs['type']);
           $options = array('' => '(No Selection)', '1' => 'Yes', '0' => 'No');
           $output .= '<td>' . Form::select($field_attribs['name'], $options, $value, $field_attribs) . "</td></tr>\n";
-        break;
+          break;
 
         case 'select':
           $value = $field_attribs['value'];
           unset($field_attribs['value'], $field_attribs['type']);
           $options = array(); //TODO: get option values from $values
           $output .= '<td>' . Form::select($field_attribs['name'], $options, $value, $field_attribs) . "</td></tr>\n";
-        break;
+          break;
 
         case 'textarea':
           $value = $field_attribs['value'];
           unset($field_attribs['value'], $field_attribs['type']);
           $output .= '<td>' . Form::textarea($field_attribs['name'], $value, $field_attribs) . "</td></tr>\n";
-        break;
+          break;
 
         default: //Handles number, date, datetime, time, and text fields
           $output .= '<td>' . Form::input($field_attribs['name'], $field_attribs['value'], $field_attribs) . "</td></tr>\n";
-        break;
+          break;
       }
     }
     $output .= '<tr><td>&nbsp;</td><td><br/>' . Form::submit('', 'Submit') . '</td></tr>';
@@ -98,8 +131,17 @@ class CRUD_Helper {
   }
 
 
-  //Builds a basic form for delete pages
-  //TODO: this is a temporary method until something better is built
+ /**
+  *
+  * Builds a basic HTML form for CRUD delete routes
+  *
+  * @param string $model - DB Table/model name
+  * @param string $id Primary key/ID value of record to delete
+  * @return string HTML form that POSTs to the record 'delete' route
+  * 
+  * @todo this is a temporary method until something better is built
+  * 
+  */
   public static function buildDeleteForm($model, $id) {
     $model_path = self::getModelPath();
     $csrf_token = 'asdlfj4234oK'; //TODO: generate real token
@@ -113,8 +155,16 @@ class CRUD_Helper {
   }
 
 
-  //Gets the model param from the URI path and checks it against the model whitelist 
-  //If it's in the whitelist it returns the model name/friendly name if found, otherwise sends 404 error
+ /**
+  *
+  * Gets the 'model' param from the URI path and checks it against the model whitelist
+  * 
+  * If it's in the whitelist the model name/friendly name is returned if found, otherwise sends 404 error
+  *
+  * @param boolean $use_default - If true, gets the default model from the DEFAULT_MODEL config item
+  * @return array ('Table Name' => 'Friendly Name')
+  * 
+  */
   public static function getModelName($use_default = false) {
     $model = $use_default ? F3::get('DEFAULT_MODEL') : F3::get('PARAMS.model') ?: '';
     $table = !empty($model) ? CRUD_Helper::addTablePrefix($model) : '';
@@ -129,19 +179,32 @@ class CRUD_Helper {
   }
 
 
-  //Determines the URL path for the current model
+ /**
+  *
+  * Determines the URL path for the current model
+  *
+  * @return string 'URL_BASE_PATH' config item concatenated with the model name
+  * 
+  */
   public static function getModelPath() {
     list($model, $model_friendly) = self::getModelName();
     return F3::get('URL_BASE_PATH') . $model;
   }
 
 
-  //Generates basic navigation array for a given action
-  //TODO: refactor this; permissions, etc.
-  //TODO: set 'action' as a param and retrieve from F3::get('PARAMS.action');
-  //TODO: allow $extra_nav to override defaults
-    //@param $action string - current CRUD 'action'
-  //@param $extra_nav array - additional navigation actions
+ /**
+  *
+  * Generates basic navigation HTML for a given CRUD 'action/route'
+  * 
+  *
+  * @param string $action string CRUD 'action/route'
+  * @param $extra_nav array Additional navigation actions
+  * @return string HTML that allows for basic navigation around the site
+  * 
+  * @todo refactor this; permissions, etc.
+  * @todo set 'action' as a param and retrieve from F3::get('PARAMS.action');
+  * @todo allow $extra_nav to override defaults
+  */
   public static function navigation($action, array $extra_nav = array()) {
     $id = (int) F3::get('PARAMS.id') ?: null;
     list($model, $model_friendly) = CRUD_Helper::getModelName();
@@ -195,15 +258,30 @@ class CRUD_Helper {
   }
 
 
-  //Runs preprocessing on an array of CRUD records (resolving foreign keys, etc.)
+ /**
+  *
+  * Runs preprocessing on an array of CRUD records (resolving foreign keys + more later)
+  *
+  * @param array $records 2D array of CRUD record data
+  * @return array 2D array of CRUD record data after processing
+  * 
+  */
   public static function preprocessRecordData(array $records) {
     $records = Db_Meta::resolveForeignKeys($records);
     return $records;
   }
 
 
-  //Converts SQL field types to their respective input field type
-  //TODO: expand this
+ /**
+  *
+  * Converts SQL field types to their respective HTML input field type
+  *
+  * @param string $sql_type SQL field type to map
+  * @return string Mapped HTML input field type
+  * 
+  * @todo Expand this
+  * 
+  */
   public static function sqlFieldTypeMap($sql_type) {
     $sql_type = preg_replace('/\(.*\)/', '', $sql_type);
     $field_map = array(

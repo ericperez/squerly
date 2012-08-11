@@ -1,8 +1,21 @@
 <?php
-//TODO namespace Squerly;
-
-class Report_Csv extends Report_Base
-{
+/**
+  *
+  * Squerly - CSV-based report class
+  * 
+  * Report_Csv is used to load data from a CSV file/URI and use it within the rest of the reporting framework
+  * 
+  * You should not instantiate this class directly; instead instantiate class 'Report' which has the ability
+  * to delegate to/factory the proper report sub-class based on the 'type' property
+  *
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  *
+  */
+class Report_Csv extends Report_Base {
 
   /**
    *

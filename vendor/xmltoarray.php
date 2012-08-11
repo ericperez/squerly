@@ -57,7 +57,7 @@ class XmlToArray {
       foreach($cols as $path) {
           //append parent's path name to be more descriptive
           if($path->parent !== null) {
-              $header[$i] = ''; //$path->parent->name . "/"; //TODO: this may be necessar to add back for more complicated XML files
+              $header[$i] = ''; //$path->parent->name . "/"; //TODO: this may be necessary to add back for more complicated XML files
           }
           $header[$i] .= $path->name;
           $i++;

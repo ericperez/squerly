@@ -1,5 +1,6 @@
 <?php
 //Renders 2D associative array as a basic HTML table
+//TODO: update render code to use the $config var for customization
 class Export_Table implements Export_Interface {
 
   public static function render(array $data, $filename = NULL, $config = array()) {

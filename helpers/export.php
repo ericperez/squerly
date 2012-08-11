@@ -10,7 +10,7 @@ class Export {
   
     //find the appropriate export plugin; return the rendered results
     $export_plugin = 'Export_' . $output_format;
-    $class_implements = @class_implements($export_plugin) ?: array();
+    $class_implements = @class_implements($export_plugin) ?: array(); //Get plugin interfaces
     if(@class_exists($export_plugin) && in_array('Export_Interface', $class_implements)) {
       return $export_plugin::render($data, $filename);
     } else {

@@ -39,7 +39,7 @@ class Db_Meta {
   }
 
 
-  //Returns an array of (column name => type) or (column name) for a given database table
+  //TODO: finish this
   public static function getColumnsOfType($table, $types, $DBC = 'DB') {
     $table_desc = self::describeTable($table, $DBC);
     $names = Matrix::pick($table_desc, 'COLUMN_NAME');
@@ -140,7 +140,8 @@ class Db_Meta {
         //Don't bother iterating over all rows for a non-fk column
         if(isset($skip_cols[$col])) { continue; } //This is faster than using in_array
         $foreign_table = self::colToTable($col);
-        if(!$foreign_table) { //Not a foreign key
+        //No foreign table found
+        if(!$foreign_table) {
           $skip_cols[$col] = '';
           continue;
         }
@@ -157,6 +158,7 @@ class Db_Meta {
         }
         //Find the 'name' field for a given table
         $name_col = isset($name_cols[$table]) ? $name_cols[$table] : self::getNameColumn($table);
+
         //Find the name of the primary key column
         if(isset($primary_cols[$table])) {
           $primary_key = $primary_cols[$table];
@@ -164,7 +166,7 @@ class Db_Meta {
           $primary_key = self::getPrimaryKeys($table);
           $primary_cols[$table] = $primary_key;
         }
-        if(!$name_col || !$primary_key) { continue; } //TODO: set a warning if this happens
+        if(!$name_col || !$primary_key) { continue; }
         $sql = "SELECT {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val";
         $DBC::sql($sql, array(':pk_val' => $v), 120); //Cache result for two minutes
         $result = F3::get("{$DBC}->result");

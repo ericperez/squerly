@@ -1,8 +1,19 @@
 <?php
-//namespace squerly; //TODO
+/**
+  *
+  * Squerly - SQL Helper class
+  * 
+  * Contains methods to help with the manipulation of SQL statements/strings 
+  * 
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  * 
+  */
+class SQL {
 
-class SQL
-{
   /**
    *
    * stripComments - Strips all the comments off of a SQL query
@@ -63,23 +74,21 @@ class SQL
 
   //Builds a 'WHERE' clause string from an array
   //TODO: update this to allow different conditional operators for each $query_params
+  //TODO: set values as bound parameters
   public static function buildWhereFromArray($model, array $query_params) {
     if(empty($query_params)) { return ''; }
     $db_fields = Db_Meta::columns($model);
     $where = array();
     foreach($query_params as $key => $val) {
       //Don't bother with fields that don't exist on the table or non-numeric values in numeric fields
-      if($val === '' || !isset($db_fields[$key]) || (Db_Meta::isNumericColumn($db_fields[$key]) && !is_numeric($val))) { 
+      $is_numeric_field = Db_Meta::isNumericColumn($db_fields[$key]);
+      $is_numeric_val = is_numeric($val);
+      if($val === '' || !isset($db_fields[$key]) || ($is_numeric_field && !$is_numeric_val)) { 
         continue; 
       }
       //Numeric compare
-      $is_numeric_field = Db_Meta::isNumericColumn($db_fields[$key]);
-      $is_numeric_val = is_numeric($val);
       if($is_numeric_field && $is_numeric_val) { 
         $where[] = " {$key} = {$val} "; 
-      } else if($is_numeric_field && !$is_numeric_val)
-      {
-        //Don't bother checking non-numeric values against numeric fields
       } else { //String compare
         $val = addslashes($val); //TODO: make this more robust
         $where[] = " LOWER({$key}) LIKE LOWER('%{$val}%') ";
@@ -87,6 +96,14 @@ class SQL
     }
     return join($where, ' AND ');
   }
+
+
+ /**
+  *
+  * Prevents the class from being instantiated--all of it's methods should be called statically
+  *
+  */
+  final private function __construct() {}
 
 
 }

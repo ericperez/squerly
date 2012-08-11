@@ -1,15 +1,29 @@
 <?php
-//TODO namespace Squerly;
-
-class Report_Base extends Report_Abstract
-{
+/**
+  *
+  * Squerly - Report base class
+  * 
+  * This class is, as the name suggests, the base class that all other report sub-classes should extend
+  *
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  *
+  */
+class Report_Base extends Report_Abstract {
 
   public $processed_query = '';
   public $bound_params = array(); //TODO: move this
   public $results = array();  
 
 
-  //Syncronize the model with the DB
+ /**
+  *
+  * Syncronize the model with the DB
+  *
+  */
   public function __construct() {
     $this->sync(F3::get('DB_TABLE_PREFIX') . 'report');
   }
@@ -17,7 +31,8 @@ class Report_Base extends Report_Abstract
 
   /**
    *
-   * _isValid - checks report validity
+   * Checks report validity
+   * 
    * @return boolean - True is valid, False if invalid
    *
    */
@@ -26,8 +41,9 @@ class Report_Base extends Report_Abstract
 
   /**
    *
-   * _phpPreprocess - runs the report through PHP buffering to execute any code embedded in the report
-   * @todo - find a better solution than 'eval' for this: http://www.php.net/manual/en/wrappers.data.php#106021 ??
+   * Runs the report through PHP buffering to execute any code embedded in the report
+   * 
+   * @todo find a better solution than 'eval' for this: http://www.php.net/manual/en/wrappers.data.php#106021 ??
    *
    */
   protected function _phpPreprocess() {
@@ -40,7 +56,7 @@ class Report_Base extends Report_Abstract
 
   /**
    *
-   * _preprocessQuery - preprocess in PHP, strips off comments, removes semi-colons, adds identifier comment to report SQL
+   * Preprocess in PHP, strips off comments, removes semi-colons, adds identifier comment to report SQL
    * @param integer $max_return_rows - Maximum number of rows to return in the result set
    *
    */
@@ -49,8 +65,9 @@ class Report_Base extends Report_Abstract
 
   /**
    *
-   * _phpPostprocess - runs the results of the report query through PHP post-processing
-   * @note $postprocess_function accepts the results of the report as '$results', processes it, and should return the modified results
+   *  Runs the results of the report query through PHP post-processing
+   * 
+   *  @note $postprocess_function accepts the results of the report as '$results', processes it, and should return the modified results
    *
    */
   protected function _phpPostprocess() {
@@ -61,7 +78,7 @@ class Report_Base extends Report_Abstract
 
   /**
    *
-   * _postprocessQuery - runs the results of the report query through any necessary post-processing
+   *  Runs the results of the report query through any necessary post-processing
    *
    */
   protected function _postprocessResults() {}
@@ -69,7 +86,7 @@ class Report_Base extends Report_Abstract
 
   /**
    *
-   * getResults - Runs the report query against the data source and returns the results
+   * Runs the report query against the data source and returns the results
    * @param integer $max_return_rows - Maximum number of rows to return in the result set
    *
    */
@@ -78,7 +95,7 @@ class Report_Base extends Report_Abstract
 
   /**
    *
-   * getColumns - Returns the column names for a given report
+   * Returns the column names for a given report
    *
    */
   public function getColumns() {}
@@ -86,7 +103,7 @@ class Report_Base extends Report_Abstract
 
   /**
    *
-   * getData - Retrieves the initial results data from the data source
+   * Retrieves the initial results data from the data source
    *
    */
   public function getData() {}
@@ -94,7 +111,7 @@ class Report_Base extends Report_Abstract
 
   /**
    *
-   * getFormConfig - Returns the form configuration for a given report
+   * Returns the form configuration for a given report
    *
    */
   public function getFormConfig() {}

@@ -1,8 +1,22 @@
 <?php
-//TODO namespace Squerly;
+/**
+  *
+  * Squerly - SQL-based report class
+  * 
+  * Report_Sql is used to load data from a SQL database and use it within the rest of the reporting framework
+  * 
+  * You should not instantiate this class directly; instead instantiate class 'Report' which has the ability
+  * to delegate to/factory the proper report sub-class based on the 'type' property
+  *
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  *
+  */
+class Report_Sql extends Report_Base {
 
-class Report_Sql extends Report_Base
-{
   const REPORT_DISALLOWED_KEYWORD = 'Disallowed keyword found in report; aborting.';
   const REPORT_NOT_SELECT_STATEMENT = 'Report query must be a SELECT statment; aborting.';
   const NUM_PREVIEW_ROWS = 10;

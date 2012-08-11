@@ -1,4 +1,17 @@
 <?php
+/**
+  *
+  * Squerly - Index
+  *
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  *
+  */
+
+
 require __DIR__ . '/lib/base.php'; //Fat-Free Framework (F3) core code
 require __DIR__ . '/config/squerly.config.php'; //Squerly configuration settings
 require __DIR__ . '/models/crud.php'; 
