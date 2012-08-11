@@ -52,8 +52,11 @@ class Crud_Controller {
     F3::set('title', $title);
     F3::set('page_title', $title . F3::get('PAGE_TITLE_BASE'));
     $csrf_token = 'QOFJq34igj3'; //TODO: generate real token
-    $form_action = F3::get('URL_BASE_PATH') . $model . "/add/token/{$csrf_token}";
-    F3::set('form', CRUD_Helper::buildFormFromModel($model, array(), array(), $form_action, 'post'));
+    $form_config = array(
+      'action' => F3::get('URL_BASE_PATH') . $model . "/add/token/{$csrf_token}",
+      'method' => 'post',
+    );
+    F3::set('form', CRUD_Helper::buildFormFromModel($model, array(), array(), $form_config));
     F3::set('flash_msgs', Notify::renderAll());
     echo Template::serve('layout.html');
   }
@@ -68,10 +71,13 @@ class Crud_Controller {
     F3::set('title', $title);
     F3::set('page_title', $title . F3::get('PAGE_TITLE_BASE'));
     $csrf_token = 'QOFJq34igj3'; //TODO: generate real token
-    $form_action = F3::get('URL_BASE_PATH') . $model . "/edit/${id}/token/{$csrf_token}";
     $record = CRUD::loadRecord($model);
     $record[0]->copyTo('record');
-    F3::set('form', CRUD_Helper::buildFormFromModel($model, array(), F3::get('record'), $form_action, 'post'));
+    $form_config = array(
+      'action' => F3::get('URL_BASE_PATH') . $model . "/edit/${id}/token/{$csrf_token}",
+      'method' => 'post',
+    );
+    F3::set('form', CRUD_Helper::buildFormFromModel($model, array(), F3::get('record'), $form_config));
     F3::set('flash_msgs', Notify::renderAll());
     echo Template::serve('layout.html');
   }
@@ -178,8 +184,11 @@ class Crud_Controller {
     $title = 'Search ' . $model_friendly . ' Records';
     F3::set('title', $title);
     F3::set('page_title', $title . F3::get('PAGE_TITLE_BASE'));
-    $form_action = F3::get('URL_BASE_PATH') . $model . "/searchresults";
-    F3::set('form', CRUD_Helper::buildFormFromModel($model, array(), array(), $form_action, 'get'));
+    $form_config = array(
+      'action' => F3::get('URL_BASE_PATH') . $model . "/searchresults",
+      'method' => 'get',
+    );
+    F3::set('form', CRUD_Helper::buildFormFromModel($model, array(), array(), $form_config));
     F3::set('flash_msgs', Notify::renderAll());
     echo Template::serve('layout.html');
   }
@@ -192,11 +201,22 @@ class Crud_Controller {
     $title = $model_friendly . ' Search Results';
     F3::set('title', $title);
     F3::set('page_title', $title . F3::get('PAGE_TITLE_BASE'));
-    $form_action = F3::get('URL_BASE_PATH') . $model . "/searchresults";
-    F3::set('form', CRUD_Helper::buildFormFromModel($model, array(), F3::get('GET'), $form_action, 'get'));
+    $form_config = array(
+      'action' => F3::get('URL_BASE_PATH') . $model . "/searchresults",
+      'method' => 'get',
+      'header' => 'Perform Another Search',
+      'collapsed' => true
+    );
+    F3::set('form', CRUD_Helper::buildFormFromModel($model, array(), array(), $form_config));
     $limit = F3::get('RECORDS_PER_PAGE');
     $page = (int) F3::get('GET.page') ?: 1;
-    F3::set('content', Export::render(CRUD::loadRecords($limit, $page, false), $model, 'table'));
+    $records = CRUD::loadRecords($limit, $page, false);
+    if(!empty($records)) {
+      F3::set('content', Export::render(CRUD_Helper::preprocessRecordData($records), $model, 'table'));
+    } else {
+      $records_name = Inflector::plural($model_friendly);
+      F3::set('content', "No {$records_name} match the specified criteria.");
+    }
     F3::set('flash_msgs', Notify::renderAll());
     echo Template::serve('layout.html');
   }

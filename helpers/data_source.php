@@ -19,12 +19,13 @@ class Data_Source {
       $row = 1;
       $output = array();
       while(($data = fgetcsv($handle)) !== FALSE) {
+        //Build the header/column names
         if($row === 1) {
           $header = $data; 
           $row++;
           continue;
         }
-        $output[] = array_combine($header, $data);
+        $output[] = array_combine($header, array_map('trim', $data));
         if($max_rows > 0 && $row++ > $max_rows) { break; }
       }
       fclose($handle);

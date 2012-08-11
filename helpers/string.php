@@ -1,9 +1,29 @@
 <?php
-
+/**
+  *
+  * Squerly - String Helper class
+  * 
+  * Contains methods to help with manipulating strings
+  * 
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  * 
+  */
 class String {
   
-  //'Humanize' a machine-friendly string
-  //TODO: Make this more robust
+ /**
+  *
+  * 'Humanize' a string formatted for a machine (e.g. 'field_name' -> 'Field Name')
+  *
+  * @param string $input Input string to format
+  * @return string 'Human-friendly' string
+  *
+  * @todo Make this more robust
+  * 
+  */
   public static function humanize($input) {
     $replacements = array(
       '/ Id$/'       => '',
@@ -25,22 +45,42 @@ class String {
   }
 
 
-  //Strip spaces and uppercase from a string to make it 'machine-friendly' e.g. for database field names
-  //@param $input string - Input to convert
-  //@param $uc_words boolean - If true, the returned value has words upper-cased
+ /**
+  *
+  * Strip spaces and uppercase from a string to make it 'machine-friendly' e.g. for database field names
+  *
+  * @param string $input Input string to format
+  * @param boolean $uc_words If true, the returned value has words upper-cased
+  * @return string 'Machine/DB-friendly' string
+  * 
+  */
   public static function machine($input, $uc_words = false) {
     return preg_replace(array('/ /', '/[^0-9a-zA-Z_]/'), array('_', ''), 
       ($uc_words) ? ucwords(strtolower($input)) : strtolower($input));
   }
 
 
-  //Strips 'C'-style comments off of a string (single line and multiline)
+ /**
+  *
+  * Strips 'C'-style comments off of a string (single line and multiline)
+  *
+  * @param string $input Input string to format
+  * @return string Input string with comments stripped off
+  * 
+  */
   public static function stripComments($input) {
     return trim(preg_replace('/((\/\/).*)|(\/\\*).*(\*\/)/', '', $input));
   }
 
 
-  //Turns a model/table name into a class name
+ /**
+  *
+  * Turns a model/table name into a class name
+  *
+  * @param string $input Input string to format
+  * @return string Input string with comments stripped off
+  * 
+  */
   public static function modelToClass($model) {
     return str_replace(' ', '_', ucwords(str_replace('_', ' ', strtolower($model))));
   }

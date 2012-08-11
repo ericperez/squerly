@@ -44,9 +44,13 @@ class CRUD_Helper {
   * @todo refactor this to use the depage-form model
   * 
   */
-  public static function buildFormFromModel($model, array $field_configs = array(), array $values = array(), $form_action, $form_method = 'post') {
+  public static function buildFormFromModel($model, array $field_configs = array(), array $values = array(), array $form_config = array()) {
+    $form_header = isset($form_config['header']) ? '<h3>' . $form_config['header'] . '</h3><br/>' : '';
+    $form_method = isset($form_config['method']) ? $form_config['method'] : 'post';
+    $form_action = isset($form_config['action']) ? $form_config['action'] : '#'; //Post to current URI as default
+
     $output = Form::open($form_action, array('method' => $form_method));
-    $output .= '<table><tbody>';
+    $output .= $form_header . '<table><tbody>';
     $table_desc = Db_Meta::describeTable($model);
     
     //Array of fields to not render in the form

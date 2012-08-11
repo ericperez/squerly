@@ -19,6 +19,8 @@ class Export_Table implements Export_Interface {
     {
       $table .= '<tr>';
       foreach($row as $cell) {
+        $cell = trim($cell);
+        if($cell === '') { $cell = '&nbsp;'; }
         $table .= "<td>{$cell}</td>";
       }
       $table .= "</tr>\n";
