@@ -1,8 +1,31 @@
 <?php
-//Renders 2D array in XML format
+/**
+  *
+  * Squerly - XML file export class
+  * 
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  * 
+  */
 class Export_Xml implements Export_Interface {
 
-  //TODO: allow encoding to be passed in; allow DOM root/child node names to be configured
+/**
+  *
+  * Renders 2D array in XML format
+  * 
+  * @param array $data 2D associative array of data to be exported
+  * @param string $filename Name of file that will hold the XML results
+  * @param array $config Array of configuration settings (currently unused)
+  * @return string XML-encoded representation of input data
+  *
+  * @todo Allow encoding to be passed in; allow DOM root/child node names to be configured
+  * @todo Update render code to use the $config var for customization
+  * @todo Set 'download' headers if filename is not null
+  * 
+  */
   public static function render(array $data, $filename = NULL, $config = array()) {
     $xml_obj = simplexml_load_string("<?xml version='1.0' encoding='utf-8'?><records />");
     foreach ($data as $row) {
@@ -13,7 +36,6 @@ class Export_Xml implements Export_Interface {
         $row_obj->addChild($key, $val);
       }
     }
-    //TODO: set download headers if filename set
     header ("Content-Type:text/xml");
     return !empty($filename) ? $xml_obj->saveXML() : $xml_obj->saveXML($filename); 
   }

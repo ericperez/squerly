@@ -1,18 +1,36 @@
 <?php
-//TODO: add namespace
-
+/**
+  *
+  * Squerly - CSV file export class
+  * 
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  * 
+  */
 class Export_Csv implements Export_Interface {
 
-  //Renders report results as a CSV file
-  public static function render(array $report_data, $filename = 'export', $config = array()) {
+/**
+  *
+  * Renders 2D associative array data as a CSV file
+  * 
+  * @param array $data 2D associative array of data to be exported
+  * @param string $filename Name of file that will hold the CSV results
+  * @param array $config Array of configuration settings (currently unused)
+  * @return string comma-separated values representing input data
+  *
+  */
+  public static function render(array $data, $filename = 'export', $config = array()) {
     $file = fopen('php://temp/maxmemory:'. (32*1024*1024), 'r+'); //32MB max before swap
 
     //Output the header row
-    $header = array_keys($report_data[0]);
+    $header = array_keys($data[0]);
     fputcsv($file, $header, ',', '"');
 
     //Output the report results
-    foreach($report_data as $data_row) {
+    foreach($data as $data_row) {
       fputcsv($file, $data_row, ',', '"');
     }
     rewind($file);

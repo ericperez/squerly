@@ -22,7 +22,7 @@ class CRUD_Helper {
   * @param string $model - DB Table/model name
   * @return string Prefix and Table name concatenated together
   * 
-  * @todo Fix this! (Currently this does nothing)
+  * @todo Fix this! (Currently this method does nothing)
   *
   */
   public static function addTablePrefix($model) {

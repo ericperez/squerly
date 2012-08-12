@@ -1,13 +1,34 @@
 <?php
-
+/**
+  *
+  * Squerly - Highcharts JSON export class
+  * 
+  * Note: Highcharts is NOT free to use for commercial sites; see license below
+  * @link http://shop.highsoft.com/highcharts.html
+  * 
+  * @author Eric Perez <ericperez@squerly.net>
+  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @license GNU General Public License, version 3 or later
+  * @license http://opensource.org/licenses/gpl-3.0.html
+  * @link http://www.squerly.net
+  * 
+  */
 class Export_Highcharts implements Export_Interface {
 
-  //Utilizes Highroller PHP library to render 2D array data as a Highcharts configuration JSON string
+/**
+  *
+  * Renders 2D array as a Highcharts JSON configuration string
+  * 
+  * Utilizes Highroller PHP library to render 2D array data as a Highcharts configuration JSON string
+  * @link http://highroller.io
+  * 
+  * @param array $data 2D associative array of data to be exported
+  * @param string $filename Currently used to generate the chart title (@todo use $config)
+  * @param array $config Array of configuration settings (currently unused)
+  * @return string Highcharts JSON configuration string
+  *
+  */
   public static function render(array $data, $filename = NULL, $config = array()) {
-    require_once(__DIR__ . '/../vendor/HighRoller.php');
-    require_once(__DIR__ . '/../vendor/HighRollerSeriesData.php');
-    if(!isset($data[0])) { return '{}'; } //Empty data set, nothing to graph
-
     $chart = new HighRoller();
 
     //TODO: all of these settings should be customizable through $config
@@ -25,8 +46,8 @@ class Export_Highcharts implements Export_Interface {
 
     //Cycle through each column of data and convert it into a series on the chart
     $column_num = 0;
-    $columns = array_keys($data[0]);
-    foreach($columns as $col_name) {
+    $column_names = array_keys($data[0]);
+    foreach($column_names as $col_name) {
       // First column contains the X-Axis labels
       if($column_num === 0) { 
         $chart->xAxis->categories = Matrix::pick(&$data, $col_name);
