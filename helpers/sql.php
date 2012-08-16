@@ -96,7 +96,7 @@ class SQL {
     $where = array();
     foreach($query_params as $key => $val) {
       //Don't bother with fields that don't exist on the table or non-numeric values in numeric fields
-      $is_numeric_field = Db_Meta::isNumericColumnType($db_fields[$key]);
+      $is_numeric_field = isset($db_fields[$key]) ? Db_Meta::isNumericColumnType($db_fields[$key]) : false;
       $is_numeric_val = is_numeric($val);
       if($val === '' || !isset($db_fields[$key]) || ($is_numeric_field && !$is_numeric_val)) { 
         continue; 
