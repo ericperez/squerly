@@ -16,12 +16,16 @@ require __DIR__ . '/../vendor/Mustache/Loader/StringLoader.php';
 
 class Mustache_Helper
 {
+  const EMPTY_TAG_PATTERN = "[[[**NO_VALUE**]]]";
+
   /**
    *
    * Returns an array of all template tags/substitution variables
-   * @param $input string - 'tagged' input
-   * @param $prefix_char boolean - adds a prefix to each returned variable
-   * @return array - contains all 
+   * 
+   * @param string $input 'tagged' input
+   * @param boolean $prefix_char adds a prefix to each returned variable
+   * @return array Contains all the inside contents of the template tags with or without a prefix
+   * 
    * @todo Allow custom tag openers/closers
    *
    */
@@ -39,9 +43,10 @@ class Mustache_Helper
   /**
    *
    * Static method to render a template using the mustache templating engine
-   * @param $template string - 'tagged' input template
-   * @param $vars array - array of tags => values to be substituted in $input
-   * @return array - all the template tags contained in $template
+   * 
+   * @param string $template 'Tagged' input template
+   * @param array $vars Array of tags => values to be substituted in $input
+   * @return string Template with Vars populated/substituted
    */
   public static function render($template, array $vars) {
     $mustache = new Mustache_Engine();
@@ -51,23 +56,66 @@ class Mustache_Helper
 
   /**
    *
+   * Static method to iterate over all of an object's properties and run them through
+   *  the templating engine
+   * 
+   * @param object $object Object who's properties will be run through the templating engine
+   * @param array $vars Array of tags => values to be substituted in $input
+   */
+  public static function renderObject(&$object, array $vars) {
+    //Special case for Axon classes (due to 'magic' nature of properties)
+    if(is_object($object) && is_subclass_of($object, 'Axon')) {
+      $work_object = (object) $object->cast();
+    } else {
+      $work_object = $object;
+    }
+
+    $mustache = new Mustache_Engine();
+    foreach($work_object as $key => $property) {
+      if(is_string($property)) {
+        $object->$key = $mustache->render($property, $vars); 
+      }
+    }
+    return $object;
+  }
+
+
+  /**
+   *
    * Static method to render a SQL template and generate an array of bound parameters
-   * @param $template string - 'tagged' input template
-   * @param 
-   * @return arrays - SQL query with tags replaced with bound parameter placeholders / array of bound parameters
+   * 
+   * @param string $template 'Tagged' input template
+   * @param array $values Associative array with values to fill into $sql_template
+   * @return array SQL query with tags replaced with bound parameter placeholders / array of bound parameters
    *
    */
   public static function renderSQL($sql_template, $values) {
-    $template_params = self::vars($sql_template, ':');
     $template_keys = self::vars($sql_template);
+    $template_params = self::vars($sql_template, ':');
     $template_tags = array();
-    foreach($template_keys as $tag) {
-      $template_tags[$tag] = array_key_exists($tag, $values) ? $values[$tag] : '';
+
+    //Figure out if values for each template tag were provided
+    foreach($template_keys as $key) {
+      $template_tags[$key] = (array_key_exists($key, $values)) ? $values[$key] : '';
     }
-    //TODO: remove lines with tags that are not required
-    $template_vars = (sizeof($template_params) && sizeof($template_tags)) ? 
+
+    //Create a combined array of keys and bound parameter placeholders
+    $template_vars = (sizeof($template_keys) && sizeof($template_params)) ? 
       array_combine($template_keys, $template_params) : array();
-    $bound_sql = self::render($sql_template, $template_vars);
+
+    //Swap out any non-provided or empty-string values with a special identifier (for later removal)
+    foreach($template_vars as $key => &$param) {
+      $param = (!array_key_exists($key, $values) || $values[$key] === '') ? 
+        self::EMPTY_TAG_PATTERN : $param;
+    }
+
+    //Remove lines from the SQL query that have template tags in them with no values
+    $sql_lines = explode(PHP_EOL, self::render($sql_template, $template_vars));
+    $bound_sql = '';
+    foreach($sql_lines as $line) {
+      if(strpos($line, self::EMPTY_TAG_PATTERN)) { continue; }
+      $bound_sql .= $line . PHP_EOL;
+    }
     return array($bound_sql, $template_tags);
   }
 
