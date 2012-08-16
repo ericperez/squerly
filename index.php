@@ -39,4 +39,5 @@ F3::route('GET ' . F3::get('URL_BASE_PATH'),
 );
 
 session_start();
+Crud_Controller::setUpRoutes();
 F3::run();

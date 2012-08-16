@@ -99,7 +99,6 @@ CREATE TABLE `input_widget` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_input_widget_htmlid` (`html_id`)
 ) ENGINE=innoDB;
-
+  -- UNIQUE KEY `uk_input_widget_htmlid` (`html_id`)
 

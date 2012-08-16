@@ -16,9 +16,10 @@ class SQL {
 
   /**
    *
-   * stripComments - Strips all the comments off of a SQL query
-   * @param $sql string - input SQL
-   * @return string - input SQL with all comments stripped off
+   * Strips all the comments off of a SQL query
+   * 
+   * @param string $sql input SQL
+   * @return string Input SQL with all comments stripped off
    *
    */
   public static function stripComments($sql) {
@@ -28,10 +29,11 @@ class SQL {
 
   /**
    *
-   * overrideLimit - Sets or replaces the LIMIT clause value for a given SQL query
-   * @param $sql string - Input SQL
-   * @param $new_limit integer - New LIMIT clause value
-   * @return $string - SQL with new LIMIT clause set
+   * Sets or replaces the LIMIT clause value for a given SQL query
+   * 
+   * @param string $sql Input SQL
+   * @param int $new_limit New LIMIT clause value
+   * @return string SQL with new LIMIT clause set
    *
    */
   public static function overrideLimit($sql, $new_limit) {
@@ -50,11 +52,13 @@ class SQL {
 
   /**
    *
-   * DBOptionlist - generates an array suitable for building an HTML SELECT 'option list' from a database query
+   * Generates an array suitable for building an HTML SELECT 'option list' from a database query
+   * 
+   * @param string $query SQL SELECT query to fetch option list values [first col becomes array key (should be unique); second col becomes array value]
+   * @param string $DBC Database connection name
+   * @return array
+   * 
    * @todo find a more appropriate place for this
-   * @param $query string - SQL SELECT query to fetch option list values [first col becomes array key (should be unique); second col becomes array value]
-   * @param $DBC string - Database connection name
-   * @return $array  
    * 
    */
   public static function DBOptionlist($query, $DBC = 'DB') { 
@@ -62,7 +66,7 @@ class SQL {
     $output = array();
     foreach(F3::get("${DBC}->result") as $row => $values) {
       $val_temp = array_values($values);
-      if(!isset($val_temp[0]) || !isset($val_temp[1])) { throw new exception('SQL::DBOptionlist query must return two columns.'); }
+      if(!isset($val_temp[0]) || !isset($val_temp[1])) { F3::error('', 'SQL::DBOptionlist query must return two columns.'); }
       $val_temp[0] = htmlentities($val_temp[0]);
       $val_temp[1] = htmlentities($val_temp[1]);
       $output[$val_temp[0]] = $val_temp[1];
@@ -72,16 +76,27 @@ class SQL {
   }
 
 
-  //Builds a 'WHERE' clause string from an array
-  //TODO: update this to allow different conditional operators for each $query_params
-  //TODO: set values as bound parameters
-  public static function buildWhereFromArray($model, array $query_params) {
+  /**
+   *
+   * Builds a SQL 'WHERE' clause string from an array
+   * 
+   * @param string $table Database table name
+   * @param array $query_params Array of key/value pairs to convert to 'WHERE' conditions
+   * @param string $DBC Database connection name
+   * @return $array
+   * 
+   * @todo Find a more appropriate place for this
+   * @todo Update this to allow different conditional operators for each $query_params
+   * @todo Set values as bound parameters
+   * 
+   */
+  public static function buildWhereFromArray($table, array $query_params, $DBC = 'DB') {
     if(empty($query_params)) { return ''; }
-    $db_fields = Db_Meta::columns($model);
+    $db_fields = Db_Meta::columns($table, $DBC);
     $where = array();
     foreach($query_params as $key => $val) {
       //Don't bother with fields that don't exist on the table or non-numeric values in numeric fields
-      $is_numeric_field = Db_Meta::isNumericColumn($db_fields[$key]);
+      $is_numeric_field = Db_Meta::isNumericColumnType($db_fields[$key]);
       $is_numeric_val = is_numeric($val);
       if($val === '' || !isset($db_fields[$key]) || ($is_numeric_field && !$is_numeric_val)) { 
         continue; 
