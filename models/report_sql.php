@@ -83,8 +83,7 @@ class Report_Sql extends Report_Base {
     $this->processed_query = SQL::stripComments($this->processed_query); //Strip off all comments
     $this->processed_query = str_replace(';', '', $this->processed_query); //Remove all semi-colons (prevents multiple SQL statements from being run)
     //Swap out the mustache/template tags with bound-parameter placeholders and gets an array of bound parameters/values
-    $values = F3::get('GET');
-    list($this->processed_query, $this->bound_params) = Mustache_Helper::renderSQL($this->processed_query, $values);
+    list($this->processed_query, $this->bound_params) = Mustache_Helper::renderSQL($this->processed_query, F3::get('GET'));
     if($preview) { 
       $this->processed_query = SQL::overrideLimit($this->processed_query, self::NUM_PREVIEW_ROWS); 
     }
