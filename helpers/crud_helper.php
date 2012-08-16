@@ -13,7 +13,6 @@
   *
   */
 class CRUD_Helper {
-  
 
  /**
   *
@@ -37,26 +36,26 @@ class CRUD_Helper {
   * @param string $model - DB Table/model name
   * @param array $field_configs Field configuration settings (HTML attributes)
   * @param array $values Mapping of field values
-  * @param string $form_action URI string describing where the form values should be sent
-  * @param string $form_method GET/POST/etc.
+  * @param array $form_config Configuration including URI string describing where the form values should be sent
+  * @param string Database connection variable name
   * @return string HTML form that mirrors the data structure of DB table
   * 
   * @todo refactor this to use the depage-form model
   * 
   */
-  public static function buildFormFromModel($model, array $field_configs = array(), array $values = array(), array $form_config = array()) {
+  public static function buildFormFromModel($model, array $field_configs = array(), array $values = array(), array $form_config = array(), $DBC = 'DB') {
     $form_header = isset($form_config['header']) ? '<h3>' . $form_config['header'] . '</h3><br/>' : '';
     $form_method = isset($form_config['method']) ? $form_config['method'] : 'post';
     $form_action = isset($form_config['action']) ? $form_config['action'] : '#'; //Post to current URI as default
 
     $output = Form::open($form_action, array('method' => $form_method));
     $output .= $form_header . '<table><tbody>';
-    $table_desc = Db_Meta::describeTable($model);
+    $table_desc = Db_Meta::describeTable($model, $DBC);
     
     //Array of fields to not render in the form
     //TODO: expand this list
     $skip_fields = array('created_at', 'updated_at', 'edited_at', 'added_at', 'editstamp', 'updatestamp', 
-      'edit_stamp', 'update_stamp', 'last_update', 'last_edit');
+      'edit_stamp', 'update_stamp', 'last_update', 'last_edit', 'last_edited_at', 'last_updated_at');
 
     $foreign_keys = Db_Meta::getForeignKeys($model);
 
@@ -161,6 +160,22 @@ class CRUD_Helper {
 
  /**
   *
+  * Retrieves form markup based on a PHP class name
+  *
+  * @param string $class PHP class name that contains the form configuration info
+  * @return string Form markup
+  *
+  */
+  public static function getForm($class) {
+    if(is_null($class)) { return null; }
+    $class_implements = (@class_exists($class) && @class_implements($export_plugin)) ?: array();
+    if(!in_array('Form_Interface', $class_implements)) { F3::error('', "Form class must implement 'Form_Interface'"); }
+    //TODO: finish this...
+  }
+
+
+ /**
+  *
   * Gets the 'model' param from the URI path and checks it against the model whitelist
   * 
   * If it's in the whitelist the model name/friendly name is returned if found, otherwise sends 404 error
@@ -212,36 +227,39 @@ class CRUD_Helper {
   public static function navigation($action, array $extra_nav = array()) {
     $id = (int) F3::get('PARAMS.id') ?: null;
     list($model, $model_friendly) = CRUD_Helper::getModelName();
+    $model_plural = Inflector::plural($model_friendly);
     $model_path = CRUD_Helper::getModelPath();
     $add_index = true;
 
+    //TODO: This should be able to read the CRUD routes and be generated from that
     $nav_arr = array(
-      'home' => array('Home' => F3::get('URL_BASE_PATH')),
-      'index' => array('Back to Index' => $model_path),
-      'add' => array("Add {$model_friendly}" => $model_path . "/add"),
-      'edit' => array("Edit {$model_friendly} {$id}" => $model_path . "/edit/{$id}"),
+      'home'   => array('Home' => F3::get('URL_BASE_PATH')),
+      'index'  => array('Back to Index' => $model_path),
+      'add'    => array("Add {$model_friendly}" => $model_path . "/add"),
+      'edit'   => array("Edit {$model_friendly} {$id}" => $model_path . "/edit/{$id}"),
       'delete' => array("Delete {$model_friendly} {$id}" => $model_path . "/delete/{$id}"),
-      'view' => array("View {$model_friendly} {$id}" => $model_path . "/view/{$id}"),
+      'view'   => array("View {$model_friendly} {$id}" => $model_path . "/view/{$id}"),
+      'search' => array("Search {$model_plural}" => $model_path . "/search"),
     );
 
     $nav = array();
 
     switch($action) {
       case 'edit':
-        $nav = array($nav_arr['view'], $nav_arr['delete']);
+        $nav = array($nav_arr['view'], $nav_arr['delete'], $nav_arr['search']);
         break;
 
       case 'delete':
-        $nav = array($nav_arr['view'], $nav_arr['edit']);
+        $nav = array($nav_arr['view'], $nav_arr['edit'], $nav_arr['search']);
         break;
 
       case 'view':
-        $nav = array($nav_arr['edit'], $nav_arr['delete']);
+        $nav = array($nav_arr['edit'], $nav_arr['delete'], $nav_arr['search']);
         break;
 
       case 'index':
         $add_index = false;
-        $nav = array($nav_arr['add']);
+        $nav = array($nav_arr['add'], $nav_arr['search']);
         break;
 
       case 'add';
