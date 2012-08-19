@@ -7,7 +7,7 @@
   * F3 contains an amazing CRUD/ORM system named 'Axon' which automatically derives the model structure 
   * and properties based on the database table the model is sync'd to. This model extends the Axon class
   * and adds some supporting methods to allow delegation/factory-generation of Axon-based models and
-  * figuring out which record/reocords to load based on $_GET parameters
+  * figuring out which record/records to load based on GET parameters
   * 
   * @author Eric Perez <ericperez@squerly.net>
   * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
@@ -113,8 +113,6 @@ class CRUD extends Axon {
   * @param string $order_by - SQL 'ORDER BY' clause value that determined the order the records are returned in
   * @see SQL::DBOptionlist()
   * @return array Array containing key/value pairs for the specified table
-  *
-  * @todo Consolidate with 'loadRecord' ??
   * 
   */
   public static function pairs($model, $order_by = 'pkey ASC') {

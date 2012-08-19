@@ -31,7 +31,7 @@ class Data_Source {
   public static function loadSQL($bound_sql_query, $bound_params, $DBC = 'DB', $cache_expiry = null) {
     //If cache not set, use default; if default not set, expire immediately
     $cache_expiry = $cache_expiry ?: F3::get('REPORT_CACHE_EXPIRE') ?: 0;
-    $DBC::sql($bound_sql_query, $bound_params);
+    DB::sql($bound_sql_query, $bound_params, $cache_expiry, $DBC);
     $output = F3::get("${DBC}->result");
     F3::clear("${DBC}->result");
     return $output;

@@ -285,7 +285,7 @@ class Db_Meta {
         }
         if(!$name_col || !$primary_key) { continue; }
         $sql = "SELECT {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val";
-        $DBC::sql($sql, array(':pk_val' => $v), 120); //Cache result for two minutes
+        DB::sql($sql, array(':pk_val' => $v), 120, $DBC); //Cache result for two minutes
         $result = F3::get("{$DBC}->result");
         if(!$result) { continue; } //No match found
         $v = $result[0][$name_col];

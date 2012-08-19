@@ -140,7 +140,7 @@ class Report_Sql extends Report_Base {
    *
    */
   public function getData() {
-    $this->results = Data_Source::loadSQL($this->processed_query, $this->bound_params);
+    $this->results = Data_Source::loadSQL($this->processed_query, $this->bound_params, 'DB_Report');
   }
 
 

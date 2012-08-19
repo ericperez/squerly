@@ -62,7 +62,7 @@ class SQL {
    * 
    */
   public static function DBOptionlist($query, $DBC = 'DB') { 
-    $DBC::sql($query);
+    DB::sql($query, NULL, 0, $DBC);
     $output = array();
     foreach(F3::get("${DBC}->result") as $row => $values) {
       $val_temp = array_values($values);

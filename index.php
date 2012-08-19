@@ -17,7 +17,6 @@ require __DIR__ . '/config/squerly.config.php'; //Squerly configuration settings
 require __DIR__ . '/models/crud.php'; 
 //TODO: autoload these or 'require' in a loop
 require __DIR__ . '/controllers/auth_controller.php';
-require __DIR__ . '/controllers/crud_controller.php';
 require __DIR__ . '/controllers/report_controller.php';
 require __DIR__ . '/vendor/depage-forms/htmlform.php'; //depage forms library
 

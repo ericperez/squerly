@@ -32,6 +32,7 @@ class Export {
     //Read output format/context from $output_format or $_GET
     $output_param = isset($_GET['context']) ? String::modelToClass($_GET['context']) : 'table';
     $output_format = (!empty($output_format)) ? $output_format : $output_param;
+    $output_format = $output_format ?: 'table';
   
     //find the appropriate export plugin; return the rendered results
     $export_plugin = 'Export_' . $output_format;

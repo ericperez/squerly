@@ -54,7 +54,7 @@ class Zend_Db_Adapter_Pdo_Pgsql
              . "AND NOT EXISTS (SELECT 1 FROM pg_user WHERE usesysid = c.relowner) "
              . "AND c.relname !~ '^pg_'";
 
-        $DBC::sql($sql);
+        DB::sql($sql, NULL, 60, $DBC);
         return F3::get("{$DBC}->result");
     }
 

@@ -26,10 +26,16 @@ class Crud_Controller Implements Crud_Controller_Interface {
   //CRUD controller itself uses default forms (empty array)
   protected static $_forms = array();
 
-  //Set up all the CRUD routes
-  //TODO: docblock
+ /**
+  *
+  * Set up all the CRUD routes
+  *   
+  *
+  */
   public static function setUpRoutes() {
     //TODO: add permissions handling
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/optionlist', 'Crud_Controller::optionlist');
+
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model', 'Crud_Controller::index');
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/add', 'Crud_Controller::add');
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/delete/@id', 'Crud_Controller::delete');
@@ -284,28 +290,20 @@ class Crud_Controller Implements Crud_Controller_Interface {
 
  /**
   *
-  * 'View Record' action
-  *
-  * @param boolean $try_to_delegate If true, an attempt will be made to find a Crud_Controller-extending
-  *   class (based on the model name) and run code in it's 'view' method; if false, standard CRUD code is run
+  * 'Pairs' Action - Echos ID/name value pairs for a given model as an HTML select
   * 
+  * @todo: Allow config to be passed in or read from GET params
+  *
   */
-  public static function view($try_to_delegate = true) {
-    $id = (int) F3::get('PARAMS.id');
+  public static function optionlist() {
     list($model, $model_friendly) = CRUD_Helper::getModelName();
-    //If controller exists for the specific CRUD model, call that first
-    if($try_to_delegate && Crud_Controller::delegate($model, 'view') !== false) { return; }
-    if(!F3::exists('navigation')) { F3::set('navigation', CRUD_Helper::navigation('view')); }
-    $title = 'View ' . $model_friendly . ' ' . $id;
-    if(!F3::exists('title')) { F3::set('title', $title); }
-    if(!F3::exists('page_title')) { F3::set('page_title', $title . F3::get('PAGE_TITLE_BASE')); }
-    $record = CRUD::loadRecord($model);
-    $record[0]->copyTo('record');
-    //TODO: fix issue with {{id}} being parse by F3 templater
-    $record_content = array(F3::get('record'));
-    if(!F3::exists('content')) { F3::set('content', Export::render($record_content, 'table'), $model); }
-    if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
-    echo Template::serve('layout.html');
+    $options = array('' => '(No Selection)') + CRUD::pairs($model);
+    $config = array(
+      'id' => 'report_id',
+      'name' => 'report_id'
+    );
+    $output = Form::select($model, $options, NULL, $config) . PHP_EOL;
+    echo $output;
   }
 
 
@@ -375,6 +373,33 @@ class Crud_Controller Implements Crud_Controller_Interface {
         F3::set('content', "No {$records_name} match the specified criteria.");
       }
     }
+    if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
+    echo Template::serve('layout.html');
+  }
+
+
+ /**
+  *
+  * 'View Record' action
+  *
+  * @param boolean $try_to_delegate If true, an attempt will be made to find a Crud_Controller-extending
+  *   class (based on the model name) and run code in it's 'view' method; if false, standard CRUD code is run
+  * 
+  */
+  public static function view($try_to_delegate = true) {
+    $id = (int) F3::get('PARAMS.id');
+    list($model, $model_friendly) = CRUD_Helper::getModelName();
+    //If controller exists for the specific CRUD model, call that first
+    if($try_to_delegate && Crud_Controller::delegate($model, 'view') !== false) { return; }
+    if(!F3::exists('navigation')) { F3::set('navigation', CRUD_Helper::navigation('view')); }
+    $title = 'View ' . $model_friendly . ' ' . $id;
+    if(!F3::exists('title')) { F3::set('title', $title); }
+    if(!F3::exists('page_title')) { F3::set('page_title', $title . F3::get('PAGE_TITLE_BASE')); }
+    $record = CRUD::loadRecord($model);
+    $record[0]->copyTo('record');
+    //TODO: fix issue with {{id}} being parse by F3 templater
+    $record_content = array(F3::get('record'));
+    if(!F3::exists('content')) { F3::set('content', Export::render($record_content, 'table'), $model); }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
     echo Template::serve('layout.html');
   }

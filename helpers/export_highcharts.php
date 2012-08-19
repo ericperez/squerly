@@ -34,10 +34,10 @@ class Export_Highcharts implements Export_Interface {
     //TODO: all of these settings should be customizable through $config
     $chart->chart->type = 'line';
     $chart->chart->renderTo = 'squerly_results_div';
-    $chart->title->text = String::humanize($filename); //TODO: improve this
+    //$chart->title->text = String::humanize($filename); //TODO: improve this
 
     $chart->xAxis = new HighRollerXAxis();
-    $chart->xAxis->type = 'linear';
+    $chart->xAxis->type = 'column'; //linear
     $chart->xAxis->labels->rotation = -45;
     $chart->xAxis->labels->align = 'right';
 

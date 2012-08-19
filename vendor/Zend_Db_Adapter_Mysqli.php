@@ -58,14 +58,14 @@ class Zend_Db_Adapter_Mysqli
      * @param string $schemaName OPTIONAL
      * @return array
      */
-    public static function describeTable($tableName, $schemaName = null)
+    public static function describeTable($tableName, $schemaName = null, $DBC = 'DB')
     {
         if ($schemaName) {
             $sql = "DESCRIBE `{$schemaName}.{$tableName}`;";
         } else {
             $sql = "DESCRIBE `{$tableName}`;";
         }
-        DB::sql($sql);
+        DB::sql($sql, NULL, 60, $DBC);
 
         $result = F3::get('DB->result');
         $desc = array();
@@ -144,7 +144,7 @@ class Zend_Db_Adapter_Mysqli
     public static function listTables($DBC = 'DB')
     {
         $sql = 'SHOW TABLES;';
-        $DBC::sql($sql);
+        DB::sql($sql, NULL, 60, $DBC);
         return F3::get("${DBC}->result");
     }
 }

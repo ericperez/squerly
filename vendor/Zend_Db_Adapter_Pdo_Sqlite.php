@@ -42,7 +42,7 @@ class Zend_Db_Adapter_Pdo_Sqlite
         $sql = "SELECT name FROM sqlite_master WHERE type='table' "
              . "UNION ALL SELECT name FROM sqlite_temp_master "
              . "WHERE type='table' ORDER BY name";
-        $DBC::sql($sql);
+        DB::sql($sql, NULL, 60, $DBC);
         return F3::get("{$DBC}->result");
     }
 
