@@ -33,7 +33,7 @@ class Export_Highcharts implements Export_Interface {
 
     //TODO: all of these settings should be customizable through $config
     $chart->chart->type = 'line';
-    $chart->chart->renderTo = 'squerly_results_div';
+    $chart->chart->renderTo = 'report_results';
     //$chart->title->text = String::humanize($filename); //TODO: improve this
 
     $chart->xAxis = new HighRollerXAxis();
