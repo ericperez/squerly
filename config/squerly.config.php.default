@@ -22,8 +22,16 @@
   Jig - F3::set('DB', new FileDB('path/'));
 */
 
-//Database Setup
+//Primary/Squery Application Database Connection setup (This is the DB where the Squerly application tables will live)
 F3::set('DB',
+  new DB(
+    'mysql:host=localhost;port=3306;dbname=blog', //Change this to match your DB
+    'root', //Username
+    '' //Password
+  )
+);
+
+F3::set('DB_Report',
   new DB(
     'mysql:host=localhost;port=3306;dbname=blog', //Change this to match your DB
     'root', //Username
@@ -36,7 +44,7 @@ F3::set('DEBUG', 3); //Debug output verbosity
 F3::set('UI', 'views/'); //Path to Views
 F3::set('AUTOLOAD', 'lib/; models/; controllers/; helpers/; forms/; vendor/; vendor/php_kml/;');
 F3::set('IMPORTS', 'views/');
-F3::set('CACHE', FALSE); //Enable or disable caching globally TODO: temporary set to false for testing/dev
+F3::set('CACHE', FALSE); //Enable or disable caching globally
 //F3::set('PLUGINS', '');
 
 //Squerly Setup Variables
