@@ -297,7 +297,7 @@ class Crud_Controller Implements Crud_Controller_Interface {
   */
   public static function optionlist() {
     list($model, $model_friendly) = CRUD_Helper::getModelName();
-    $options = array('' => '(No Selection)') + CRUD::pairs($model);
+    $options = array('' => '(No Selection)') + CRUD::pairs($model, true);
     $config = array(
       'id' => 'report_id',
       'name' => 'report_id'

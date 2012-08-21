@@ -110,17 +110,21 @@ class CRUD extends Axon {
   * This method is very useful for building HTML SELECT option lists where ids/names for one DB table are needed.
   *
   * @param string $model - Name of whitelisted DB table
+  * @param boolean $id_in_name - If true, the ID of the model will be prepended on the name
   * @param string $order_by - SQL 'ORDER BY' clause value that determined the order the records are returned in
   * @see SQL::DBOptionlist()
   * @return array Array containing key/value pairs for the specified table
   * 
   */
-  public static function pairs($model, $order_by = 'pkey ASC') {
+  public static function pairs($model, $id_in_name = false, $order_by = 'pkey ASC') {
     $primary_key = Db_Meta::getPrimaryKeys($model);
     $name_field = Db_Meta::getNameColumn($model);
     if(empty($primary_key)) { F3::error('', "Unable to determine primary key for model {$model}"); }
     if(empty($name_field)) { F3::error('', "Unable to determine 'name' field for model {$model}"); }
-    $sql = "SELECT {$primary_key} AS pkey, {$name_field} AS value FROM {$model} ORDER BY {$order_by}";
+    //TODO: Make sure this works on all DBs
+    $sql = ($id_in_name) ? 
+      "SELECT {$primary_key} AS pkey, CONCAT('[', {$primary_key}, '] ', {$name_field}) AS value FROM {$model} ORDER BY {$order_by}" :
+      "SELECT {$primary_key} AS pkey, {$name_field} AS value FROM {$model} ORDER BY {$order_by}";
     return SQL::DBOptionlist($sql);
   }
 
