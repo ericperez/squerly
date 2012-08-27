@@ -15,7 +15,7 @@
       <!-- CSS -->
       <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/themes/smoothness/jquery-ui.css" />
       <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.1/css/jquery.dataTables.css" />
-      <link rel="stylesheet" type="text/css" href="/assets/js/Tabletools/media/css/TableTools.css" />
+      <link rel="stylesheet" type="text/css" href="/assets/js/TableTools/media/css/TableTools.css" />
    </head>
    <body>
       <F3:include href="{{@content_file}}"/>
@@ -32,6 +32,7 @@
         $(document).ready(function() {
           $('table').dataTable({
             "bJQueryUI": true,
+            "sPaginationType": "full_numbers",
             "sDom": 'T<"clear">lfrtip',
             "oTableTools": {
               "sSwfPath": "/assets/js/TableTools/media/swf/copy_csv_xls_pdf.swf"
