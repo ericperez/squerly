@@ -80,7 +80,7 @@ class Data_Source {
   *
   */
   public static function loadJSONFile($file_path) {
-    return json_decode(file_get_contents($file_path), true);
+    return json_decode(file_get_contents($file_path), true, 2);
   }
 
 
