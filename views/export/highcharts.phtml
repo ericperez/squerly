@@ -1,0 +1,8 @@
+<div id='report_results'></div>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="/assets/js/highcharts/highcharts.js"></script>
+<script type='application/x-javascript'>
+  $(document).ready(function() { var chart = new Highcharts.Chart(
+    {{@content}}
+  ); });
+</script>

@@ -290,15 +290,17 @@ class Crud_Controller Implements Crud_Controller_Interface {
 
  /**
   *
-  * 'Pairs' Action - Echos ID/name value pairs for a given model as an HTML select
+  * 'HTML Select' Action - Echos ID/name value pairs for a given model as an HTML select element
+  * 
+  * This can be used in AJAX calls to populate the innerHTML of a DIV with the list of available reports
   * 
   * @todo: Allow config to be passed in or read from GET params
   *
   */
-  public static function optionlist() {
+  public static function optionlist($config = null) {
     list($model, $model_friendly) = CRUD_Helper::getModelName();
     $options = array('' => '(No Selection)') + CRUD::pairs($model, true);
-    $config = array(
+    $config = $config ?: array(
       'id' => 'report_id',
       'name' => 'report_id'
     );

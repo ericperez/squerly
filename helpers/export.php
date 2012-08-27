@@ -17,9 +17,28 @@
   */
 class Export {
 
-/**
+ /**
   *
-  * Finds the appropriate export/rendering plugin and calls it with the input 2D data array
+  * Attempts to determine the output format the user requested
+  * 
+  * Uses $output_format if passed in, otherwise looks at $_GET['context'], and lastly
+  *   defaults to 'table' (HTML Table) output format
+  * 
+  * @param string $output_format Output type name
+  * @return string Name of output format
+  * 
+  */
+  public static function getOutputFormat($output_format = '') {
+      //Read output format/context from $output_format or $_GET
+      $output_param = isset($_GET['context']) ? String::modelToClass($_GET['context']) : 'table';
+      $output_format = (!empty($output_format)) ? $output_format : $output_param;
+      return $output_format ?: 'table';
+  }
+
+
+ /**
+  *
+  * Calls a rendering plugin with the input 2D data array
   * 
   * @param array $data 2D array of data to be exported
   * @param string $filename Name of file to be sent back to the user (if applicable)
@@ -29,13 +48,7 @@ class Export {
   */
   public static function render($data, $filename = 'download.txt', $output_format = '', array $config = array()) {
     if(!$data) { $data = array(array()); }
-    //Read output format/context from $output_format or $_GET
-    $output_param = isset($_GET['context']) ? String::modelToClass($_GET['context']) : 'table';
-    $output_format = (!empty($output_format)) ? $output_format : $output_param;
-    $output_format = $output_format ?: 'table';
-  
-    //find the appropriate export plugin; return the rendered results
-    $export_plugin = 'Export_' . $output_format;
+    $export_plugin = 'Export_' . self::getOutputFormat($output_format);
     $class_implements = @class_implements($export_plugin) ?: array(); //Get plugin interfaces
     if(@class_exists($export_plugin) && in_array('Export_Interface', $class_implements)) {
       return $export_plugin::render($data, $filename, $config);
@@ -43,5 +56,25 @@ class Export {
       F3::error('', 'Invalid export plugin or plugin not found.');
     }
   }
+
+
+/**
+  *
+  * Renders an export plugin using an HTML layout
+  * 
+  * The output of this method can be used to build dashboards as it includes necessary front-end
+  *   components to fully render the report results in a browser
+  * 
+  * @param string $content Export content to be put into the layout as 'content'
+  *
+  */
+  public static function loadLayout($content) {
+    F3::set('content', $content);
+    $output_format = self::getOutputFormat();
+    $layout_path = 'export/' . $output_format . '.phtml';
+    //TODO: make sure file exists
+    return Template::serve($layout_path);
+  }
+
 
 }

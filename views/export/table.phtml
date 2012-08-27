@@ -1,0 +1,26 @@
+{{@content}}
+
+<!-- JS -->
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.min.js"></script>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.min.js"></script>
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.1/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="/assets/js/TableTools/media/js/TableTools.js"></script>
+<script type="text/javascript" src="/assets/js/TableTools/media/js/ZeroClipboard.js"></script>
+
+<!-- CSS -->
+<link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.1/css/jquery.dataTables.css" />
+<link rel="stylesheet" type="text/css" href="/assets/js/TableTools/media/css/TableTools.css" />
+
+<script type='application/x-javascript'>
+  $(document).ready(function() {
+    $('table').dataTable({
+      "bJQueryUI": true,
+      "sPaginationType": "full_numbers",
+      "sDom": 'T<"clear">lfrtip',
+      "oTableTools": {
+        "sSwfPath": "/assets/js/TableTools/media/swf/copy_csv_xls_pdf.swf"
+      }
+    });
+  });
+</script>

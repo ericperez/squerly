@@ -38,6 +38,66 @@ class Report_Controller extends Crud_Controller {
 
  /**
   *
+  * Email report action
+  *
+  * @param int $id Report ID to load
+  *
+  */
+  public static function email($id = null) {
+    $report = self::_loadReport($id);
+    //TODO: 
+    //Load a saved configuration
+    //Validate form
+    //Get the report results
+    //Send out the email
+
+  }
+
+
+ /**
+  *
+  * 'Form Action'
+  * 
+  * Renders an HTML form for the given report
+  *
+  * @param int $id Report ID to load
+  * 
+  * @todo Finish this
+  *
+  */
+  public static function form($id = null) {
+    $report = self::_loadReport($id);
+    //TODO: 
+    //Load a saved configuration
+    //Validate form
+    //Get the report results
+    //Send out the email
+
+  }
+
+
+ /**
+  *
+  * Render report results/output (AJAX) action
+  * 
+  * In contrast to 'results,' this action will load any front-end plugins necessary to render the report 
+  *   results; if no render template is available, this method will returns the same data as 'results'
+  *
+  * @param int $id Report ID to load
+  *
+  */
+  public static function render($id = null) {
+    session_write_close(); //Open sessions will block concurrent requests
+    $report = self::_loadReport($id);
+    //TODO: run form validation and spit out messages on failure
+    //Load the data from the data source and render the results
+    $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
+    echo Export::loadLayout(Export::render($report->getResults(), $filename));
+  }
+
+
+ /**
+  *
   * Report results/output (AJAX) action
   *
   * @param int $id Report ID to load
@@ -73,24 +133,6 @@ class Report_Controller extends Crud_Controller {
 
  /**
   *
-  * Email report action
-  *
-  * @param int $id Report ID to load
-  *
-  */
-  public static function email($id = null) {
-    //Load the report
-    //TODO: 
-    //Load a saved configuration
-    //Validate form
-    //Get the report results
-    //Send out the email
-
-  }
-
-
- /**
-  *
   * Report validation (AJAX) action
   *
   * @param int $id Report ID to load
@@ -109,7 +151,9 @@ class Report_Controller extends Crud_Controller {
 }
 
 //Report Routes
+F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/email/@id', 'Report_Controller::email');
+F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/form/@id', 'Report_Controller::form');
+F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/render/@id', 'Report_Controller::render');
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/results/@id', 'Report_Controller::results');
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/run/@id', 'Report_Controller::run');
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/email/@id', 'Report_Controller::email');
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/validate/@id', 'Report_Controller::validate');
