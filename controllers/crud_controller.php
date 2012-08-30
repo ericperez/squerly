@@ -34,17 +34,17 @@ class Crud_Controller Implements Crud_Controller_Interface {
   */
   public static function setUpRoutes() {
     //TODO: add permissions handling
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/optionlist', 'Crud_Controller::optionlist');
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/optionlist', 'Crud_Controller::optionlist', 30);
 
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model', 'Crud_Controller::index');
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/add', 'Crud_Controller::add');
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/delete/@id', 'Crud_Controller::delete');
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/edit/@id', 'Crud_Controller::edit');
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export', 'Crud_Controller::exportMultiple');
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export/@id', 'Crud_Controller::exportOne');
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/search', 'Crud_Controller::search');
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/searchresults', 'Crud_Controller::searchResults');
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/view/@id', 'Crud_Controller::view');
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model', 'Crud_Controller::index', 10);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/add', 'Crud_Controller::add', 600);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/delete/@id', 'Crud_Controller::delete', 600);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/edit/@id', 'Crud_Controller::edit', 600);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export', 'Crud_Controller::exportMultiple', 10);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export/@id', 'Crud_Controller::exportOne', 10);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/search', 'Crud_Controller::search', 60);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/searchresults', 'Crud_Controller::searchResults', 10);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/view/@id', 'Crud_Controller::view', 10);
     F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/add/token/@token', 'Crud_Controller::addEditProcess');
     F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/edit/@id/token/@token', 'Crud_Controller::addEditProcess');
     F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/delete/@id/token/@token', 'Crud_Controller::deleteProcess');

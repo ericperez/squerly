@@ -151,9 +151,10 @@ class Report_Controller extends Crud_Controller {
 }
 
 //Report Routes
+//TODO: put these into a method
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/email/@id', 'Report_Controller::email');
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/form/@id', 'Report_Controller::form');
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/render/@id', 'Report_Controller::render');
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/results/@id', 'Report_Controller::results');
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/run/@id', 'Report_Controller::run');
+F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/form/@id', 'Report_Controller::form', 10);
+F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/render/@id', 'Report_Controller::render', 10);
+F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/results/@id', 'Report_Controller::results', 10);
+F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/run/@id', 'Report_Controller::run', 600);
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/validate/@id', 'Report_Controller::validate');
