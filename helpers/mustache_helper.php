@@ -82,16 +82,17 @@ class Mustache_Helper
 
   /**
    *
-   * Static method to render a SQL template and generate an array of bound parameters
+   * Static method to render a SQL template and generate an array of bind parameters
    * 
    * @param string $template 'Tagged' input template
    * @param array $values Associative array with values to fill into $sql_template
-   * @return array SQL query with tags replaced with bound parameter placeholders / array of bound parameters
+   * @return array SQL query with tags replaced with bind parameter placeholders / array of bind parameters
    *
    */
   public static function renderSQL($sql_template, $values) {
+    $param_prefix = ':';
     $template_keys = self::vars($sql_template);
-    $template_params = self::vars($sql_template, ':');
+    $template_params = self::vars($sql_template, $param_prefix);
     $template_tags = array();
 
     //Figure out if values for each template tag were provided
@@ -99,7 +100,7 @@ class Mustache_Helper
       $template_tags[$key] = (array_key_exists($key, $values)) ? $values[$key] : '';
     }
 
-    //Create a combined array of keys and bound parameter placeholders
+    //Create a combined array of keys and bind parameter placeholders
     $template_vars = (sizeof($template_keys) && sizeof($template_params)) ? 
       array_combine($template_keys, $template_params) : array();
 
@@ -116,6 +117,17 @@ class Mustache_Helper
       if(strpos($line, self::EMPTY_TAG_PATTERN)) { continue; }
       $bound_sql .= $line . PHP_EOL;
     }
+
+    //If there are duplicate template tag names within a query, they need to be made unique
+    foreach($template_keys as $template_key) {
+      $num_keys = substr_count($bound_sql, $param_prefix . $template_key);
+      for($i = $num_keys; $i > 1; $i--) {
+        $new_key = String::numeralWords(mt_rand(0, 9) . '_' . ($i - 1)) . '_unique_' . $template_key;
+        $template_tags[$new_key] = $template_tags[$template_key];
+        $bound_sql = preg_replace('/' . $template_key . '/', $new_key, $bound_sql, 1);
+      }
+    }
+
     return array($bound_sql, $template_tags);
   }
 
