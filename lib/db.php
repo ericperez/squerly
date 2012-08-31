@@ -12,7 +12,7 @@
 	Bong Cosca <bong.cosca@yahoo.com>
 
 		@package DB
-		@version 2.0.12
+		@version 2.0.13
 **/
 
 //! SQL data access layer
@@ -166,7 +166,7 @@ class DB extends Base {
 				$stats[$this->dsn]['queries'][$cmd]++;
 			}
 		}
-		if ($batch || $this->trans && $this->auto)
+		if ($this->trans && $this->auto)
 			$this->commit();
 		return $this->result;
 	}
@@ -228,12 +228,15 @@ class DB extends Base {
 			'mysql'=>array(
 				'SHOW columns FROM `'.$this->dbname.'`.'.$table.';',
 				'Field','Key','PRI','Type'),
-			'mssql|sqlsrv|sybase|dblib|pgsql|ibm|odbc'=>array(
-				'SELECT c.column_name AS field,'.
-				'c.data_type AS type,t.constraint_type AS pkey '.
+			'mssql|sqlsrv|sybase|dblib|pgsql|odbc'=>array(
+				'SELECT '.
+					'c.column_name AS field,'.
+					'c.data_type AS type,'.
+					't.constraint_type AS pkey '.
 				'FROM information_schema.columns AS c '.
 				'LEFT OUTER JOIN '.
-					'information_schema.key_column_usage AS k ON '.
+					'information_schema.key_column_usage AS k '.
+					'ON '.
 						'c.table_name=k.table_name AND '.
 						'c.column_name=k.column_name '.
 						($this->dbname?
@@ -242,7 +245,8 @@ class DB extends Base {
 								'c.table_catalog=k.table_catalog':
 								'c.table_schema=k.table_schema').' '):'').
 				'LEFT OUTER JOIN '.
-					'information_schema.table_constraints AS t ON '.
+					'information_schema.table_constraints AS t '.
+					'ON '.
 						'k.table_name=t.table_name AND '.
 						'k.constraint_name=t.constraint_name '.
 						($this->dbname?
@@ -253,12 +257,31 @@ class DB extends Base {
 				'WHERE '.
 					'c.table_name=\''.$table.'\''.
 					($this->dbname?
-						('AND '.
+						(' AND '.
 						(preg_match('/pgsql/',$this->backend)?
 							'c.table_catalog':'c.table_schema').
 							'=\''.$this->dbname.'\''):'').
 				';',
-				'field','pkey','PRIMARY KEY','type')
+				'field','pkey','PRIMARY KEY','type'),
+			'ibm'=>array(
+				'SELECT DISTINCT '.
+					'c.colname AS field,'.
+					'c.typename AS type,'.
+					'tc.type AS key '.
+				'FROM syscat.columns AS c '.
+				'LEFT JOIN '.
+					'(syscat.keycoluse AS k '.
+						'JOIN syscat.tabconst AS tc '.
+							'ON '.
+								'k.tabschema=tc.tabschema AND '.
+								'k.tabname=tc.tabname AND '.
+								'tc.type=\'P\') '.
+					'ON '.
+						'c.tabschema=k.tabschema AND '.
+						'c.tabname=k.tabname AND '.
+						'c.colname=k.colname '.
+				'WHERE UPPER(c.tabname)=\''.strtoupper($table).'\';',
+				'field','key','P','type'),
 		);
 		$match=FALSE;
 		foreach ($cmd as $backend=>$val)
@@ -481,8 +504,12 @@ class Axon extends Base {
 					($cond?(' WHERE '.$cond[0]):'').
 					($group?(' GROUP BY '.$group):'').
 					($seq?(' ORDER BY '.$seq):'').
-					($limit?(' LIMIT '.$limit):'').
-					($ofs?(' OFFSET '.$ofs):'').';',
+					(preg_match('/^mssql|sqlsrv|sybase|dblib$/',
+						$this->backend)?
+						(($ofs?(' OFFSET '.$ofs):'').
+						($limit?(' FETCH '.$limit.' ONLY'):'')):
+						(($limit?(' LIMIT '.$limit):'').
+						($ofs?(' OFFSET '.$ofs):''))).';',
 				$cond[1]
 			):
 			$this->db->exec(
@@ -490,8 +517,12 @@ class Axon extends Base {
 					($cond?(' WHERE '.$cond):'').
 					($group?(' GROUP BY '.$group):'').
 					($seq?(' ORDER BY '.$seq):'').
-					($limit?(' LIMIT '.$limit):'').
-					($ofs?(' OFFSET '.$ofs):'').';'
+					(preg_match('/^mssql|sqlsrv|sybase|dblib$/',
+						$this->backend)?
+						(($ofs?(' OFFSET '.$ofs):'').
+						($limit?(' FETCH '.$limit.' ONLY'):'')):
+						(($limit?(' LIMIT '.$limit):'').
+						($ofs?(' OFFSET '.$ofs):''))).';'
 			);
 		if ($axon)
 			// Convert array elements to Axon objects
@@ -583,11 +614,12 @@ class Axon extends Base {
 			@public
 	**/
 	function found($cond=NULL) {
-		$this->def('_found','COUNT(*)');
-		list($result)=$this->find($cond);
-		$found=$result->_found;
-		$this->undef('_found');
-		return $found;
+		list($result)=$this->db->exec(
+			'SELECT COUNT(*) AS _found FROM '.$this->table.
+				($cond?(' WHERE '.is_array($cond)?$cond[0]:$cond):''),
+				($cond && is_array($cond)?$cond[1]:NULL)
+		);
+		return $result['_found'];
 	}
 
 	/**
@@ -833,7 +865,7 @@ class Axon extends Base {
 			@public
 	**/
 	function sync($table,$db=NULL,$ttl=60) {
-		if (is_bool($ttl) && !$ttl)
+		if ($ttl===FALSE)
 			return;
 		if (!$db) {
 			if (isset(self::$vars['DB']) && is_a(self::$vars['DB'],'DB'))

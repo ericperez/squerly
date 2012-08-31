@@ -12,7 +12,7 @@
 	Bong Cosca <bong.cosca@yahoo.com>
 
 		@package Expansion
-		@version 2.0.12
+		@version 2.0.13
 **/
 
 //! Web pack
@@ -35,7 +35,7 @@ class Web extends Base {
 	**/
 	static function slug($text,$maxlen=0) {
 		$out=preg_replace('/([^\w]|-)+/','-',
-			trim(strtr(str_replace('\'','',$text),
+			trim(strtr(str_replace('\'','',strip_tags($text)),
 			self::$vars['DIACRITICS'])));
 		return trim(strtolower($maxlen?substr($out,0,$maxlen):$out),'-');
 	}
@@ -80,8 +80,7 @@ class Web extends Base {
 					$i=0;
 					while ($i<count($rewrite))
 						// Analyze each URL segment
-						if ($i>0 &&
-							$rewrite[$i]=='..' &&
+						if ($i && $rewrite[$i]=='..' &&
 							$rewrite[$i-1]!='..') {
 							// Simplify URL
 							unset($rewrite[$i],$rewrite[$i-1]);
@@ -102,12 +101,28 @@ class Web extends Base {
 		$dst='';
 		while ($ptr<strlen($src)) {
 			if ($src[$ptr]=='/') {
-				// Presume it's a regex pattern
-				$regex=TRUE;
-				if ($ptr>0) {
+				if (substr($src,$ptr+1,2)=='*@') {
+					// Conditional block
+					$str=strstr(substr($src,$ptr+3),'@*/',TRUE);
+					$dst.='/*@'.$str.$src[$ptr].'@*/';
+					$ptr+=strlen($str)+6;
+				}
+				elseif ($src[$ptr+1]=='*') {
+					// Multiline comment
+					$str=strstr(substr($src,$ptr+2),'*/',TRUE);
+					$ptr+=strlen($str)+4;
+				}
+				elseif ($src[$ptr+1]=='/') {
+					// Single-line comment
+					$str=strstr(substr($src,$ptr+2),"\n",TRUE);
+					$ptr+=strlen($str)+2;
+				}
+				else {
+					// Presume it's a regex pattern
+					$regex=TRUE;
 					// Backtrack and validate
 					$ofs=$ptr;
-					while ($ofs>0) {
+					while ($ofs) {
 						$ofs--;
 						// Pattern should be preceded by a punctuation
 						if (ctype_punct($src[$ofs])) {
@@ -136,35 +151,14 @@ class Web extends Base {
 							break;
 						}
 					}
-					if ($regex && $ofs<1)
-						$regex=FALSE;
-				}
-				if (!$regex || $ptr<1) {
-					if (substr($src,$ptr+1,2)=='*@') {
-						// Conditional block
-						$str=strstr(substr($src,$ptr+3),'@*/',TRUE);
-						$dst.='/*@'.$str.$src[$ptr].'@*/';
-						$ptr+=strlen($str)+6;
-					}
-					elseif ($src[$ptr+1]=='*') {
-						// Multiline comment
-						$str=strstr(substr($src,$ptr+2),'*/',TRUE);
-						$ptr+=strlen($str)+4;
-					}
-					elseif ($src[$ptr+1]=='/') {
-						// Single-line comment
-						$str=strstr(substr($src,$ptr+2),"\n",TRUE);
-						$ptr+=strlen($str)+2;
-					}
-					else {
+					if (!$regex) {
 						// Division operator
 						$dst.=$src[$ptr];
 						$ptr++;
 					}
 				}
-				continue;
 			}
-			if ($src[$ptr]=='\'' || $src[$ptr]=='"') {
+			elseif ($src[$ptr]=='\'' || $src[$ptr]=='"') {
 				$match=$src[$ptr];
 				// String literal
 				while ($ptr<strlen($src)) {
@@ -177,20 +171,13 @@ class Web extends Base {
 						break;
 					}
 				}
-				continue;
 			}
-			if (ctype_space($src[$ptr])) {
-				$last=substr($dst,-1);
-				$ofs=$ptr+1;
-				if ($ofs+1<strlen($src)) {
-					while (ctype_space($src[$ofs]))
-						$ofs++;
-					if (preg_match('/[\w%]'.
-						'[\w'.($ext[1]=='css'?'\)\]\}#\-*\.':'').'$]/',
-						$last.$src[$ofs]))
-						$dst.=$src[$ptr];
-				}
-				$ptr=$ofs;
+			elseif (ctype_space($src[$ptr])) {
+				if ($ptr+1<strlen($src) && preg_match(
+					'/[\w'.($ext[1]=='css'?'+*#\.\-\)\]':'').']{2}/',
+					substr($dst,-1).$src[$ptr+1]))
+					$dst.=' ';
+				$ptr++;
 			}
 			else {
 				$dst.=$src[$ptr];
