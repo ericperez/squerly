@@ -88,6 +88,20 @@ class String {
 
  /**
   *
+  * Replaces all single numeric digits in a string with their spelled-out counterpart
+  *
+  * @param string $input Input string to format
+  * @return string Input string with numerals converted to words
+  * 
+  */
+  public static function numeralWords($input) {
+    $number_words = array('zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine');
+    return str_replace(array_keys($number_words), $number_words, (string) $input);
+  }
+
+
+ /**
+  *
   * Prevents the class from being instantiated--all of it's methods should be called statically
   *
   */
