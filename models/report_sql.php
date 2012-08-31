@@ -74,7 +74,7 @@ class Report_Sql extends Report_Base {
 
   /**
    *
-   * _preprocessQuery - preprocess in PHP, strips off comments, removes semi-colons, adds identifier comment to report SQL
+   * Preprocess the report Query in PHP, strips off comments, removes semi-colons, adds identifier comment to report SQL
    * @param $preview boolean - If TRUE, limits the number of rows in the report results to self::REPORT_PREVIEW_ROWS
    *
    */
