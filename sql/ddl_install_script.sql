@@ -40,7 +40,7 @@ CREATE TABLE `report` (
   `type` varchar(63) NOT NULL,
   `notes` varchar(255) DEFAULT '',
   `keywords` varchar(255) DEFAULT '',
-  `description` TEXT DEFAULT '',
+  `description` TEXT,
   `hidden_from_ui` BOOLEAN DEFAULT false,
   `enabled` BOOLEAN DEFAULT true,
   `db_adapter` VARCHAR(255),
@@ -98,7 +98,7 @@ CREATE TABLE `input_widget` (
   `select_sql` text,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
+  PRIMARY KEY (`id`)
 ) ENGINE=innoDB;
-  -- UNIQUE KEY `uk_input_widget_htmlid` (`html_id`)
+-- UNIQUE KEY `uk_input_widget_htmlid` (`html_id`)
 
