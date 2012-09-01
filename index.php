@@ -11,6 +11,8 @@
   *
   */
 
+//Check to make sure PHP version 5.3 or higher is being used; bail if not
+if(strnatcmp(phpversion(), '5.3.0') <= 0) { die('ERROR: Squerly requires PHP 5.3 or higher to run.'); }
 
 require __DIR__ . '/lib/base.php'; //Fat-Free Framework (F3) core code
 require __DIR__ . '/config/squerly.config.php'; //Squerly configuration settings
