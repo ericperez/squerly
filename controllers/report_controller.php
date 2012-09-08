@@ -78,6 +78,24 @@ class Report_Controller extends Crud_Controller {
 
  /**
   *
+  * 'HTML Select' Action - Echos ID/name value pairs for a given model as an HTML select element
+  * 
+  * This can be used in AJAX calls to populate the innerHTML of a DIV with the list of available model instances
+  * 
+  * @param array $config Form select element configuration
+  * @param string $where unused
+  * @param string $order_by unused
+  * 
+  * @todo: Allow config to be passed in or read from GET params
+  *
+  */
+  public static function optionlist($config = null, $where = '', $order_by = '') {
+    parent::optionlist($config, 'hidden_from_ui = false');
+  }
+
+
+ /**
+  *
   * Render report results/output (AJAX) action
   * 
   * In contrast to 'results,' this action will load any front-end plugins necessary to render the report 
@@ -150,8 +168,10 @@ class Report_Controller extends Crud_Controller {
 
 }
 
+
 //Report Routes
 //TODO: put these into a method
+F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/optionlist', 'Report_Controller::optionlist', 30);
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/email/@id', 'Report_Controller::email');
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/form/@id', 'Report_Controller::form', 10);
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/render/@id', 'Report_Controller::render', 10);

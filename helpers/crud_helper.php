@@ -185,11 +185,13 @@ class CRUD_Helper {
   * 
   */
   public static function getModelName($use_default = false) {
-    $model = $use_default ? F3::get('DEFAULT_MODEL') : F3::get('PARAMS.model') ?: '';
+    $uri_path = explode('/', F3::get('PARAMS.0')); 
+    $model = $use_default ? F3::get('DEFAULT_MODEL') : F3::get('PARAMS.model') ?: $uri_path[1] ?: '';
     $table = !empty($model) ? CRUD_Helper::addTablePrefix($model) : '';
     $table = in_array($table, F3::get('CRUD_TABLE_WHITELIST')) ? $table : null;
-    if(!$table) { 
-      F3::error(404); exit;
+    if(!$table) {
+      ob_clean(); 
+      F3::error('', 'Could not determine model name.'); exit;
     } elseif(!in_array($table, Db_Meta::getTables())) {
       F3::error('', "Configuration Error: Table '{$table}' does not exist!");
     }  else {

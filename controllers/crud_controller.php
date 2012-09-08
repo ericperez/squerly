@@ -20,7 +20,7 @@
   * @todo Consolidate shared code that exists across routes/actions
   * 
   */
-class Crud_Controller Implements Crud_Controller_Interface {
+class Crud_Controller implements Crud_Controller_Interface {
 
   //This is used by child classes to assign custom forms to CRUD actions/routes
   //CRUD controller itself uses default forms (empty array)
@@ -28,9 +28,20 @@ class Crud_Controller Implements Crud_Controller_Interface {
 
  /**
   *
+  * Controller Initialization
+  *   
+  */
+  public static function init() {
+    self::setUpRoutes();
+    F3::set('javascript', CRUD_Helper::getBaseJavascript());
+    F3::set('css', CRUD_Helper::getBaseStylesheets());
+  }
+
+
+ /**
+  *
   * Set up all the CRUD routes
   *   
-  *
   */
   public static function setUpRoutes() {
     //TODO: add permissions handling
@@ -57,7 +68,8 @@ class Crud_Controller Implements Crud_Controller_Interface {
   * 
   * @param string $model Name of model
   * @param string $action Name of controller action/method to call
-  *   
+  * 
+  * @todo Pass original method ARGS to delegated method
   *
   */
   public static function delegate($model, $action) {
@@ -292,14 +304,18 @@ class Crud_Controller Implements Crud_Controller_Interface {
   *
   * 'HTML Select' Action - Echos ID/name value pairs for a given model as an HTML select element
   * 
-  * This can be used in AJAX calls to populate the innerHTML of a DIV with the list of available reports
+  * This can be used in AJAX calls to populate the innerHTML of a DIV with the list of available model instances
+  * 
+  * @param array $config Form select element configuration
+  * @param string $where SQL query WHERE clause items to limit model instances that are matched
+  * @param string $order_by - SQL ORDER BY clause value that determined the order the records are returned in
   * 
   * @todo: Allow config to be passed in or read from GET params
   *
   */
-  public static function optionlist($config = null) {
+  public static function optionlist($config = null, $where = '', $order_by = '') {
     list($model, $model_friendly) = CRUD_Helper::getModelName();
-    $options = array('' => '(No Selection)') + CRUD::pairs($model, true);
+    $options = array('' => '(No Selection)') + CRUD::pairs($model, true, $where, $order_by);
     $config = $config ?: array(
       'id' => 'report_id',
       'name' => 'report_id'

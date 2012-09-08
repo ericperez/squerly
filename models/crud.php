@@ -111,20 +111,25 @@ class CRUD extends Axon {
   *
   * @param string $model - Name of whitelisted DB table
   * @param boolean $id_in_name - If true, the ID of the model will be prepended on the name
-  * @param string $order_by - SQL 'ORDER BY' clause value that determined the order the records are returned in
+  * @param string $where SQL query WHERE clause items to limit model instances that are matched
+  * @param string $order_by - SQL ORDER BY clause value that determined the order the records are returned in
   * @see SQL::DBOptionlist()
   * @return array Array containing key/value pairs for the specified table
   * 
+  * @todo Switch 'order_by' to support arrays
+  * 
   */
-  public static function pairs($model, $id_in_name = false, $order_by = 'pkey ASC') {
+  public static function pairs($model, $id_in_name = false, $where = '', $order_by = 'pkey ASC') {
     $primary_key = Db_Meta::getPrimaryKeys($model);
     $name_field = Db_Meta::getNameColumn($model);
     if(empty($primary_key)) { F3::error('', "Unable to determine primary key for model {$model}"); }
     if(empty($name_field)) { F3::error('', "Unable to determine 'name' field for model {$model}"); }
+    $where_clause = (empty($where)) ? '' : "WHERE {$where} ";
+    $order_by_clause = (empty($order_by)) ? '' : "ORDER BY {$order_by} ";
     //TODO: Make sure this works on all DBs
     $sql = ($id_in_name) ? 
-      "SELECT {$primary_key} AS pkey, CONCAT('[', {$primary_key}, '] ', {$name_field}) AS value FROM {$model} ORDER BY {$order_by}" :
-      "SELECT {$primary_key} AS pkey, {$name_field} AS value FROM {$model} ORDER BY {$order_by}";
+      "SELECT {$primary_key} AS pkey, CONCAT('[', {$primary_key}, '] ', {$name_field}) AS value FROM {$model} {$where_clause} {$order_by_clause}" :
+      "SELECT {$primary_key} AS pkey, {$name_field} AS value FROM {$model} {$where_clause} {$order_by_clause}";
     return SQL::DBOptionlist($sql);
   }
 
