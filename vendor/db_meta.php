@@ -68,7 +68,17 @@ class Db_Meta {
     if(!$adapter_class) { F3::error('', 'Unsupported Database'); }
     $tables = $adapter_class::listTables();
     $db_name = F3::get("{$DBC}->dbname");
-    return Matrix::pick($tables, 'Tables_in_' . $db_name);
+    $db_type = F3::get("{$DBC}->backend");
+    switch($db_type) {
+      case 'mysql':
+        return Matrix::pick($tables, 'Tables_in_' . $db_name);
+      break;
+
+      default:
+        return Matrix::pick($tables, 'name');
+      break;
+    }
+    
   }
 
 
