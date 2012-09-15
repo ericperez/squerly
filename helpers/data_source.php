@@ -21,20 +21,17 @@ class Data_Source {
   * 
   * This method loads data from a MySQL, PostgreSQL, or SQLite database
   *
-  * @param string $bound_sql_query SQL query with named bound-parameter placeholders
-  * @param array $bound_params Associate array of parameters to be bound to SQL query in $bound_sql_query
+  * @param string $bound_sql_query SQL query with named bind-parameter placeholders
+  * @param array $bind_params Associate array of parameters to be bound to SQL query in $bound_sql_query
   * @param string $DBC Name of the variable that holds a reference to the database handle
   * @param int $cache_expiry Number of seconds to cache the query
   * @return array 2D associative array holding the results of the query
   *
   */
-  public static function loadSQL($bound_sql_query, $bound_params, $DBC = 'DB', $cache_expiry = null) {
+  public static function loadSQL($bound_sql_query, $bind_params, $DBC = 'DB', $cache_expiry = null) {
     //If cache not set, use default; if default not set, expire immediately
     $cache_expiry = $cache_expiry ?: F3::get('REPORT_CACHE_EXPIRE') ?: 0;
-    DB::sql($bound_sql_query, $bound_params, $cache_expiry, $DBC);
-    $output = F3::get("${DBC}->result");
-    F3::clear("${DBC}->result");
-    return $output;
+    return DB::sql($bound_sql_query, $bind_params, $cache_expiry, $DBC);
   }
 
 
