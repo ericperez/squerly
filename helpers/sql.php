@@ -87,7 +87,7 @@ class SQL {
    * 
    * @todo Find a more appropriate place for this
    * @todo Update this to allow different conditional operators for each $query_params
-   * @todo Set values as bound parameters
+   * @todo Set values as bind parameters
    * 
    */
   public static function buildWhereFromArray($table, array $query_params, $DBC = 'DB') {

@@ -19,6 +19,13 @@ class Report extends Report_Base {
 
   public $sub_class;
 
+  //Sets the 'created at' and 'edited at' report fields
+  //TODO
+  public function beforeSave() {
+    
+  }
+
+
   //TODO: clean this up
   public function afterLoad() {
     $type = isset($this->type) && !empty($this->type) ? $this->type : 'sql'; //Defaults to SQL-based report
@@ -36,6 +43,11 @@ class Report extends Report_Base {
   public static function delegate($id) {
     $report = new self();
     $report->load("id = {$id}");
+    if($report->dry()) { 
+      Notify::error("Report {$id} does not exist.");
+      F3::reroute(F3::get('URL_BASE_PATH') . 'report'); 
+      exit; 
+    }
     $report_sub_class = new $report->sub_class();
     return $report_sub_class->load("id = {$id}");
   }

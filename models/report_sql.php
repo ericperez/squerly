@@ -16,6 +16,7 @@
   *
   */
 class Report_Sql extends Report_Base {
+  public $bind_params = array();
 
   const REPORT_DISALLOWED_KEYWORD = 'Disallowed keyword found in report; aborting.';
   const REPORT_NOT_SELECT_STATEMENT = 'Report query must be a SELECT statment; aborting.';
@@ -76,14 +77,17 @@ class Report_Sql extends Report_Base {
    *
    * Preprocess the report Query in PHP, strips off comments, removes semi-colons, adds identifier comment to report SQL
    * @param $preview boolean - If TRUE, limits the number of rows in the report results to self::REPORT_PREVIEW_ROWS
+   * @param $bind_params array - Array of bind-parameter key-value pairs to plug into the report query
    *
    */
-  protected function _preprocessQuery($preview) {
+  protected function _preprocessQuery($preview, array $bind_params = array()) {
     $this->_phpPreprocess(); // Run the query through PHP
     $this->processed_query = SQL::stripComments($this->processed_query); //Strip off all comments
     $this->processed_query = str_replace(';', '', $this->processed_query); //Remove all semi-colons (prevents multiple SQL statements from being run)
-    //Swap out the mustache/template tags with bound-parameter placeholders and gets an array of bound parameters/values
-    list($this->processed_query, $this->bound_params) = Mustache_Helper::renderSQL($this->processed_query, F3::get('GET'));
+    //Use (sanitized) $_GET as bind-parameters unless overridden in $bind_params
+    $bind_params = (empty($bind_params)) ? F3::get('GET') : $bind_params;
+    //Swap out the mustache/template tags with bind-parameter placeholders and gets an array of bind parameters/values
+    list($this->processed_query, $this->bind_params) = Mustache_Helper::renderSQL($this->processed_query, $bind_params);
     if($preview) { 
       $this->processed_query = SQL::overrideLimit($this->processed_query, self::NUM_PREVIEW_ROWS); 
     }
@@ -140,7 +144,8 @@ class Report_Sql extends Report_Base {
    *
    */
   public function getData() {
-    $this->results = Data_Source::loadSQL($this->processed_query, $this->bound_params, 'DB_Report');
+    $db_adapter = $this->db_adapter ?: 'DB_reporting';
+    $this->results = Data_Source::loadSQL($this->processed_query, $this->bind_params, $db_adapter);
   }
 
 

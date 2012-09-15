@@ -127,9 +127,23 @@ class CRUD extends Axon {
     $where_clause = (empty($where)) ? '' : "WHERE {$where} ";
     $order_by_clause = (empty($order_by)) ? '' : "ORDER BY {$order_by} ";
     //TODO: Make sure this works on all DBs
-    $sql = ($id_in_name) ? 
-      "SELECT {$primary_key} AS pkey, CONCAT('[', {$primary_key}, '] ', {$name_field}) AS value FROM {$model} {$where_clause} {$order_by_clause}" :
-      "SELECT {$primary_key} AS pkey, {$name_field} AS value FROM {$model} {$where_clause} {$order_by_clause}";
+    $db_type = F3::get("DB->backend");
+    switch($db_type) {
+      case 'pgsql':
+      case 'sqlite':
+        $sql = ($id_in_name) ? 
+          "SELECT {$primary_key} AS pkey, '[' || {$primary_key} || '] ' || {$name_field} AS value FROM {$model} {$where_clause} {$order_by_clause}" :
+          "SELECT {$primary_key} AS pkey, {$name_field} AS value FROM {$model} {$where_clause} {$order_by_clause}";
+      break;
+
+      case 'mysql':
+      default:
+        $sql = ($id_in_name) ? 
+          "SELECT {$primary_key} AS pkey, CONCAT('[', {$primary_key}, '] ', {$name_field}) AS value FROM {$model} {$where_clause} {$order_by_clause}" :
+          "SELECT {$primary_key} AS pkey, {$name_field} AS value FROM {$model} {$where_clause} {$order_by_clause}";
+      break;
+        
+    }
     return SQL::DBOptionlist($sql);
   }
 

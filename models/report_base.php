@@ -15,7 +15,6 @@
 class Report_Base extends Report_Abstract {
 
   public $processed_query = '';
-  public $bound_params = array(); //TODO: move this
   public $results = array();  
 
 
@@ -43,14 +42,28 @@ class Report_Base extends Report_Abstract {
    *
    * Runs the report through PHP buffering to execute any code embedded in the report
    * 
-   * @todo find a better solution than 'eval' for this: http://www.php.net/manual/en/wrappers.data.php#106021 ??
+   * @note Requires 'allow_url_include = On' directive to be set in php.ini
+   * @see http://www.php.net/manual/en/filesystem.configuration.php#ini.allow-url-include
    *
    */
   protected function _phpPreprocess() {
-    ob_start();
-    eval('?>' . $this->query . '<?php ');
-    $this->processed_query = ob_get_contents();
-    ob_end_clean();
+    //TODO: refactor this to use allow_url_fopen/temp file ??
+    function php_wrapper($input) {
+      //Attempt to turn on required php.ini directives
+      ini_set("allow_url_fopen", "On"); 
+      ini_set("allow_url_include", "On");
+      ob_start();
+      if(ini_get('allow_url_include')) { 
+        include "data:text/plain;base64," . base64_encode($input);
+      } else {
+        eval('?>' . PHP_EOL .  $this->query . PHP_EOL . '<?php ');
+      }
+      ini_restore("allow_url_include"); ini_restore("allow_url_fopen");
+      return ob_get_clean();
+    }
+    //If $this->query contains '<?' then it's assumed to have embedded PHP code; if so, run it through PHP processing
+    $this->processed_query = (strpos($this->query, '<?') !== false) ? php_wrapper($this->query) : $this->query;
+    return true;
   }
 
 
