@@ -14,11 +14,35 @@
   */
 class CRUD_Helper {
 
+/**
+  *
+  * Adds 'action' columns to a record dataset
+  *
+  * @param array $records 2D Array of CRUD records
+  * @return array Records with 'action' columns added
+  * 
+  */
+  public static function addActionColumns($records) {
+    list($model, $model_friendly) = self::getModelName();
+    //For now, it's assumed that primary key is called 'id'
+    if(!isset($records[0]['id'])) { return $records; } 
+    foreach($records as &$record) {
+      $id = $record['id'];
+      $record = 
+        array("Edit {$model_friendly} " => "<a href='/{$model}/edit/{$id}'>Edit</a>") +
+        array("View {$model_friendly} " => "<a href='/{$model}/view/{$id}'>View</a>") +
+        array("Delete {$model_friendly} " => "<a href='/{$model}/delete/{$id}'>Delete</a>") +
+        $record;
+    }
+    return $records;
+  }
+
+
  /**
   *
   * Adds the 'universal' prefix defined in the configuration to the model name
   *
-  * @param string $model - DB Table/model name
+  * @param string $model DB Table/model name
   * @return string Prefix and Table name concatenated together
   * 
   * @todo Fix this! (Currently this method does nothing)
@@ -292,6 +316,7 @@ class CRUD_Helper {
   */
   public static function preprocessRecordData(array $records) {
     $records = Db_Meta::resolveForeignKeys($records);
+    $records = self::addActionColumns($records);
     return $records;
   }
 
@@ -307,11 +332,12 @@ class CRUD_Helper {
   * 
   */
   public static function sqlFieldTypeMap($sql_type) {
-    $sql_type = preg_replace('/\(.*\)/', '', $sql_type);
+    $sql_type = preg_replace(array('/[^a-z]/', '/\(.*\)/'), '', strtolower($sql_type));
     $field_map = array(
       'int'       => 'number',
       'tinyint'   => 'boolean',
       'boolean'   => 'boolean',
+      'bool'      => 'boolean',
       'smallint'  => 'number',
       'mediumint' => 'number',
       'bigint'    => 'number',
