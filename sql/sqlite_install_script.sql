@@ -11,6 +11,6 @@ CREATE TABLE 'report' (
   'input_data_uri' VARCHAR(4095),
   'query' text,
   'postprocess_code' text,
-  'created_at' DATETIME NOT NULL,
-  'updated_at' DATETIME NOT NULL
+  'created_at' DATETIME DEFAULT DATETIME('now', 'localtime'),
+  'updated_at' DATETIME DEFAULT NULL,
 );
