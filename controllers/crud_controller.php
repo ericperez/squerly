@@ -50,10 +50,10 @@ class Crud_Controller implements Crud_Controller_Interface {
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model', 'Crud_Controller::index', 10);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/add', 'Crud_Controller::add', 600);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/delete/@id', 'Crud_Controller::delete', 600);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/edit/@id', 'Crud_Controller::edit', 600);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/edit/@id', 'Crud_Controller::edit', 0);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export', 'Crud_Controller::exportMultiple', 10);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export/@id', 'Crud_Controller::exportOne', 10);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/search', 'Crud_Controller::search', 60);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/search', 'Crud_Controller::search', 10);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/searchresults', 'Crud_Controller::searchResults', 10);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/view/@id', 'Crud_Controller::view', 10);
     F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/add/token/@token', 'Crud_Controller::addEditProcess');
@@ -335,10 +335,11 @@ class Crud_Controller implements Crud_Controller_Interface {
   */
   public static function search($try_to_delegate = true) {
     list($model, $model_friendly) = CRUD_Helper::getModelName();
+    $records_name = Inflector::plural($model_friendly);
     //If controller exists for the specific CRUD model, call that first
     if($try_to_delegate && Crud_Controller::delegate($model, 'search') !== false) { return; }
     if(!F3::exists('navigation')) { F3::set('navigation', CRUD_Helper::navigation('search')); }
-    $title = 'Search ' . $model_friendly . ' Records';
+    $title = 'Search ' . $records_name;
     if(!F3::exists('title')) { F3::set('title', $title); }
     if(!F3::exists('page_title')) { F3::set('page_title', $title . F3::get('PAGE_TITLE_BASE')); }
     if(!F3::exists('form')) {
