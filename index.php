@@ -16,7 +16,6 @@ if(strnatcmp(phpversion(), '5.3.0') <= 0) { die('ERROR: Squerly requires PHP 5.3
 
 require __DIR__ . '/lib/base.php'; //Fat-Free Framework (F3) core code
 require __DIR__ . '/config/squerly.config.php'; //Squerly configuration settings
-require __DIR__ . '/models/crud.php'; 
 //TODO: autoload these or 'require' in a loop
 require __DIR__ . '/controllers/auth_controller.php';
 require __DIR__ . '/controllers/report_controller.php';
@@ -40,5 +39,5 @@ F3::route('GET ' . F3::get('URL_BASE_PATH'),
 );
 
 session_start();
-Crud_Controller::setUpRoutes();
+Crud_Controller::init();
 F3::run();
