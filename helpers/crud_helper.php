@@ -356,4 +356,42 @@ class CRUD_Helper {
   }
 
 
+ /**
+  *
+  * Returns an array of the 'base' set of JavaScript files used on most pages
+  *
+  * @return array JavaScript file URIs
+  * 
+  * @todo Clean this up
+  * 
+  */
+  public static function getBaseJavascript() {
+    return array(
+      "http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.min.js",
+      "http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.min.js",
+      "http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.1/jquery.dataTables.min.js",
+      "/assets/js/TableTools/media/js/TableTools.js",
+      "/assets/js/TableTools/media/js/ZeroClipboard.js",
+    );
+  }
+
+
+ /**
+  *
+  * Returns an array of the 'base' set of CSS files used on most pages
+  *
+  * @return array CSS file URIs
+  * 
+  * @todo Clean this up
+  * 
+  */
+  public static function getBaseStylesheets() {
+    return array(
+      "http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/themes/smoothness/jquery-ui.css",
+      "http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.1/css/jquery.dataTables.css",
+      "/assets/js/TableTools/media/css/TableTools.css",
+    );
+  }
+
+
 }
