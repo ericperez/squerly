@@ -74,22 +74,17 @@ class Zend_Db_Adapter_Pdo_Sqlite
      * @param string $schemaName OPTIONAL
      * @return array
      */
-    public static function describeTable($tableName, $schemaName = null)
+    public static function describeTable($tableName, $schemaName = null, $DBC = 'DB')
     {
         $sql = 'PRAGMA ';
 
         if ($schemaName) {
-            $sql .= $this->quoteIdentifier($schemaName) . '.';
+            $sql .= '.';
         }
 
-        $sql .= 'table_info('.$this->quoteIdentifier($tableName).')';
+        $sql .= 'table_info('. $tableName .')';
 
-        $stmt = $this->query($sql);
-
-        /**
-         * Use FETCH_NUM so we are not dependent on the CASE attribute of the PDO connection
-         */
-        $result = $stmt->fetchAll(Zend_Db::FETCH_NUM);
+        $result = DB::sql($sql, NULL, 60, $DBC);
 
         $cid        = 0;
         $name       = 1;
@@ -102,6 +97,7 @@ class Zend_Db_Adapter_Pdo_Sqlite
 
         $p = 1;
         foreach ($result as $key => $row) {
+            $row = array_values($row);
             list($length, $scale, $precision, $primary, $primaryPosition, $identity) =
                 array(null, null, null, false, null, false);
             if (preg_match('/^((?:var)?char)\((\d+)\)/i', $row[$type], $matches)) {
@@ -121,10 +117,10 @@ class Zend_Db_Adapter_Pdo_Sqlite
                 $identity = (bool) ($row[$type] == 'INTEGER');
                 ++$p;
             }
-            $desc[$this->foldCase($row[$name])] = array(
-                'SCHEMA_NAME'      => $this->foldCase($schemaName),
-                'TABLE_NAME'       => $this->foldCase($tableName),
-                'COLUMN_NAME'      => $this->foldCase($row[$name]),
+            $desc[$row[$name]] = array(
+                'SCHEMA_NAME'      => $schemaName,
+                'TABLE_NAME'       => $tableName,
+                'COLUMN_NAME'      => $row[$name],
                 'COLUMN_POSITION'  => $row[$cid]+1,
                 'DATA_TYPE'        => $row[$type],
                 'DEFAULT'          => $row[$dflt_value],

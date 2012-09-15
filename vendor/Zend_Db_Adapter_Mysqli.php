@@ -65,9 +65,8 @@ class Zend_Db_Adapter_Mysqli
         } else {
             $sql = "DESCRIBE `{$tableName}`;";
         }
-        DB::sql($sql, NULL, 60, $DBC);
+        $result = DB::sql($sql, NULL, 60, $DBC);
 
-        $result = F3::get('DB->result');
         $desc = array();
 
         $row_defaults = array(
