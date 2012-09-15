@@ -1,0 +1,6 @@
+DB INIT EXAMPLES:
+SQLite - F3::set('DB',new DB('sqlite:path/test.sqlite'));
+MySQL - F3::set('DB',new DB('mysql:host=localhost [;port=port] [;dbname=testdb]','userid','password'));
+MongoDB - F3::set('DB',new MongoDB(new Mongo('mongodb://localhost [:port ]'),'testdb'));
+Jig - F3::set('DB', new FileDB('path/'));
+Other SQL engines - Refer to the PHP manual for the appropriate DSN.
