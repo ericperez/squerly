@@ -31,7 +31,6 @@ class Report_Controller extends Crud_Controller {
     $id = is_int($id) ? $id : (int) F3::get('PARAMS["id"]') ?: null;
     if(!$id) { F3::reroute(F3::get('URL_BASE_PATH') . '/report'); }
     $report = Report::delegate($id);
-    if($report->dry()) { F3::reroute(F3::get('URL_BASE_PATH') . '/report'); }
     return $report;
   }
 
@@ -90,7 +89,9 @@ class Report_Controller extends Crud_Controller {
   *
   */
   public static function optionlist($config = null, $where = '', $order_by = '') {
-    parent::optionlist($config, 'hidden_from_ui = false');
+    $hidden_from_ui_where = " (hidden_from_ui = 0 OR hidden_from_ui = 'false') ";
+    $where = empty($where) ? $hidden_from_ui_where : $where . ' AND ' . $hidden_from_ui_where;
+    parent::optionlist($config, $where, $order_by);
   }
 
 
