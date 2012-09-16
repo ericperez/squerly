@@ -2,6 +2,8 @@
 /**
   *
   * Squerly - Report Database Connection Model
+  * 
+  * This class helps manage the database connections that are available for reports to use
   *
   * @author Eric Perez <ericperez@squerly.net>
   * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
@@ -20,7 +22,7 @@ class Report_DB_Connection {
   */
   public static function loadAll() {
     require_once __DIR__ . '/../lib/filedb.php';
-    $dbc_model = new Jig('db_connections.json', new FileDB('config', 2)); //TODO: make DB_Connection extend Jig ??
+    $dbc_model = new Jig('report_db_connections.json', new FileDB('config', 2)); //TODO: make DB_Connection extend Jig ??
     $db_connections = $dbc_model->afind();
     //Load the DB connections from db_connections.json into the framework registry
     foreach($db_connections as $dbc) {
@@ -30,7 +32,10 @@ class Report_DB_Connection {
       foreach($dbc_properties as $dbc_property) {
         if(!isset($dbc[$dbc_property])) { continue 2; }
       }
-      F3::set("DB_{$name}", new DB($dbc['connection_string'], $dbc['username'], $dbc['password']));
+      //Don't load a report configuration from the JSON file if it's already been defined (backwards-compatibility)
+      if(is_null(F3::get("DB_{$name}"))) {
+        F3::set("DB_{$name}", new DB($dbc['connection_string'], $dbc['username'], $dbc['password']));
+      }
     }
   }
 

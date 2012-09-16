@@ -1,0 +1,3 @@
+report_db_connections.json contains the database configurations that are available for SQL reports to use.
+
+By default there is one configuration defined called 'Report' which is the fallback configuration if no database adapter is defined in the 'db_adapter' report object property.
