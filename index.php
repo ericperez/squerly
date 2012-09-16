@@ -38,6 +38,7 @@ F3::route('GET ' . F3::get('URL_BASE_PATH'),
   }
 );
 
-session_start();
+Report_DB_Connection::loadAll(); //Load all the reporting database connections
 Crud_Controller::init();
+session_start();
 F3::run();
