@@ -144,7 +144,7 @@ class Report_Sql extends Report_Base {
    *
    */
   public function getData() {
-    $db_adapter = $this->db_adapter ?: 'DB_Report';
+    $db_adapter = !empty($this->db_adapter) ? 'DB_' . $this->db_adapter : 'DB_Report';
     $this->results = Data_Source::loadSQL($this->processed_query, $this->bind_params, $db_adapter);
   }
 
