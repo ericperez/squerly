@@ -20,7 +20,7 @@ class Report_Sql extends Report_Base {
 
   const REPORT_DISALLOWED_KEYWORD = 'Disallowed keyword found in report; aborting.';
   const REPORT_NOT_SELECT_STATEMENT = 'Report query must be a SELECT statment; aborting.';
-  const NUM_PREVIEW_ROWS = 10;
+  const REPORT_PREVIEW_ROWS = 10;
 
   /**
    *
@@ -89,7 +89,7 @@ class Report_Sql extends Report_Base {
     //Swap out the mustache/template tags with bind-parameter placeholders and gets an array of bind parameters/values
     list($this->processed_query, $this->bind_params) = Mustache_Helper::renderSQL($this->processed_query, $bind_params);
     if($preview) { 
-      $this->processed_query = SQL::overrideLimit($this->processed_query, self::NUM_PREVIEW_ROWS); 
+      $this->processed_query = SQL::overrideLimit($this->processed_query, self::REPORT_PREVIEW_ROWS); 
     }
     $this->_addReportIdentifierComment(); //Add identifying comment to the query
   }

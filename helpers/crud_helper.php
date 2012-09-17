@@ -19,20 +19,32 @@ class CRUD_Helper {
   * Adds 'action' columns to a record dataset
   *
   * @param array $records 2D Array of CRUD records
+  * @param array $additional_actions Array 
   * @return array Records with 'action' columns added
   * 
   */
-  public static function addActionColumns($records) {
+  public static function addActionColumns(array $records) {
     list($model, $model_friendly) = self::getModelName();
+    $class_name = String::modelToClass($model);
+
     //For now, it's assumed that primary key is called 'id'
     if(!isset($records[0]['id'])) { return $records; } 
+
     foreach($records as &$record) {
       $id = $record['id'];
-      $record = 
-        array("Edit {$model_friendly} " => "<a href='/{$model}/edit/{$id}'>Edit</a>") +
-        array("View {$model_friendly} " => "<a href='/{$model}/view/{$id}'>View</a>") +
-        array("Delete {$model_friendly} " => "<a href='/{$model}/delete/{$id}'>Delete</a>") +
-        $record;
+      //TODO: find a faster way of doing this
+      $additional_actions = @$class_name::getIndexActions($id) ?: array();
+      $actions = array(
+        //TODO: add BASE_URL_PATH to the URLS!!
+        array("Delete {$model_friendly}" => "<a href='/{$model}/delete/{$id}'>Delete</a>"),
+        array("Edit {$model_friendly}" => "<a href='/{$model}/edit/{$id}'>Edit</a>"),
+        array("View {$model_friendly}" => "<a href='/{$model}/view/{$id}'>View</a>"),
+
+      );
+      if(!empty($additional_actions)) { $actions[] = $additional_actions; }
+      foreach($actions as $action) {
+        $record = $action + $record;
+      }
     }
     return $records;
   }
@@ -78,8 +90,8 @@ class CRUD_Helper {
     
     //Array of fields to not render in the form
     //TODO: expand this list
-    $skip_fields = array('created_at', 'updated_at', 'edited_at', 'added_at', 'editstamp', 'updatestamp', 
-      'edit_stamp', 'update_stamp', 'last_update', 'last_edit', 'last_edited_at', 'last_updated_at');
+    $skip_fields = array(); //'created_at', 'updated_at', 'edited_at', 'added_at', 'editstamp', 'updatestamp', 
+      //'edit_stamp', 'update_stamp', 'last_update', 'last_edit', 'last_edited_at', 'last_updated_at');
 
     $foreign_keys = Db_Meta::getForeignKeys($model);
 

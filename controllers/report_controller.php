@@ -15,7 +15,6 @@
 
 
 class Report_Controller extends Crud_Controller {
-
   //TODO: implement this
   protected static $_forms = array('add' => 'Form_Report_Add');
 
@@ -111,7 +110,8 @@ class Report_Controller extends Crud_Controller {
     //TODO: run form validation and spit out messages on failure
     //Load the data from the data source and render the results
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
-    echo Export::loadLayout(Export::render($report->getResults(), $filename));
+    $preview = isset($_GET['preview']);
+    echo Export::loadLayout(Export::render($report->getResults($preview), $filename));
   }
 
 
@@ -128,7 +128,8 @@ class Report_Controller extends Crud_Controller {
     //TODO: run form validation and spit out messages on failure
     //Load the data from the data source and render the results
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
-    echo Export::render($report->getResults(), $filename);
+    $preview = isset($_GET['preview']);
+    echo Export::render($report->getResults($preview), $filename);
   }
 
 
@@ -137,6 +138,8 @@ class Report_Controller extends Crud_Controller {
   * Run report action
   *
   * @param int $id Report ID to load
+  * 
+  * @todo Finish this
   *
   */
   public static function run($id = null) {
@@ -155,6 +158,8 @@ class Report_Controller extends Crud_Controller {
   * Report validation (AJAX) action
   *
   * @param int $id Report ID to load
+  * 
+  * @todo Finish this
   *
   */
   public static function validate($id = null) {
@@ -163,8 +168,8 @@ class Report_Controller extends Crud_Controller {
     //TODO: run form validation and spit out messages on failure
 
     //Run the report against the DB and render the results
-    $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
-    echo Export::render($report->getResults(), $filename);
+    //$filename = String::machine($report->name) . '_results_' . date('m-d-Y');
+    //echo Export::render($report->getResults(), $filename);
   }
 
 }

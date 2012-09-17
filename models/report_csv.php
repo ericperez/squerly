@@ -16,6 +16,7 @@
   *
   */
 class Report_Csv extends Report_Base {
+  const REPORT_PREVIEW_ROWS = 10;
 
   /**
    *

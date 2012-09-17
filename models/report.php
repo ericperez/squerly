@@ -16,17 +16,22 @@
   *
   */
 class Report extends Report_Base {
-
   public $sub_class;
 
-  //Sets the 'created at' and 'edited at' report fields
-  //TODO
+  //TODO: set the 'created at' and 'edited at' report fields
   public function beforeSave() {
-    
+
   }
 
-
-  //TODO: clean this up
+ /**
+  *
+  * Sets the report 'sub-class' property for use by the report factory/'delegate' method
+  * 
+  * This method is run automatically by Axon after a report instance is loaded from the database
+  *
+  * @todo Clean this up
+  *
+  */
   public function afterLoad() {
     $type = isset($this->type) && !empty($this->type) ? $this->type : 'sql'; //Defaults to SQL-based report
     $sub_class = String::machine('report_' . $type, true);
@@ -39,7 +44,16 @@ class Report extends Report_Base {
   }
 
 
-  //Report factory
+ /**
+  *
+  * Report Factory
+  * 
+  * This method uses the 'sub-class' property of the report to determine 
+  *   which class to use and returns an instance of it
+  *
+  * @return object Instance of report sub-class
+  *
+  */
   public static function delegate($id) {
     $report = new self();
     $report->load("id = {$id}");
@@ -50,6 +64,33 @@ class Report extends Report_Base {
     }
     $report_sub_class = new $report->sub_class();
     return $report_sub_class->load("id = {$id}");
+  }
+
+
+
+ /**
+  *
+  * Returns an array of 'actions' available for the report model (to be rendered on the Index page)
+  *
+  * @param int $id ID of report (to be plugged into the HTML returned)
+  * @return array 'Title' => 'HTML markup'
+  *
+  */
+  public static function getIndexActions($id) {
+    return array(
+      'Preview Results' => "
+        <div title='This will not work for reports with required inputs'>
+        <form action='/report/render/{$id}'>
+        <input type='hidden' name='preview' value='1' />
+        <select name='context'>
+          <option value='table'>HTML Table</option>
+          <option value='json'>JSON</option>
+          <option value='highcharts'>Line Graph</option>
+        </select>
+        <input type='submit' value='Preview' />
+        </form>
+        </div>",
+    );
   }
 
 }
