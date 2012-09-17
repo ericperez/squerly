@@ -39,7 +39,7 @@ class SQL {
   public static function overrideLimit($sql, $new_limit) {
     $new_limit_string = "\nLIMIT {$new_limit}";
     $limit_regex = '/LIMIT[\s]+[0-9]+/i';
-    $offset_regex = 'OFFSET[\s]+[0-9]+/i';
+    $offset_regex = '/OFFSET[\s]+[0-9]+/i';
     //Query has existing LIMIT clause; replace it
     $new_sql = preg_replace(array($limit_regex, $offset_regex), array($new_limit_string, "\n"), $sql);
     //Query did not have existing LIMIT clause; add one
