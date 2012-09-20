@@ -1,6 +1,6 @@
 {
   "unique_key": {
-    "name": "reporting",
+    "name": "Report",
     "description": "This is the connection that SQL report queries will hit by default.",
     "notes": "See config/db_connections.readme for more information",
     "type": "sqlite",
