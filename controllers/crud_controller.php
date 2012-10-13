@@ -126,6 +126,7 @@ class Crud_Controller implements Crud_Controller_Interface {
   */
   public static function add($try_to_delegate = true) {
     //if(!F3::get('SESSION.user')) { F3::reroute(F3::get('URL_BASE_PATH') . 'auth/login'; }; //TODO: Permission Check
+    F3::clear('content');
     list($model, $model_friendly) = CRUD_Helper::getModelName();
     if($try_to_delegate && Crud_Controller::delegate($model, 'add') !== false) { return; }
     if(!F3::exists('navigation')) { F3::set('navigation', CRUD_Helper::navigation('add')); }
@@ -139,8 +140,11 @@ class Crud_Controller implements Crud_Controller_Interface {
         'method' => 'post',
       );
       //var_dump(self::$_forms); exit;
+      //Set the 'updated_at' field to current date
+      $now = date('Y-m-d');
+      $values = array('created_at' => $now, 'updated_at' => $now);
       $form = (isset(self::$_forms['add']) && Crud_Helper::getForm(self::$_forms['add']))
-        ?: CRUD_Helper::buildFormFromModel($model, array(), array(), $form_config);
+        ?: CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
       F3::set('form', $form);
     }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
@@ -157,6 +161,7 @@ class Crud_Controller implements Crud_Controller_Interface {
   *
   */
   public static function edit($try_to_delegate = true) {
+    F3::clear('content');
     $id = (int) F3::get('PARAMS.id');
     list($model, $model_friendly) = CRUD_Helper::getModelName();
     //If controller exists for the specific CRUD model, call that first
@@ -173,7 +178,10 @@ class Crud_Controller implements Crud_Controller_Interface {
         'action' => F3::get('URL_BASE_PATH') . $model . "/edit/${id}/token/{$csrf_token}",
         'method' => 'post',
       );
-      $form = CRUD_Helper::buildFormFromModel($model, array(), F3::get('record'), $form_config);
+      //Set the 'updated_at' field to current date
+      $now = date('Y-m-d');
+      $values = array('updated_at' => $now) + F3::get('record');
+      $form = CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
       F3::set('form', $form);
     }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
@@ -205,7 +213,7 @@ class Crud_Controller implements Crud_Controller_Interface {
     //$allowed_fields = array_diff_key();
     $record->copyFrom('POST'); //, $allowed_fields); //TODO: create blacklist of fields to not accept from POST
     $saved_id = $record->save();
-    $action = ($id > 0 && $saved_id === null) ? "{$id} updated" : 'added';
+    $action = ($id > 0 && $saved_id === null) ? "{$id} updated" : "{$saved_id} added";
     Notify::info("{$model_friendly} {$action} successfully.");
     F3::reroute(F3::get('URL_BASE_PATH') . $model);
   }
