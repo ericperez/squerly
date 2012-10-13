@@ -43,14 +43,15 @@ class Data_Source {
   * 
   * @param string $file_path Local file path or URI that points to CSV data
   * @param int $max_rows Maximum number of rows of CSV data to load
+  * @param string $delimiter Character that delimits the CSV fields (defaults to a comma)
   * @return array 2D associative array holding a representation of the CSV data
   *
   */
-  public static function loadCSVFile($file_path, $max_rows = 10) {
+  public static function loadCSVFile($file_path, $max_rows = 0, $delimiter = ',') {
+    $output = array();
     if(($handle = fopen($file_path, "r")) !== FALSE) {
       $row = 1;
-      $output = array();
-      while(($data = fgetcsv($handle)) !== FALSE) {
+      while(($data = fgetcsv($handle, 0, $delimiter)) !== FALSE) {
         //Build the header/column names
         if($row === 1) {
           $header = $data; 
@@ -61,6 +62,44 @@ class Data_Source {
         if($max_rows > 0 && $row++ > $max_rows) { break; }
       }
       fclose($handle);
+    }
+    return $output;
+  }
+
+
+/**
+  *
+  * CSV String import method
+  * 
+  * Loads data from a CSV string and converts it into an associative array
+  * 
+  * @param string $input CSV string
+  * @param int $max_rows Maximum number of rows of CSV data to load
+  * @param string $delimiter Character that delimits the CSV fields (defaults to a comma)
+  * @param array $header If $input is a
+  * @return array 2D associative array holding a representation of the CSV data
+  *
+  */
+  public static function loadCSVString($input, $max_rows = 0, $delimiter = ',', array $header) {
+    $output = array();
+    $input_rows = explode(PHP_EOL, $input);
+    $input = null;
+    $row = 1;
+
+    foreach($input_rows as &$data) {
+      $data = explode($delimiter, $data);
+
+      //Build the header/column names
+      if($row === 1 && empty($header)) {
+        $header = array_map('strval', array_keys($data));
+        $row++;
+        continue;
+      }
+
+      if(!(sizeof($data) == 1 && empty($data[0]))) { 
+        $output[] = array_combine($header, array_map('trim', $data));
+        if($max_rows > 0 && $row++ > $max_rows) { break; }
+      }
     }
     return $output;
   }
