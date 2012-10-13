@@ -128,7 +128,7 @@ class CRUD_Helper {
 
       //Set the field values for existing records
       $field_attribs['value'] = (array_key_exists($field_attribs['name'], $values)) ? $values[$field_attribs['name']] : '';
-            
+
       //TODO: consolidate some of this code and clean it up
       switch($field_attribs['type']) { //TODO: update to handle other field/element types
         case 'foreign_key':
@@ -159,7 +159,8 @@ class CRUD_Helper {
           break;
 
         default: //Handles number, date, datetime, time, and text fields
-          $output .= '<td>' . Form::input($field_attribs['name'], $field_attribs['value'], $field_attribs) . "</td></tr>\n";
+          $value = $field_attribs['value'];
+          $output .= '<td>' . Form::input($field_attribs['name'], $value, $field_attribs) . "</td></tr>\n";
           break;
       }
     }
@@ -251,6 +252,29 @@ class CRUD_Helper {
 
  /**
   *
+  * Normalizes boolean-esque data into
+  *
+  * @param array $records 2D array of CRUD record data
+  * @return array 2D array of CRUD record data after processing
+  * 
+  */
+  public static function normalizeBooleanFields(
+    array $records, 
+    array $bool_cols = array(), 
+    $true_val = 'Yes', 
+    $false_val = 'No'
+  ) {
+    $columns = array_keys($records[0]);
+    foreach($columns as $column) {
+      $col_data = Matrix::pick($records, $column);
+
+    }
+    return $records;
+  }
+
+
+ /**
+  *
   * Generates basic navigation HTML for a given CRUD 'action/route'
   * 
   *
@@ -325,10 +349,13 @@ class CRUD_Helper {
   * @param array $records 2D array of CRUD record data
   * @return array 2D array of CRUD record data after processing
   * 
+  * @todo Pass $records by reference ??
+  * 
   */
   public static function preprocessRecordData(array $records) {
     $records = Db_Meta::resolveForeignKeys($records);
     $records = self::addActionColumns($records);
+    //$records = self::normalizeBooleanFields($records);
     return $records;
   }
 
@@ -381,7 +408,7 @@ class CRUD_Helper {
     return array(
       "http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.min.js",
       "http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.min.js",
-      "http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.1/jquery.dataTables.min.js",
+      "http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js",
       "/assets/js/TableTools/media/js/TableTools.js",
       "/assets/js/TableTools/media/js/ZeroClipboard.js",
     );
@@ -400,7 +427,7 @@ class CRUD_Helper {
   public static function getBaseStylesheets() {
     return array(
       "http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/themes/smoothness/jquery-ui.css",
-      "http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.1/css/jquery.dataTables.css",
+      "http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css",
       "/assets/js/TableTools/media/css/TableTools.css",
     );
   }
