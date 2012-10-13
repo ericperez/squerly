@@ -37,6 +37,7 @@ class SQL {
    *
    */
   public static function overrideLimit($sql, $new_limit) {
+    if(!trim($sql)) { return ''; }
     $new_limit_string = "\nLIMIT {$new_limit}";
     $limit_regex = '/LIMIT[\s]+[0-9]+/i';
     $offset_regex = '/OFFSET[\s]+[0-9]+/i';
@@ -110,6 +111,67 @@ class SQL {
       }
     }
     return join($where, ' AND ');
+  }
+
+
+  /**
+   *
+   * Splits a SQL SELECT string by clauses
+   * 
+   * @param string $select_statement SQL SELECT statement
+   * @return $array Array of individual SELECT clauses
+   * 
+   */
+  public static function explodeSelectStatement($select_statement) {
+    $regex = '/[\s]*\b(' .
+        'SELECT|' .
+        'FROM|' .
+        'WHERE|' .
+        'GROUP\s+BY|' .
+        'HAVING|' .
+        'ORDER\s+BY|' .
+        'LIMIT|' .
+        'OFFSET' .
+        ')[\s]+/i';
+    $matches = preg_split($regex, $select_statement, -1, PREG_SPLIT_DELIM_CAPTURE);
+    array_shift($matches);
+    $clauses = array();
+    $values = array();
+    foreach($matches as $k => $match) {
+      if($k % 2 === 0) { $clauses[] = strtoupper($match); }
+      else { $values[] = $match; }
+    }
+    return array_combine($clauses, $values);
+  }
+
+
+  /**
+   *
+   * Splits a SQL 'SELECT' clause string into individual fields
+   * 
+   * @param string $select_clause SQL SELECT clause
+   * @return $array Array of individual SELECT clause fields
+   * 
+   */
+  public static function explodeSelectClause($select_clause) {
+    $select_clause = preg_replace('/\(.*?\)/i', '', $select_clause);
+    $result = explode(",", $select_clause);
+    $result = array_map('self::_fieldFilter', $result);
+    return $result;
+  }
+
+
+  /**
+   *
+   * Cleans up 'SELECT' clause fields
+   * Called by explodeSelectClause
+   * 
+   * @param string $select_clause SQL SELECT clause
+   * @return $array Array of individual SELECT clause fields
+   * 
+   */
+  private static function _fieldFilter($field) {
+    return trim(preg_replace('/^.*as\s+/i', '', $field), " `'\"\t\r\n");
   }
 
 
