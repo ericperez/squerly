@@ -68,8 +68,9 @@ class Export {
   * @param string $content Export content to be put into the layout as 'content'
   *
   */
-  public static function loadLayout($content) {
+  public static function loadLayout($content, $page_title = '') {
     F3::set('content', $content);
+    F3::set('page_title', $page_title);
     $output_format = self::getOutputFormat();
     $layout_path = 'export/' . $output_format . '.phtml';
     //TODO: make sure file exists

@@ -57,7 +57,7 @@ class Report_Sql extends Report_Base {
     $query = SQL::stripComments(strtoupper($this->processed_query)); //Strip comments, and upper-case the SQL
 
     //Make sure report query starts with 'SELECT '
-    if(substr($query, 0, 7) !== 'SELECT ') { F3::error('', self::REPORT_NOT_SELECT_STATEMENT . " Query: {$query}"); }
+    if(trim($query) !== '' && substr($query, 0, 7) !== 'SELECT ') { F3::error('', self::REPORT_NOT_SELECT_STATEMENT . " Query: {$query}"); }
 
     $disallowed_keywords = array(
       'ALTER ROUTINE', 'ALTER TABLE', 'ALTER USER', 'COMMIT', 'DELETE ',

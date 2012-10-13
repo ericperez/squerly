@@ -28,7 +28,7 @@ class CRUD extends Axon {
   */
   public static function delegate($model) {
     $class_name = String::modelToClass($model);
-    if(@class_exists($class_name) && is_subclass_of($class_name, 'CRUD')) {
+    if(@class_exists($class_name) && @is_subclass_of($class_name, 'CRUD')) {
       return new $class_name();
     } else {
       return new self($model);

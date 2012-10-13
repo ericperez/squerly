@@ -36,7 +36,7 @@ class Report extends Report_Base {
     $type = isset($this->type) && !empty($this->type) ? $this->type : 'sql'; //Defaults to SQL-based report
     $sub_class = String::machine('report_' . $type, true);
     //$sub_class_file = String::machine($sub_class);
-    if(@class_exists($sub_class) && is_subclass_of($sub_class, 'Report_Base')) {
+    if(@class_exists($sub_class) && @is_subclass_of($sub_class, 'Report_Base')) {
       $this->sub_class = $sub_class;
     } else {
       F3::error('', "Report class {$sub_class} not found.");

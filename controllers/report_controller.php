@@ -111,7 +111,7 @@ class Report_Controller extends Crud_Controller {
     //Load the data from the data source and render the results
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
     $preview = isset($_GET['preview']);
-    echo Export::loadLayout(Export::render($report->getResults($preview), $filename));
+    echo Export::loadLayout(Export::render($report->getResults($preview), $filename), $report->name);
   }
 
 

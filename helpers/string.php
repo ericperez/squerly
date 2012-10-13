@@ -28,6 +28,8 @@ class String {
     $replacements = array(
       '/ Id$/'       => '',
       '/Id/'         => 'ID',
+      '/^Ip$/'        => 'IP',
+      '/^Ip /'        => 'IP ',
       '/^Row/'       => '',
       '/Html/'       => 'HTML',
       '/Css/'        => 'CSS',
