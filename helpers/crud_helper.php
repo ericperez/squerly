@@ -36,9 +36,9 @@ class CRUD_Helper {
       $additional_actions = @$class_name::getIndexActions($id) ?: array();
       $actions = array(
         //TODO: add BASE_URL_PATH to the URLS!!
-        array("Delete {$model_friendly}" => "<a href='/{$model}/delete/{$id}'>Delete</a>"),
-        array("Edit {$model_friendly}" => "<a href='/{$model}/edit/{$id}'>Edit</a>"),
-        array("View {$model_friendly}" => "<a href='/{$model}/view/{$id}'>View</a>"),
+        array("Delete" => "<a href='/{$model}/delete/{$id}'>Delete</a>"),
+        array("Edit" => "<a href='/{$model}/edit/{$id}'>Edit</a>"),
+        array("View" => "<a href='/{$model}/view/{$id}'>View</a>"),
 
       );
       if(!empty($additional_actions)) { $actions[] = $additional_actions; }
@@ -353,6 +353,11 @@ class CRUD_Helper {
   * 
   */
   public static function preprocessRecordData(array $records) {
+    foreach($records as &$record) {
+      foreach($record as $key => &$val) {
+        $val = htmlentities($val);
+      }
+    }
     $records = Db_Meta::resolveForeignKeys($records);
     $records = self::addActionColumns($records);
     //$records = self::normalizeBooleanFields($records);
