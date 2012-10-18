@@ -18,11 +18,6 @@
 class Report extends Report_Base {
   public $sub_class;
 
-  //TODO: set the 'created at' and 'edited at' report fields
-  public function beforeSave() {
-
-  }
-
  /**
   *
   * Sets the report 'sub-class' property for use by the report factory/'delegate' method
@@ -38,8 +33,6 @@ class Report extends Report_Base {
     //$sub_class_file = String::machine($sub_class);
     if(@class_exists($sub_class) && @is_subclass_of($sub_class, 'Report_Base')) {
       $this->sub_class = $sub_class;
-    } else {
-      F3::error('', "Report class {$sub_class} not found.");
     }
   }
 
@@ -62,8 +55,8 @@ class Report extends Report_Base {
       F3::reroute(F3::get('URL_BASE_PATH') . 'report'); 
       exit; 
     }
-    $report_sub_class = new $report->sub_class();
-    return $report_sub_class->load("id = {$id}");
+    $report_class = (!empty($report->sub_class)) ? new $report->sub_class : new self;
+    return $report_class->load("id = {$id}");
   }
 
 
