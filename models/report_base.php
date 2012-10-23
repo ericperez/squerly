@@ -48,21 +48,23 @@ class Report_Base extends Report_Abstract {
    */
   protected function _phpPreprocess() {
     //TODO: refactor this to use allow_url_fopen/temp file ??
-    function php_wrapper($input) {
-      //Attempt to turn on required php.ini directives
-      ini_set("allow_url_fopen", "On"); 
-      ini_set("allow_url_include", "On");
-      ob_start();
-      if(ini_get('allow_url_include')) { 
-        include "data:text/plain;base64," . base64_encode($input);
-      } else {
-        eval('?>' . PHP_EOL .  $this->query . PHP_EOL . '<?php ');
-      }
-      ini_restore("allow_url_include"); ini_restore("allow_url_fopen");
-      return ob_get_clean();
-    }
     //If $this->query contains '<?' then it's assumed to have embedded PHP code; if so, run it through PHP processing
-    $this->processed_query = (strpos($this->query, '<?') !== false) ? php_wrapper($this->query) : $this->query;
+    $this->processed_query = (strpos($this->query, '<?') !== false) ?
+      //This wrapper attempts to do an 'include' first then falls back on on 'eval'
+      function($input) {
+        //Attempt to turn on required php.ini directives
+        ini_set("allow_url_fopen", "On");
+        ini_set("allow_url_include", "On");
+        ob_start();
+        if(ini_get('allow_url_include')) { 
+          include "data:text/plain;base64," . base64_encode($input);
+        } else {
+          eval('?>' . PHP_EOL .  $this->query . PHP_EOL . '<?php ');
+        }
+        ini_restore("allow_url_include");
+        ini_restore("allow_url_fopen");
+        return ob_get_clean();
+      } : $this->query;
     return true;
   }
 
