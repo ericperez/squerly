@@ -23,18 +23,19 @@ class Mustache_Helper
    * Returns an array of all template tags/substitution variables
    * 
    * @param string $input 'tagged' input
-   * @param boolean $prefix_char adds a prefix to each returned variable
+   * @param string $prefix adds a prefix to each returned variable
+   * @param string $suffix adds a suffix to each returned variable
    * @return array Contains all the inside contents of the template tags with or without a prefix
    * 
    * @todo Allow custom tag openers/closers
    *
    */
-  public static function vars($template, $prefix_char = null) {
+  public static function vars($template, $prefix = '', $suffix = '') {
     preg_match_all('/{\[(\S+)\]}/', $template, $matches);
-    if(!$prefix_char) { return $matches[1]; }
+    if($prefix === '' && $suffix === '') { return $matches[1]; }
     $output = array();
     foreach($matches[1] as $var) {
-      $output[] = $prefix_char . $var;
+      $output[] = $prefix . $var . $suffix;
     }
     return $output;
   }
@@ -86,13 +87,14 @@ class Mustache_Helper
    * 
    * @param string $template 'Tagged' input template
    * @param array $values Associative array with values to fill into $sql_template
+   * @param array $param_prefix Parameter replacement value prefix string (defaults to ':' which is what F3 is expecting)
+   * @param array $param_suffix Parameter replacement value suffix string
    * @return array SQL query with tags replaced with bind parameter placeholders / array of bind parameters
    *
    */
-  public static function renderSQL($sql_template, $values) {
-    $param_prefix = ':';
+  public static function renderSQL($sql_template, $values, $param_prefix = ':', $param_suffix = '') {
     $template_keys = self::vars($sql_template);
-    $template_params = self::vars($sql_template, $param_prefix);
+    $template_params = self::vars($sql_template, $param_prefix, $param_suffix);
     $template_tags = array();
 
     //Figure out if values for each template tag were provided
@@ -120,7 +122,7 @@ class Mustache_Helper
 
     //If there are duplicate template tag names within a query, they need to be made unique
     foreach($template_keys as $template_key) {
-      $num_keys = substr_count($bound_sql, $param_prefix . $template_key);
+      $num_keys = substr_count($bound_sql, $param_prefix . $template_key . $param_suffix);
       for($i = $num_keys; $i > 1; $i--) {
         $new_key = String::numeralWords(mt_rand(0, 9) . '_' . ($i - 1)) . '_unique_' . $template_key;
         $template_tags[$new_key] = $template_tags[$template_key];
