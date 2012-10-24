@@ -44,6 +44,16 @@ class Export_Highcharts implements Export_Interface {
     $chart->credits = new HighRollerCredits();
     $chart->credits->enabled = false;
 
+    $chart->legend = new HighRollerLegend();
+    $chart->legend->style = json_decode('
+      "style": {
+        "left": "auto",
+        "bottom": "auto",
+        "right": "10px",
+        "top": "100px"
+      }
+    ');
+
     //Cycle through each column of data and convert it into a series on the chart
     $column_num = 0;
     $column_names = array_keys($data[0]);
@@ -55,7 +65,7 @@ class Export_Highcharts implements Export_Interface {
         continue; 
       }
       //Subsequent columns contain 'data series' for the chart
-      $series_data = array_map('intval', Matrix::pick(&$data, $col_name));
+      $series_data = array_map(function($in) { return (float) preg_replace('/[^0-9,\.]/', '', $in); }, Matrix::pick(&$data, $col_name));
       $series = new HighRollerSeriesData();
       $series
         ->addName(String::humanize($col_name))
