@@ -113,7 +113,16 @@ class CRUD_Helper {
 
       //Make sure 'ID' fields are hidden
       //TODO: use table primary keys for $hidden_fields ??
-      $hidden_fields = array('id', 'record_id', 'recordid', $field['TABLE_NAME'] . '_id', $field['TABLE_NAME'] . 'id'); //TODO: make this more robust
+      //TODO: make this more robust
+      $hidden_fields = array(
+        'id', 
+        'record_id', 
+        'recordid', 
+        $field['TABLE_NAME'] . '_id', 
+        $field['TABLE_NAME'] . 'id',
+        'created_at', //TODO: update date fields on back end instead of form
+        'updated_at',
+      ); 
       if(in_array($field['COLUMN_NAME'], $hidden_fields)) { 
         $field_attribs['type'] = 'hidden'; 
         $output .= "<tr style='display: none;'><td>&nbsp;</td>\n";
@@ -353,6 +362,7 @@ class CRUD_Helper {
   * 
   */
   public static function preprocessRecordData(array $records) {
+    //XSS mitigation
     foreach($records as &$record) {
       foreach($record as $key => &$val) {
         $val = htmlentities($val);
