@@ -26,6 +26,15 @@ class Pivot
         $this->_recordset = $recorset;
     }
 
+    /**
+     * @param mixed $in
+     * @return float $in value stripped of all chars but 0-9, ',', and '.'
+     */
+    protected function _FloatTrim($in)
+    {
+        return preg_replace('/[^0-9,\.]/', '', $in);
+    }
+
     private $_typeMark = false;
     /**
      * @param boolean $type
@@ -121,7 +130,7 @@ class Pivot
                         if(@!isset($tmp[$k0][$reg[$split]][$reg[$column]][$item])) {
                             @$tmp[$k0][$reg[$split]][$reg[$column]][$item] = 0;
                         }
-                        if(isset($reg[$item])) { @$tmp[$k0][$reg[$split]][$reg[$column]][$item] += $reg[$item]; }
+                        if(isset($reg[$item])) { @$tmp[$k0][$reg[$split]][$reg[$column]][$item] += self::_FloatTrim($reg[$item]); }
                         @$this->_splits[$reg[$split]][$reg[$column]][$item] = $item;
                     }
                     break;
@@ -137,7 +146,7 @@ class Pivot
                         if(!isset($tmp[$k0][$k1][$reg[$split]][$reg[$column]][$item])) {
                            $tmp[$k0][$k1][$reg[$split]][$reg[$column]][$item] = 0;
                         }
-                        if(isset($reg[$item])) { $tmp[$k0][$k1][$reg[$split]][$reg[$column]][$item] += $reg[$item]; }
+                        if(isset($reg[$item])) { $tmp[$k0][$k1][$reg[$split]][$reg[$column]][$item] += self::_FloatTrim($reg[$item]); }
                         $this->_splits[$reg[$split]][$reg[$column]][$item] = $item;
                     }
                     break;
@@ -154,7 +163,7 @@ class Pivot
                         if(!isset($tmp[$k0][$k1][$k2][$reg[$split]][$reg[$column]][$item])) {
                             $tmp[$k0][$k1][$k2][$reg[$split]][$reg[$column]][$item] = 0;
                         }
-                        if(isset($reg[$item])) { $tmp[$k0][$k1][$k2][$reg[$split]][$reg[$column]][$item] += $reg[$item]; }
+                        if(isset($reg[$item])) { $tmp[$k0][$k1][$k2][$reg[$split]][$reg[$column]][$item] += self::_FloatTrim($reg[$item]); }
                         $this->_splits[$reg[$split]][$reg[$column]][$item] = $item;
                     }
                     break;
