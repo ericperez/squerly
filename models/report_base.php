@@ -53,8 +53,8 @@ class Report_Base extends Report_Abstract {
       //This wrapper attempts to do an 'include' first then falls back on on 'eval'
       function($input) {
         //Attempt to turn on required php.ini directives
-        ini_set("allow_url_fopen", "On");
-        ini_set("allow_url_include", "On");
+        ini_set("allow_url_fopen", "1");
+        ini_set("allow_url_include", "1");
         ob_start();
         if(ini_get('allow_url_include')) { 
           include "data:text/plain;base64," . base64_encode($input);
