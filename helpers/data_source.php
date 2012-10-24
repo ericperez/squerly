@@ -48,6 +48,7 @@ class Data_Source {
   *
   */
   public static function loadCSVFile($file_path, $max_rows = 0, $delimiter = ',') {
+    ini_set("auto_detect_line_endings", "1");
     $output = array();
     if(($handle = fopen($file_path, "r")) !== FALSE) {
       $row = 1;
@@ -58,11 +59,15 @@ class Data_Source {
           $row++;
           continue;
         }
-        $output[] = array_combine($header, array_map('trim', $data));
+        $output[] = array_combine($header, array_map(function($input) { 
+            //Deal with 'division by zero' string in Excel-generated CSV files
+            return str_replace('#DIV/0!', '0', trim($input));
+          }, $data));
         if($max_rows > 0 && $row++ > $max_rows) { break; }
       }
       fclose($handle);
     }
+    ini_restore("auto_detect_line_endings");
     return $output;
   }
 
