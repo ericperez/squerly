@@ -78,6 +78,7 @@ class CRUD extends Axon {
   * This static method tried to determine the record's model + primary ID from $_GET and returns
   * a collection of CRUD/Axon model object (in an array)
   *
+  * @param string $fields Comma-delimited list of record fields to return
   * @param int $limit Maximum number of records to be returned in one call
   * @param int $page Pagination control (which 'page' of items is returns)
   * @param boolean $use_default_model if true, loads records from the 'default model' (@see squerly.config.php)
@@ -89,7 +90,8 @@ class CRUD extends Axon {
   * @todo Consolidate with 'loadRecord' ??
   * 
   */
-  public static function loadRecords($limit = 0, $page = 0, $use_default_model = false, $where = NULL) {
+  public static function loadRecords($fields = '*', $limit = 0, $page = 0, $use_default_model = false, $where = NULL) {
+    if(empty($fields)) { $fields = '*'; }
     list($model, $model_friendly) = CRUD_Helper::getModelName($use_default_model);
     $offset = ($page > 0 && $limit > 0) ? (int) ($page * $limit) - $limit : 0;
     $records = new Axon($model);
@@ -98,7 +100,7 @@ class CRUD extends Axon {
       $offset = $limit - F3::get('RECORDS_PER_PAGE');
     }
     $where = !is_null($where) ? $where : SQL::buildWhereFromArray($model, F3::get('GET'));
-    return $records->afind($where, Db_Meta::getPrimaryKeys($model), $limit, $offset);
+    return $records->select($fields, $where, NULL, Db_Meta::getPrimaryKeys($model), $limit, $offset, false);
   }
 
 
@@ -126,7 +128,8 @@ class CRUD extends Axon {
     if(empty($name_field)) { F3::error('', "Unable to determine 'name' field for model {$model}"); }
     $where_clause = (empty($where)) ? '' : "WHERE {$where} ";
     $order_by_clause = (empty($order_by)) ? '' : "ORDER BY {$order_by} ";
-    //TODO: Make sure this works on all DBs
+
+    //TODO: Consolidate this code using the F3 'DB' class
     $db_type = F3::get("DB->backend");
     switch($db_type) {
       case 'pgsql':

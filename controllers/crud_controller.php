@@ -40,6 +40,25 @@ class Crud_Controller implements Crud_Controller_Interface {
 
  /**
   *
+  * Sets the 'content' registry value to the fields (in $fields) of the current CRUD model
+  *   
+  */
+  protected static function _getIndexRecords($fields) {
+    list($model, $model_friendly) = CRUD_Helper::getModelName();
+    $limit = F3::get('RECORDS_PER_PAGE');
+    $page = (int) F3::get('GET.page') ?: 1;
+    $records = CRUD::loadRecords($fields, $limit, $page, false);
+    if(!empty($records)) {
+      F3::set('content', Export::render(CRUD_Helper::preprocessRecordData($records), $model, 'table'));
+    } else {
+      $records_name = Inflector::plural($model_friendly);
+      F3::set('content', "No {$records_name} Found");
+    }
+  }
+
+
+ /**
+  *
   * Set up all the CRUD routes
   *   
   */
@@ -101,14 +120,7 @@ class Crud_Controller implements Crud_Controller_Interface {
     if(!F3::exists('title')) { F3::set('title', $records_name); }
     if(!F3::exists('page_title')) { F3::set('page_title', $records_name . F3::get('PAGE_TITLE_BASE')); }
     if(!F3::exists('content')) { 
-      $limit = F3::get('RECORDS_PER_PAGE');
-      $page = (int) F3::get('GET.page') ?: 1;
-      $records = CRUD::loadRecords($limit, $page, false);
-      if(!empty($records)) {
-        F3::set('content', Export::render(CRUD_Helper::preprocessRecordData($records), $model, 'table'));
-      } else {
-        F3::set('content', "No {$records_name} Found");
-      }
+      self::_getIndexRecords('*');
       //TODO: Set vars for pagination controls
     }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
@@ -202,18 +214,17 @@ class Crud_Controller implements Crud_Controller_Interface {
     list($model, $model_friendly) = CRUD_Helper::getModelName();
     //If controller exists for the specific CRUD model, call that first
     if($try_to_delegate && Crud_Controller::delegate($model, 'addEditProcess') !== false) { return; }
-
-    $record = new Axon($model);
-    
     //TODO: add form validation
     //TODO: validate csrf token (kohana version)
 
     $primary_key = Db_Meta::getPrimaryKeys($model);
+    $record = new Axon($model);
     if($id > 0) { $record->load("{$primary_key}={$id}"); };
     //$allowed_fields = array_diff_key();
     $record->copyFrom('POST'); //, $allowed_fields); //TODO: create blacklist of fields to not accept from POST
-    $saved_id = $record->save();
-    $action = ($id > 0 && $saved_id === null) ? "{$id} updated" : "{$saved_id} added";
+    $record->save();
+    $record_id = $record->_id;
+    $action = ($id > 0 && $record->id > 0) ? "{$record->id} updated" : "{$record_id} added";
     Notify::info("{$model_friendly} {$action} successfully.");
     F3::reroute(F3::get('URL_BASE_PATH') . $model);
   }
@@ -304,7 +315,7 @@ class Crud_Controller implements Crud_Controller_Interface {
     $limit = F3::get('RECORDS_PER_PAGE'); //TODO: Update limit/page to only apply on 'table' view??
     $page = (int) F3::get('GET.page') ?: 1;
     //TODO: fix issue with {{id}} being parsed by F3 templating system
-    echo Export::render(CRUD::loadRecords($limit, $page, false), $model);
+    echo Export::render(CRUD::loadRecords('*', $limit, $page, false), $model);
   }
 
 
@@ -342,6 +353,7 @@ class Crud_Controller implements Crud_Controller_Interface {
   *
   */
   public static function search($try_to_delegate = true) {
+    F3::clear('content');
     list($model, $model_friendly) = CRUD_Helper::getModelName();
     $records_name = Inflector::plural($model_friendly);
     //If controller exists for the specific CRUD model, call that first
@@ -391,7 +403,7 @@ class Crud_Controller implements Crud_Controller_Interface {
     }
     $limit = F3::get('RECORDS_PER_PAGE');
     $page = (int) F3::get('GET.page') ?: 1;
-    $records = CRUD::loadRecords($limit, $page, false);
+    $records = CRUD::loadRecords('*', $limit, $page, false);
     if(!F3::exists('content')) { 
       if(!empty($records)) {
         F3::set('content', Export::render(CRUD_Helper::preprocessRecordData($records), $model, 'table'));

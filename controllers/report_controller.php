@@ -76,6 +76,22 @@ class Report_Controller extends Crud_Controller {
 
  /**
   *
+  * 'List Records/Index' action
+  * 
+  * @param boolean $bogus - Unused param for inheritance sake
+  *
+  *   
+  */
+  public static function index($bogus = false) {
+    //These are the fields that show up on the index page
+    $index_fields = 'id, type, name, enabled, hidden_from_ui, created_at, updated_at';
+    self::_getIndexRecords($index_fields);
+    parent::index(false);
+  }
+
+
+ /**
+  *
   * 'HTML Select' Action - Echos ID/name value pairs for a given model as an HTML select element
   * 
   * This can be used in AJAX calls to populate the innerHTML of a DIV with the list of available model instances
