@@ -154,24 +154,11 @@ class SQL {
    * 
    */
   public static function explodeSelectClause($select_clause) {
-    $select_clause = preg_replace('/\(.*?\)/i', '', $select_clause);
-    $result = explode(",", $select_clause);
-    $result = array_map('self::_fieldFilter', $result);
-    return $result;
-  }
-
-
-  /**
-   *
-   * Cleans up 'SELECT' clause fields
-   * Called by explodeSelectClause
-   * 
-   * @param string $select_clause SQL SELECT clause
-   * @return $array Array of individual SELECT clause fields
-   * 
-   */
-  private static function _fieldFilter($field) {
-    return trim(preg_replace('/^.*as\s+/i', '', $field), " `'\"\t\r\n");
+    $fields = explode(",", $select_clause);
+    foreach($fields as &$field) {
+      $field = trim(preg_replace('/^.*\s+as\s+/i', '', trim($field, " `'\"\t\r\n")), " `'\"\t\r\n");
+    }
+    return $fields;
   }
 
 
