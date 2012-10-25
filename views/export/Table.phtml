@@ -1,26 +1,52 @@
-{{@content}}
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>{{@page_title}}</title>
+      <meta charset='utf8' />
+      <?php //TODO: automate loading of CSS/JS w/ PHP/RequireJS; move these to a better place ?>
+      <!-- JS -->
 
-<!-- JS -->
-<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.min.js"></script>
-<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.min.js"></script>
-<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.1/jquery.dataTables.min.js"></script>
-<script type="text/javascript" src="/assets/js/TableTools/media/js/TableTools.js"></script>
-<script type="text/javascript" src="/assets/js/TableTools/media/js/ZeroClipboard.js"></script>
+      <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.min.js"></script>
+      <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.min.js"></script>
+      <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+      <script type="text/javascript" src="/assets/js/TableTools/media/js/TableTools.js"></script>
+      <script type="text/javascript" src="/assets/js/TableTools/media/js/ZeroClipboard.js"></script>
 
-<!-- CSS -->
-<link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/themes/smoothness/jquery-ui.css" />
-<link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.1/css/jquery.dataTables.css" />
-<link rel="stylesheet" type="text/css" href="/assets/js/TableTools/media/css/TableTools.css" />
+      <!-- CSS -->
+      <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" />
+      <link rel="stylesheet" type="text/css" href="/assets/css/ui-darkness/jquery-ui-1.9.0.custom.min.css" />
+      <link rel="stylesheet" type="text/css" href="/assets/js/TableTools/media/css/TableTools.css" />
 
-<script type='application/x-javascript'>
-  $(document).ready(function() {
-    $('table').dataTable({
-      "bJQueryUI": true,
-      "sPaginationType": "full_numbers",
-      "sDom": 'T<"clear">lfrtip',
-      "oTableTools": {
-        "sSwfPath": "/assets/js/TableTools/media/swf/copy_csv_xls_pdf.swf"
-      }
+      <?php //Temporary Styles ?>
+      <style type='text/css'>
+      html, body { margin: 0; padding: 0; width: 100%; font: 100%/1em "Lucida Grande", Verdana, Arial, Helvetica, sans-serif; color: #111; font-size: 12px; }
+      table.dataTable tr.odd { background-color: #F5F5F5; }
+      table.dataTable tr.odd td.sorting_1,
+      table.dataTable tr.odd td.sorting_2,
+      table.dataTable tr.odd td.sorting_3 { background-color: #ACACAC; }
+
+      table.dataTable tr.even { background-color: #E6E6E6; }
+      table.dataTable tr.even td.sorting_1, 
+      table.dataTable tr.even td.sorting_2,
+      table.dataTable tr.even td.sorting_3 { background-color: #DDDDDD; }
+      </style>
+   </head>
+  <body>
+  <div style='text-align:center;'><h2>{{@page_title}}</h2></div><br/>
+  {{@content}}
+
+  <script type='application/x-javascript'>
+    $(document).ready(function() {
+      $('table').dataTable({
+        "bJQueryUI"      : true,
+        "sPaginationType": "full_numbers",
+        "sDom"           : 'T<"clear">lfrtip',
+        "oTableTools"    : { "sSwfPath": "/assets/js/TableTools/media/swf/copy_csv_xls_pdf.swf" },
+        "iDisplayLength" : 50,
+        "aaSorting"      : [],    //initial sort columns
+        "oLanguage"      : { "sInfoFiltered" : "" }
+      });
     });
-  });
-</script>
+  </script>
+  </body>
+</html>
