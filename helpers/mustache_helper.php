@@ -47,9 +47,11 @@ class Mustache_Helper
    * 
    * @param string $template 'Tagged' input template
    * @param array $vars Array of tags => values to be substituted in $input
+   * @param string $callback Function name (or lambda function) to run each element in $vars through
    * @return string Template with Vars populated/substituted
    */
-  public static function render($template, array $vars) {
+  public static function render($template, array $vars, $callback = null) {
+    if(!empty($callback)) { $vars = array_map($callback, $vars); }
     $mustache = new Mustache_Engine();
     return $mustache->render($template, $vars);
   }
@@ -132,6 +134,5 @@ class Mustache_Helper
 
     return array($bound_sql, $template_tags);
   }
-
 
 }
