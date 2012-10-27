@@ -51,7 +51,8 @@ class Mustache_Helper
    * @return string Template with Vars populated/substituted
    */
   public static function render($template, array $vars, $callback = null) {
-    if(!empty($callback)) { $vars = array_map($callback, $vars); }
+    //Runs $callback method on every value in $vars that is a string (array $var values not currently supported)
+    if(!empty($callback)) { $vars = array_map($callback, array_filter($vars, 'is_string')); }  
     $mustache = new Mustache_Engine();
     return $mustache->render($template, $vars);
   }
