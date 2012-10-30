@@ -26,11 +26,46 @@ class Report_Controller extends Crud_Controller {
   * @return object Report object from the report factory based on 'type' field
   *
   */
-  protected static function _loadReport($id) {
+  protected static function _loadReport($id = null) {
     $id = is_int($id) ? $id : (int) F3::get('PARAMS["id"]') ?: null;
     if(!$id) { F3::reroute(F3::get('URL_BASE_PATH') . '/report'); }
     $report = Report::delegate($id);
     return $report;
+  }
+
+
+ /**
+  *
+  * Extracts all of the template vars out of a report and builds an HTML form
+  *
+  * @param object $report - Report object to render an input parameter form for
+  * @param string $action - Report controller action the form action should point to
+  * @return string HTML markup
+  *
+  * @todo Make all form attributes configurable
+  * @todo Add date widgets to date fields, etc
+  * 
+  */
+  protected static function _renderParamsForm($report, $action = 'render', array $form_vals = array()) {
+    //TODO: loop through all properties for template/form vars instead of just query and input_data_uri?
+    $vars = array_unique(Mustache_Helper::vars($report->query) + Mustache_Helper::vars($report->input_data_uri));
+    $vals = !empty($form_vals) ? $form_vals : F3::get('GET');
+    $form_html = Form::open("/report/{$action}/{$report->id}", array('method' => 'get')) . "<table><thead></thead><tbody><tr><td>";
+    //Currently all fields are required; TODO: make this configurable
+    $input_attribs = array('required' => 'required');
+    foreach($vars as $var) {
+      $val = isset($vals[$var]) ? htmlentities($vals[$var]) : '';
+      $form_html .= '<td>' . Form::label($var, String::humanize($var)) . ': ' . Form::input($var, $val, $input_attribs) . '&nbsp;</td>';
+    }
+    //Build the drop down for the report rendering output formats
+    $output_formats = array('table' => 'HTML Table', 'highcharts' => 'Highcharts Line Graph', 'csv' => 'CSV', 'xml' => 'XML');
+    $output_val = isset($_GET['sqrl']['context']) ? $_GET['sqrl']['context'] : 'table';
+    $select_attribs = array('title' => 'Report Output Format');
+    $form_html .= '<td>' . Form::select('sqrl[context]', $output_formats, $output_val, $select_attribs) . '</td>';
+    $form_html .= '<td>' . Form::submit('sqrl[run]', 'Run', array('value' => 'run', 'title'=>'Run the report and render the results')) . '</td></tr></table>' . Form::close();
+    return $form_html;
+    //TODO: Load a saved configuration for values
+    //TODO: Use form library to generate/validate form elements
   }
 
 
@@ -56,21 +91,17 @@ class Report_Controller extends Crud_Controller {
   *
   * 'Form Action'
   * 
-  * Renders an HTML form for the given report
+  * AJAX action to render the input parameters form for a given report by ID
   *
   * @param int $id Report ID to load
-  * 
-  * @todo Finish this
+  * @todo Update this to use the depage-forms library
   *
   */
-  public static function form($id = null) {
-    $report = self::_loadReport($id);
-    //TODO: 
-    //Load a saved configuration
-    //Validate form
-    //Get the report results
-    //Send out the email
-
+  public static function form() {
+    //TODO: Load a saved configuration
+    //TODO: Validate form
+    $report = self::_loadReport();
+    echo self::_renderParamsForm($report);
   }
 
 
@@ -127,7 +158,10 @@ class Report_Controller extends Crud_Controller {
     //Load the data from the data source and render the results
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
     $preview = isset($_GET['preview']);
-    echo Export::loadLayout(Export::render($report->getResults($preview), $filename), $report->name);
+    F3::set('content', Export::render($report->getResults($preview)));
+    F3::set('page_title', $report->name);
+    F3::set('form', self::_renderParamsForm($report));
+    echo Export::loadLayout();
   }
 
 

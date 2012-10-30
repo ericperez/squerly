@@ -23,7 +23,9 @@ class Export_Xml implements Export_Interface {
   *
   * @todo Allow encoding to be passed in; allow DOM root/child node names to be configured
   * @todo Update render code to use the $config var for customization
+  * 
   * @todo Set 'download' headers if filename is not null
+  * @todo Apparently saveXML doesn't generate CDATA blocks!?!
   * 
   */
   public static function render(array $data, $filename = NULL, $config = array()) {
@@ -32,6 +34,7 @@ class Export_Xml implements Export_Interface {
       $row_obj = $xml_obj->addChild('row');
       foreach($row as $key => $val) {
         $key = String::machine((string) $key, true) ?: 'NULL';
+        if(is_numeric(substr($key, 0, 1))) { $key = 'x' . $key; }
         $val = (string) $val;
         $row_obj->addChild($key, $val);
       }

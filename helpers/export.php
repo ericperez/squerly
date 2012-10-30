@@ -21,7 +21,7 @@ class Export {
   *
   * Attempts to determine the output format the user requested
   * 
-  * Uses $output_format if passed in, otherwise looks at $_GET['context'], and lastly
+  * Uses $output_format if passed in, otherwise looks at $_GET['sqrl']['context'], and lastly
   *   defaults to 'table' (HTML Table) output format
   * 
   * @param string $output_format Output type name
@@ -30,7 +30,7 @@ class Export {
   */
   public static function getOutputFormat($output_format = '') {
       //Read output format/context from $output_format or $_GET
-      $output_param = isset($_GET['context']) ? String::modelToClass($_GET['context']) : 'table';
+      $output_param = isset($_GET['sqrl']['context']) ? String::modelToClass(F3::get('GET.sqrl.context')) : 'table';
       $output_format = (!empty($output_format)) ? $output_format : $output_param;
       return $output_format ?: 'table';
   }
@@ -65,16 +65,18 @@ class Export {
   * The output of this method can be used to build dashboards as it includes necessary front-end
   *   components to fully render the report results in a browser
   * 
-  * @param string $content Export content to be put into the layout as 'content'
+  * @return string|boolean HTML markup if layout exists; boolean false if it doesn't
   *
   */
-  public static function loadLayout($content, $page_title = '') {
-    F3::set('content', $content);
-    F3::set('page_title', $page_title);
+  public static function loadLayout() {
     $output_format = self::getOutputFormat();
     $layout_path = 'export/' . $output_format . '.phtml';
-    //TODO: make sure file exists
-    return Template::serve($layout_path);
+    $full_path = __DIR__ . '/../views/' . $layout_path;
+    if(file_exists($full_path)) {
+      return Template::serve($layout_path, null);
+    } else {
+      return false;
+    }
   }
 
 

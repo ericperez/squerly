@@ -48,6 +48,7 @@ class Export_Kml_Points implements Export_Interface {
     $style->set_IconStyle($icon_style);
     $kml->add_Feature($style);
 
+    //TODO: document which fields are required for KML points exporting to work
     foreach($data as $row)
     {
       if(!isset($row['latitude'])  || $row['latitude'] === '' ||
