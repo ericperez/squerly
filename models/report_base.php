@@ -15,7 +15,8 @@
 class Report_Base extends Report_Abstract {
 
   public $processed_query = '';
-  public $results = array();  
+  public $results = array();
+  public $clean_properties = array();
 
 
  /**
@@ -25,6 +26,16 @@ class Report_Base extends Report_Abstract {
   */
   public function __construct() {
     $this->sync(F3::get('DB_TABLE_PREFIX') . 'report');
+  }
+
+
+ /**
+  *
+  * Store a copy of the original properties as loaded from Axon
+  *
+  */
+  public function afterLoad() {
+    $this->clean_properties = $this->cast();
   }
 
 

@@ -11,6 +11,8 @@ abstract class Form_Base extends depage\htmlform\htmlform implements Form_Interf
 
   public function render() {}
 
+  public function renderTable() {}
+
   public function getConfig() {}
 
 }

@@ -6,6 +6,8 @@ interface Form_Interface {
 
   public function render();
 
+  public function renderTable();
+
   public function getConfig();
 
 }

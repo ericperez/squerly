@@ -29,10 +29,7 @@ class Export {
   * 
   */
   public static function getOutputFormat($output_format = '') {
-      //Read output format/context from $output_format or $_GET
-      $output_param = isset($_GET['sqrl']['context']) ? String::modelToClass(F3::get('GET.sqrl.context')) : 'table';
-      $output_format = (!empty($output_format)) ? $output_format : $output_param;
-      return $output_format ?: 'table';
+      return $output_format ?: String::modelToClass(F3::get('REQUEST.sqrl.context')) ?: 'table';
   }
 
 

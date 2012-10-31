@@ -328,14 +328,15 @@ class CRUD_Helper {
         $nav = array($nav_arr['edit'], $nav_arr['delete'], $nav_arr['search']);
         break;
 
-      case 'index':
-        $add_index = false;
-        $nav = array($nav_arr['add'], $nav_arr['search']);
+      case 'search':
+        $nav = array($nav_arr['add']);
         break;
 
-      case 'add';
-      case 'search':
+      case 'index':
+      case 'add':
       default:
+        $add_index = false;
+        $nav = array($nav_arr['add'], $nav_arr['search']);
         break;
     }
     if($add_index) { $nav = array_merge(array($nav_arr['index']), $nav); }
