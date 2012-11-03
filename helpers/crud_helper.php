@@ -85,7 +85,7 @@ class CRUD_Helper {
     $form_action = isset($form_config['action']) ? $form_config['action'] : '#'; //Post to current URI as default
 
     $output = Form::open($form_action, array('method' => $form_method));
-    $output .= $form_header . '<table><tbody>';
+    $output .= $form_header . "<table class='datatable'><thead></thead><tbody>"; //TODO: add fields to thead!!!!
     $table_desc = Db_Meta::describeTable($model, $DBC);
     
     //Array of fields to not render in the form

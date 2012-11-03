@@ -28,7 +28,7 @@ class Export_Table implements Export_Interface {
     //Build the header
     $header_ids = array_keys($data[0]);
     $header = isset($data[0]) ? array_map('String::humanize', $header_ids) : array();
-    $table = "<table><thead><tr>";
+    $table = "<table class='datatable'><thead><tr>";
     foreach($header as $header_value)
     {
       $table .= "<th>{$header_value}</th>";
