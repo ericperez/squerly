@@ -12,7 +12,7 @@
 	Bong Cosca <bong.cosca@yahoo.com>
 
 		@package Expansion
-		@version 2.0.13
+		@version 2.1.0
 **/
 
 //! Web pack
@@ -55,47 +55,18 @@ class Web extends Base {
 			'css'=>'text/css'
 		);
 		$path=self::fixslashes($base);
-		foreach ($files as $file)
+		$src='';
+		foreach ($files as $file) {
 			if (!is_file($path.$file) || is_int(strpos($file,'../')) ||
 				!preg_match('/\.(js|css)$/',$file,$ext) || !$ext[1]) {
 				trigger_error(sprintf(self::TEXT_Minify,$file));
 				return $echo?NULL:FALSE;
 			}
-		$src='';
-		foreach ($files as $file) {
 			$stats=&self::ref('STATS');
 			$stats['FILES']['minified']
 				[basename($file)]=filesize($path.$file);
-			// Rewrite relative URLs in CSS
-			$src.=preg_replace_callback(
-				'/\b(?=url)\(([\"\'])?(.+?)\1\)/s',
-				function($url) use($path,$file) {
-					// Ignore absolute URLs
-					if (preg_match('/https?:/',$url[2]))
-						return $url[0];
-					$fdir=dirname($file);
-					$rewrite=explode(
-						'/',$path.($fdir!='.'?$fdir.'/':'').$url[2]
-					);
-					$i=0;
-					while ($i<count($rewrite))
-						// Analyze each URL segment
-						if ($i && $rewrite[$i]=='..' &&
-							$rewrite[$i-1]!='..') {
-							// Simplify URL
-							unset($rewrite[$i],$rewrite[$i-1]);
-							$rewrite=array_values($rewrite);
-							$i--;
-						}
-						else
-							$i++;
-					// Reconstruct simplified URL
-					return
-						'('.implode('/',array_merge($rewrite,array())).')';
-				},
-				// Retrieve CSS/Javascript file
-				self::getfile($path.$file)
-			);
+			// Retrieve CSS/Javascript file
+			$src.=self::getfile($path.$file);
 		}
 		$ptr=0;
 		$dst='';
@@ -478,15 +449,15 @@ class Web extends Base {
 			'à'=>'a','á'=>'a','â'=>'a','ã'=>'a','å'=>'a','ä'=>'a','æ'=>'ae',
 			'Þ'=>'B','þ'=>'b','Č'=>'C','Ć'=>'C','Ç'=>'C','č'=>'c','ć'=>'c',
 			'ç'=>'c','Ď'=>'D','ð'=>'d','ď'=>'d','Đ'=>'Dj','đ'=>'dj','È'=>'E',
-			'É'=>'E','Ê'=>'E','Ë'=>'E','è'=>'e','é'=>'e','ê'=>'e','ë'=>'e',
-			'Ì'=>'I','Í'=>'I','Î'=>'I','Ï'=>'I','ì'=>'i','í'=>'i','î'=>'i',
-			'ï'=>'i','Ľ'=>'L','ľ'=>'l','Ñ'=>'N','Ň'=>'N','ñ'=>'n','ň'=>'n',
-			'Ò'=>'O','Ó'=>'O','Ô'=>'O','Õ'=>'O','Ø'=>'O','Ö'=>'O','Œ'=>'OE',
-			'ò'=>'o','ó'=>'o','ô'=>'o','õ'=>'o','ö'=>'o','œ'=>'oe','ø'=>'o',
-			'Ŕ'=>'R','Ř'=>'R','ŕ'=>'r','ř'=>'r','Š'=>'S','š'=>'s','ß'=>'ss',
-			'Ť'=>'T','ť'=>'t','Ù'=>'U','Ú'=>'U','Û'=>'U','Ü'=>'U','Ů'=>'U',
-			'ù'=>'u','ú'=>'u','û'=>'u','ü'=>'u','ů'=>'u','Ý'=>'Y','Ÿ'=>'Y',
-			'ý'=>'y','ÿ'=>'y','Ž'=>'Z','ž'=>'z'
+			'É'=>'E','Ê'=>'E','Ë'=>'E','Ě'=>'e','ě'=>'e','è'=>'e','é'=>'e',
+			'ê'=>'e','ë'=>'e','Ì'=>'I','Í'=>'I','Î'=>'I','Ï'=>'I','ì'=>'i',
+			'í'=>'i','î'=>'i','ï'=>'i','Ľ'=>'L','ľ'=>'l','Ñ'=>'N','Ň'=>'N',
+			'ñ'=>'n','ň'=>'n','Ò'=>'O','Ó'=>'O','Ô'=>'O','Õ'=>'O','Ø'=>'O',
+			'Ö'=>'O','Œ'=>'OE','ò'=>'o','ó'=>'o','ô'=>'o','õ'=>'o','ö'=>'o',
+			'œ'=>'oe','ø'=>'o','Ŕ'=>'R','Ř'=>'R','ŕ'=>'r','ř'=>'r','Š'=>'S',
+			'š'=>'s','ß'=>'ss','Ť'=>'T','ť'=>'t','Ù'=>'U','Ú'=>'U','Û'=>'U',
+			'Ü'=>'U','Ů'=>'U','ù'=>'u','ú'=>'u','û'=>'u','ü'=>'u','ů'=>'u',
+			'Ý'=>'Y','Ÿ'=>'Y','ý'=>'y','ÿ'=>'y','Ž'=>'Z','ž'=>'z'
 		);
 		self::$vars['DIACRITICS']=isset(self::$vars['DIACRITICS'])?
 			$diacritics+self::$vars['DIACRITICS']:$diacritics;

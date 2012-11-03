@@ -12,7 +12,7 @@
 	Bong Cosca <bong.cosca@yahoo.com>
 
 		@package DB
-		@version 2.0.13
+		@version 2.1.0
 **/
 
 //! SQL data access layer
@@ -224,14 +224,16 @@ class DB extends Base {
 		$cmd=array(
 			'sqlite2?'=>array(
 				'PRAGMA table_info('.$table.');',
-				'name','pk',1,'type'),
+				'name','pk',1,'type','notnull',0,'dflt_value'),
 			'mysql'=>array(
 				'SHOW columns FROM `'.$this->dbname.'`.'.$table.';',
-				'Field','Key','PRI','Type'),
+				'Field','Key','PRI','Type','Null','YES','Default'),
 			'mssql|sqlsrv|sybase|dblib|pgsql|odbc'=>array(
 				'SELECT '.
 					'c.column_name AS field,'.
 					'c.data_type AS type,'.
+					'c.is_nullable AS nullable,'.
+					'c.column_default AS defaultval,'.
 					't.constraint_type AS pkey '.
 				'FROM information_schema.columns AS c '.
 				'LEFT OUTER JOIN '.
@@ -262,12 +264,15 @@ class DB extends Base {
 							'c.table_catalog':'c.table_schema').
 							'=\''.$this->dbname.'\''):'').
 				';',
-				'field','pkey','PRIMARY KEY','type'),
+				'field','pkey','PRIMARY KEY',
+				'type','nullable','YES','defaultval'),
 			'ibm'=>array(
 				'SELECT DISTINCT '.
 					'c.colname AS field,'.
 					'c.typename AS type,'.
-					'tc.type AS key '.
+					'c.nulls AS null,'.
+					'tc.type AS key'.
+					'c.default AS default'.
 				'FROM syscat.columns AS c '.
 				'LEFT JOIN '.
 					'(syscat.keycoluse AS k '.
@@ -281,7 +286,7 @@ class DB extends Base {
 						'c.tabname=k.tabname AND '.
 						'c.colname=k.colname '.
 				'WHERE UPPER(c.tabname)=\''.strtoupper($table).'\';',
-				'field','key','P','type'),
+				'field','key','P','type','null','Y','default'),
 		);
 		$match=FALSE;
 		foreach ($cmd as $backend=>$val)
@@ -303,7 +308,10 @@ class DB extends Base {
 			'field'=>$val[1],
 			'pkname'=>$val[2],
 			'pkval'=>$val[3],
-			'type'=>$val[4]
+			'type'=>$val[4],
+			'nullname'=>$val[5],
+			'nullval'=>$val[6],
+			'default'=>$val[7]
 		);
 	}
 
@@ -405,13 +413,12 @@ class DB extends Base {
 			// Default MySQL character set
 			self::$vars['MYSQL']='utf8';
 		if (!$opt)
-			// Append other default options
-			$opt=array(PDO::ATTR_EMULATE_PREPARES=>FALSE)+(
-				extension_loaded('pdo_mysql') &&
-				preg_match('/^mysql:/',$dsn)?
-					array(PDO::MYSQL_ATTR_INIT_COMMAND=>
-						'SET NAMES '.self::$vars['MYSQL']):array()
-			);
+			$opt=array();
+		// Append other default options
+		$opt+=array(PDO::ATTR_EMULATE_PREPARES=>FALSE);
+		if (in_array('mysql',pdo_drivers()) && preg_match('/^mysql:/',$dsn))
+			$opt+=array(PDO::MYSQL_ATTR_INIT_COMMAND=>
+				'SET NAMES '.self::$vars['MYSQL']);
 		list($this->dsn,$this->user,$this->pw,$this->opt)=
 			array($this->resolve($dsn),$user,$pw,$opt);
 		$this->backend=strstr($this->dsn,':',TRUE);
@@ -460,6 +467,9 @@ class Axon extends Base {
 		$self=get_class($this);
 		$axon=new $self($this->table,$this->db,FALSE);
 		foreach ($row as $field=>$val) {
+			if (method_exists($axon,'beforeLoad') &&
+				$axon->beforeLoad()===FALSE)
+				continue;
 			if (array_key_exists($field,$this->fields)) {
 				$axon->fields[$field]=$val;
 				if ($this->pkeys &&
@@ -470,6 +480,8 @@ class Axon extends Base {
 				$axon->adhoc[$field]=array($this->adhoc[$field][0],$val);
 			if ($axon->empty && $val)
 				$axon->empty=FALSE;
+			if (method_exists($axon,'afterLoad'))
+				$axon->afterLoad();
 		}
 		return $axon;
 	}
@@ -505,7 +517,7 @@ class Axon extends Base {
 					($group?(' GROUP BY '.$group):'').
 					($seq?(' ORDER BY '.$seq):'').
 					(preg_match('/^mssql|sqlsrv|sybase|dblib$/',
-						$this->backend)?
+						$this->db->backend)?
 						(($ofs?(' OFFSET '.$ofs):'').
 						($limit?(' FETCH '.$limit.' ONLY'):'')):
 						(($limit?(' LIMIT '.$limit):'').
@@ -518,7 +530,7 @@ class Axon extends Base {
 					($group?(' GROUP BY '.$group):'').
 					($seq?(' ORDER BY '.$seq):'').
 					(preg_match('/^mssql|sqlsrv|sybase|dblib$/',
-						$this->backend)?
+						$this->db->backend)?
 						(($ofs?(' OFFSET '.$ofs):'').
 						($limit?(' FETCH '.$limit.' ONLY'):'')):
 						(($limit?(' LIMIT '.$limit):'').
@@ -616,7 +628,7 @@ class Axon extends Base {
 	function found($cond=NULL) {
 		list($result)=$this->db->exec(
 			'SELECT COUNT(*) AS _found FROM '.$this->table.
-				($cond?(' WHERE '.is_array($cond)?$cond[0]:$cond):''),
+				($cond?(' WHERE '.(is_array($cond)?$cond[0]:$cond)):''),
 				($cond && is_array($cond)?$cond[1]:NULL)
 		);
 		return $result['_found'];
@@ -732,19 +744,24 @@ class Axon extends Base {
 			// Insert record
 			$fields=$values='';
 			$bind=array();
-			foreach ($this->fields as $field=>$val)
+			foreach ($this->fields as $field=>$val) {
+				$fields.=($fields?',':'').
+					(preg_match('/^mysql$/',$this->db->backend)?
+						('`'.$field.'`'):$field);
 				if (isset($this->mod[$field])) {
-					$fields.=($fields?',':'').
-						(preg_match('/^mysql$/',$this->backend)?
-							('`'.$field.'`'):$field);
 					$values.=($values?',':'').':'.$field;
 					$bind[':'.$field]=array($val,$this->types[$field]);
 				}
+			}
 			if ($bind)
 				$this->db->exec(
 					'INSERT INTO '.$this->table.' ('.$fields.') '.
 						'VALUES ('.$values.');',$bind);
-			$this->_id=$this->db->pdo->lastinsertid();
+			$this->_id=$this->db->pdo->lastinsertid(
+				preg_match('/pgsql/',$this->db->backend)?
+					($this->table.'_'.end($this->pkeys).'_seq'):
+					NULL
+			);
 			if ($id)
 				$this->pkeys[$id]=$this->_id;
 		}
@@ -754,7 +771,7 @@ class Axon extends Base {
 			foreach ($this->fields as $field=>$val)
 				if (isset($this->mod[$field])) {
 					$set.=($set?',':'').
-						(preg_match('/^mysql$/',$this->backend)?
+						(preg_match('/^mysql$/',$this->db->backend)?
 							('`'.$field.'`'):$field).'=:'.$field;
 					$bind[':'.$field]=array($val,$this->types[$field]);
 				}
@@ -781,10 +798,9 @@ class Axon extends Base {
 	/**
 		Delete record/s
 			@param $cond mixed
-			@param $force bool
 			@public
 	**/
-	function erase($cond=NULL,$force=FALSE) {
+	function erase($cond=NULL) {
 		if (method_exists($this,'beforeErase') &&
 			$this->beforeErase()===FALSE)
 			return;
@@ -975,7 +991,7 @@ class Axon extends Base {
 			@public
 	**/
 	function __unset($field) {
-		trigger_error(str_replace('@FIELD',$field,self::TEXT_AxonCantUnset));
+		trigger_error(self::TEXT_AxonCantUnset);
 	}
 
 	/**

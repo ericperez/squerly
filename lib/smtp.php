@@ -12,7 +12,7 @@
 	Bong Cosca <bong.cosca@yahoo.com>
 
 		@package SMTP
-		@version 2.0.13
+		@version 2.1.0
 **/
 
 //! SMTP plugin
@@ -176,8 +176,8 @@ class SMTP extends Base {
 			$this->dialog(self::SMTP_Content.': '.$type,FALSE);
 			$this->dialog(NULL,FALSE);
 			$this->dialog($message,FALSE);
-			$this->dialog('--'.$hash,FALSE);
 			foreach ($this->attachments as $attachment) {
+				$this->dialog('--'.$hash,FALSE);
 				$this->dialog(self::SMTP_Content.': '.
 					'application/octet-stream',FALSE);
 				$this->dialog(self::SMTP_Encoding.': base64',FALSE);

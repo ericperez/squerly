@@ -12,7 +12,7 @@
 	Bong Cosca <bong.cosca@yahoo.com>
 
 		@package Template
-		@version 2.0.12
+		@version 2.1.0
 **/
 
 //! Template engine
@@ -22,6 +22,20 @@ class Template extends Base {
 	const
 		TEXT_Render='Template %s cannot be rendered';
 	//@}
+
+	private static
+		//! Custom tags
+		$tags=array();
+
+	/**
+		Extend template engine with custom tags
+			@param $tag string
+			@param $func mixed
+			@public
+	**/
+	static function extend($tag,$func) {
+		self::$tags[$tag]=$func;
+	}
 
 	/**
 		Render template
@@ -61,6 +75,8 @@ class Template extends Base {
 		else {
 			// Parse raw template
 			$doc=new F3markup($mime,$globals);
+			foreach (self::$tags as $tag=>$func)
+				$doc->extend($tag,$func);
 			$text=$doc->load(self::getfile($view),$syms);
 			if (self::$vars['CACHE'] && $doc::$cache)
 				// Save PHP-compiled template to cache
@@ -105,7 +121,8 @@ class F3markup extends Base {
 	const
 		TEXT_AttribMissing='Missing attribute: %s',
 		TEXT_AttribInvalid='Invalid attribute: %s',
-		TEXT_Global='Use of global variable %s is not allowed';
+		TEXT_Global='Use of global variable %s is not allowed',
+		TEXT_CustomTag='Invalid custom tag handler: %s';
 	//@}
 
 	public
@@ -121,7 +138,9 @@ class F3markup extends Base {
 		//! Parsed markup string
 		$tree=array(),
 		//! Symbol table for repeat/loop blocks
-		$syms=array();
+		$syms=array(),
+		//! Custom tags
+		$tags=array();
 
 	/**
 		Convert template expression to PHP code
@@ -152,9 +171,11 @@ class F3markup extends Base {
 						}
 						$isfunc=isset($var[2]) && $var[2];
 						if (array_key_exists('_'.$match[1],$syms))
-							return '$_'.$self::remix($var[1]).
+							return '$_'.(is_int(strpos($var[1],'@'))?
+								$self->expr('{{'.$var[1].'}}'):
+								$self->remix($var[1])).
 								($isfunc?$self->expr('{{'.$var[2].'}}'):'');
-						$str='F3::get('.var_export($var[1],TRUE).')';
+						$str='F3::get('.$self::stringify($var[1]).')';
 						if ($isfunc) {
 							preg_match_all($regex,$var[2],$parts,
 								PREG_SET_ORDER);
@@ -171,8 +192,8 @@ class F3markup extends Base {
 								method_exists(F3::get($match[1]),
 								$temp=str_replace('->','',$match[2])))
 								$str='array(F3::get('.
-									var_export($match[1],TRUE).'),'.
-									var_export($temp,TRUE).')';
+									$self::stringify($match[1]).'),'.
+									$self::stringify($temp).')';
 							$str='call_user_func_array('.
 								'$_'.$match[1].'='.$str.',array'.$args.')';
 						}
@@ -188,6 +209,8 @@ class F3markup extends Base {
 										'':('='.$str)).')';
 							$syms['_'.$match[1]]=NULL;
 						}
+						$str='(F3::get(\'ESCAPE\')?'.
+							'F3::htmlencode('.$str.'):'.$str.')';
 						return $str;
 					},
 					$expr[1]
@@ -240,6 +263,9 @@ class F3markup extends Base {
 				else {
 					$count=count($this->syms);
 					switch ($nkey) {
+						case '@attrib':
+						case 'exclude':
+							break;
 						case 'include':
 							// <include> directive
 							if (!$this->isdef($nkey,$nval,array('href')))
@@ -277,7 +303,7 @@ class F3markup extends Base {
 											self::expr('{{'.$pval.'}}')
 										);
 									else
-										$pval=var_export($pval,true);
+										$pval=self::stringify($pval);
 								$text='<?php echo Template::serve('.
 									implode('.',$inc_var).',\'text/html\','.
 									'TRUE,'.self::stringify($this->syms).
@@ -321,7 +347,9 @@ class F3markup extends Base {
 								}
 							}
 							unset($nval['@attrib']);
-							$this->syms['_'.$cvar]=eval('return '.$fstr.';');
+							if (!array_key_exists('_'.$cvar,$this->syms))
+								$this->syms['_'.$cvar]=
+									eval('return '.$fstr.';');
 							$out.='<?php for ('.
 								'$_'.$cvar.'='.$fstr.';'.
 								'$_'.$cvar.'<='.$tstr.';'.
@@ -422,6 +450,40 @@ class F3markup extends Base {
 							$out.='<?php else: ?>'.
 								$this->build($nval);
 							break;
+						default:
+							// Custom template tag
+							if (is_string($this->tags[$nkey])) {
+								if (preg_match('/(.+)\s*(->|::)\s*(.+)/s',
+									$this->tags[$nkey],$match)) {
+									if (!class_exists($match[1]) ||
+										!method_exists($match[1],'__call') &&
+										!method_exists($match[1],$match[3])) {
+										trigger_error(
+											sprintf($self::TEXT_CustomTag,
+											$match[1])
+										);
+										return FALSE;
+									}
+									$this->tags[$nkey]=array($match[2]=='->'?
+										new $match[1]:$match[1],$match[3]);
+								}
+								elseif (!function_exists($this->tags[$nkey])) {
+									trigger_error(
+										sprintf($self::TEXT_CustomTag,
+										$match[1])
+									);
+									return FALSE;
+								}
+							}
+							if (!is_callable($this->tags[$nkey])) {
+								trigger_error(
+									sprintf($self::TEXT_CustomTag,
+									$this->tags[$nkey])
+								);
+								return FALSE;
+							}
+							$out.=call_user_func($this->tags[$nkey],$nval);
+							break;
 					}
 					// Reset scope
 					while (count($this->syms)>$count) {
@@ -457,9 +519,10 @@ class F3markup extends Base {
 		$ptr=0;
 		$temp='';
 		while ($ptr<$len)
-			if (preg_match('/^<(\/?)'.
-				'(?:F3:)?(include|exclude|loop|repeat|check|true|false)\b'.
-				'((?:\s+\w+s*=\s*(?:"(?:.+?)"|\'(?:.+?)\'))*)\s*(\/?)>/is',
+			if (preg_match('/^<(\/?)(?:F3:)?'.
+				'(include|exclude|loop|repeat|check|true|false'.
+				($this->tags?('|'.implode('|',array_keys($this->tags))):'').
+				')\b((?:\s+\w+s*=\s*(?:"(?:.+?)"|\'(?:.+?)\'))*)\s*(\/?)>/is',
 				substr($text,$ptr),$match)) {
 				if (strlen($temp))
 					$node[]=$temp;
@@ -513,6 +576,16 @@ class F3markup extends Base {
 		unset($node);
 		unset($stack);
 		return $this->build($this->tree);
+	}
+
+	/**
+		Extend template engine with custom tags
+			@param $tag string
+			@param $func mixed
+			@public
+	**/
+	function extend($tag,$func) {
+		$this->tags[$tag]=$func;
 	}
 
 	/**

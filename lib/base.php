@@ -12,7 +12,7 @@
 	Bong Cosca <bong.cosca@yahoo.com>
 
 		@package Base
-		@version 2.0.13
+		@version 2.1.0
 **/
 
 //! Base structure
@@ -21,7 +21,7 @@ class Base {
 	//@{ Framework details
 	const
 		TEXT_AppName='Fat-Free Framework',
-		TEXT_Version='2.0.13',
+		TEXT_Version='2.1.0',
 		TEXT_AppURL='http://fatfree.sourceforge.net';
 	//@}
 
@@ -127,6 +127,7 @@ class Base {
 	//@{ Global variables and references to constants
 	protected static
 		$vars,
+		$classes,
 		$null=NULL,
 		$true=TRUE,
 		$false=FALSE;
@@ -157,7 +158,7 @@ class Base {
 		switch (gettype($arg)) {
 			case 'object':
 				return method_exists($arg,'__tostring')?
-					(string)stripslashes($arg):
+					stripslashes($arg):
 					get_class($arg).'::__set_state()';
 			case 'array':
 				$str='';
@@ -318,7 +319,7 @@ class Base {
 			else {
 				if (preg_match('/@(\w+)/',$match,$token))
 					// Token found
-					$match=self::ref($token[1]);
+					$match=self::resolve('{{'.$match.'}}');
 				if ($set) {
 					// Create property/array element if not found
 					if ($obj) {
@@ -551,13 +552,17 @@ class Base {
 		Lock-aware file writer
 			@param $file string
 			@param $data string
+			@param $append bool
 			@public
 	**/
-	static function putfile($file,$data) {
+	static function putfile($file,$data,$append=FALSE) {
 		if (!function_exists('flock'))
 			$out=self::mutex(
 				function() use($file,$data) {
-					return file_put_contents($file,$data,LOCK_EX);
+					$flag=LOCK_EX;
+					if ($append)
+						$flag=$flag|FILE_APPEND;
+					return file_put_contents($file,$data,$arg);
 				},
 				$file
 			);
@@ -740,7 +745,10 @@ class F3 extends Base {
 			@param $resolve bool
 			@public
 	**/
-	static function set($key,$val,$persist=FALSE,$resolve=TRUE) {
+	static function set($key,$val,$persist=FALSE,$resolve=NULL) {
+		$all=($resolve===TRUE);
+		if (is_null($resolve))
+			$resolve=TRUE;
 		if (preg_match('/{{.+}}/',$key))
 			// Variable variable
 			$key=self::resolve($key);
@@ -773,12 +781,12 @@ class F3 extends Base {
 		if ($resolve) {
 			if (is_string($val))
 				$val=self::resolve($val);
-			elseif (is_array($val)) {
+			elseif (is_array($val) && $all) {
 				$var=array();
 				// Recursive token substitution
 				foreach ($val as $subk=>$subv) {
 					$subp=$key.'['.var_export($subk,TRUE).']';
-					self::set($subp,$subv);
+					self::set($subp,$subv,FALSE,$all);
 					$val[$subk]=self::ref($subp);
 				}
 			}
@@ -965,7 +973,9 @@ class F3 extends Base {
 			$cfg=array();
 			$sec='';
 			if ($ini=file($file))
-				foreach ($ini as $line) {
+				for ($i=0,$c=count($ini);$i<$c;$i++) {
+					// cut off CR / LF
+					$line = rtrim($ini[$i],"\r\n");
 					preg_match('/^\s*(?:(;)|\[(.+)\]|(.+?)\s*=\s*(.+))/',
 						$line,$parts);
 					if (isset($parts[1]) && $parts[1])
@@ -975,14 +985,30 @@ class F3 extends Base {
 						// Section
 						$sec=strtolower($parts[2]);
 					elseif (isset($parts[3]) && $parts[3]) {
+						if (substr($line, -1) == "\\") {
+							// multiline string
+							$lines = rtrim($parts[4],"\\");
+							while (++$i < $c) {
+								$line = rtrim($ini[$i],"\r\n");
+								$lines.= PHP_EOL .rtrim($line,"\\");
+								if (substr($line,-1) !== "\\")
+									break;
+							}
+							$parts[4] = $lines;
+						}
+						$parts[4]=preg_replace('/(?<=")(.+?)(?=")/',
+							"\x00\\1",$parts[4]);
 						// Key-value pair
 						$csv=array_map(
 							function($val) {
+								$q='';
+								if ($val[0]=="\x00")
+									$q='"';
 								$val=trim($val);
 								return is_numeric($val) ||
 									preg_match('/^\w+$/i',$val) &&
 									defined($val)?
-									eval('return '.$val.';'):$val;
+									eval('return '.$q.$val.$q.';'):$val;
 							},
 							str_getcsv($parts[4])
 						);
@@ -1020,9 +1046,10 @@ class F3 extends Base {
 			@public
 	**/
 	static function htmlencode($str,$all=FALSE) {
-		return call_user_func(
-			$all?'htmlentities':'htmlspecialchars',
-			$str,ENT_COMPAT,self::$vars['ENCODING'],TRUE);
+		return is_string($str)?
+			call_user_func($all?'htmlentities':'htmlspecialchars',
+				$str,ENT_COMPAT,self::$vars['ENCODING'],FALSE):
+			$str;
 	}
 
 	/**
@@ -1033,9 +1060,11 @@ class F3 extends Base {
 			@public
 	**/
 	static function htmldecode($str,$all=FALSE) {
-		return $all?
-			html_entity_decode($str,ENT_COMPAT,self::$vars['ENCODING']):
-			htmlspecialchars_decode($str,ENT_COMPAT);
+		return is_string($str)?
+			($all?
+				html_entity_decode($str,ENT_COMPAT,self::$vars['ENCODING']):
+				htmlspecialchars_decode($str,ENT_COMPAT)):
+			$str;
 	}
 
 	/**
@@ -1166,9 +1195,7 @@ class F3 extends Base {
 				$ref=new ReflectionMethod($class,$func);
 				self::route(
 					$method.' '.$url,
-					$ref->isStatic()?
-						array($class,$func):
-						array(new $class,$func),
+					$class.($ref->isStatic()?'::':'->').$func,
 					$ttl,$throttle,$hotlink
 				);
 				unset($ref);
@@ -1184,7 +1211,6 @@ class F3 extends Base {
 			@public
 	**/
 	static function call($funcs,$listen=FALSE) {
-		$classes=array();
 		$funcs=is_string($funcs)?self::split($funcs):array($funcs);
 		$out=NULL;
 		foreach ($funcs as $func) {
@@ -1226,21 +1252,29 @@ class F3 extends Base {
 			$oop=is_array($func) &&
 				(is_object($func[0]) || is_string($func[0]));
 			if ($listen && $oop &&
-				method_exists($func[0],$before='beforeRoute') &&
-				!in_array($func[0],$classes)) {
+				method_exists($func[0],$before='beforeRoute')) {
 				// Execute beforeRoute() once per class
-				if (call_user_func(array($func[0],$before))===FALSE)
-					return FALSE;
-				$classes[]=is_object($func[0])?get_class($func[0]):$func[0];
+				$key=is_object($func[0])?get_class($func[0]):$func[0];
+				if (!isset(self::$classes[$key]) ||
+					!isset(self::$classes[$key][0]) ||
+					!self::$classes[$key][0]) {
+					self::$classes[$key][0]=TRUE;
+					if (call_user_func(array($func[0],$before))===FALSE)
+						return FALSE;
+				}
 			}
 			$out=call_user_func($func);
 			if ($listen && $oop &&
-				method_exists($func[0],$after='afterRoute') &&
-				!in_array($func[0],$classes)) {
+				method_exists($func[0],$after='afterRoute')) {
 				// Execute afterRoute() once per class
-				if (call_user_func(array($func[0],$after))===FALSE)
-					return FALSE;
-				$classes[]=is_object($func[0])?get_class($func[0]):$func[0];
+				$key=is_object($func[0])?get_class($func[0]):$func[0];
+				if (!isset(self::$classes[$key]) ||
+					!isset(self::$classes[$key][1]) ||
+					!self::$classes[$key][1]) {
+					self::$classes[$key][1]=TRUE;
+					if (call_user_func(array($func[0],$after))===FALSE)
+						return FALSE;
+				}
 			}
 		}
 		return $out;
@@ -1275,13 +1309,13 @@ class F3 extends Base {
 			trigger_error(self::TEXT_NoRoutes);
 			return;
 		}
-		$found=FALSE;
 		$allowed=array();
 		// Detailed routes get matched first
 		krsort(self::$vars['ROUTES']);
 		$time=time();
+		$case=self::$vars['CASELESS']?'i':'';
 		$req=preg_replace('/^'.preg_quote(self::$vars['BASE'],'/').
-			'\b(.+)/'.(self::$vars['CASELESS']?'i':''),'\1',
+			'\b(.+)/'.$case,'\1',
 			rawurldecode($_SERVER['REQUEST_URI']));
 		foreach (self::$vars['ROUTES'] as $uri=>$route) {
 			if (!preg_match('/^'.
@@ -1291,7 +1325,7 @@ class F3 extends Base {
 					'(?P<\1>[^\/&\?]+)',
 					// Wildcard character in URI
 					str_replace('\*','(.*)',preg_quote($uri,'/'))
-				).'\/?(?:\?.*)?$/'.(self::$vars['CASELESS']?'':'i').'um',
+				).'\/?(?:\?.*)?$/'.$case.'um',
 				$req,$args))
 				continue;
 			$wild=is_int(strpos($uri,'/*'));
@@ -1307,7 +1341,7 @@ class F3 extends Base {
 					self::reroute(substr($path,0,-1).
 						($query?('?'.$query):''));
 				}
-				$found=TRUE;
+				self::$vars['PATTERN']=$uri;
 				list($funcs,$ttl,$throttle,$hotlink)=$proc;
 				if (!$hotlink && isset(self::$vars['HOTLINK']) &&
 					isset($_SERVER['HTTP_REFERER']) &&
@@ -1395,10 +1429,9 @@ class F3 extends Base {
 				if (strlen(self::$vars['RESPONSE']) && !self::$vars['QUIET'])
 					// Display response
 					echo self::$vars['RESPONSE'];
-			}
-			if ($found)
 				// Hail the conquering hero
 				return;
+			}
 			$allowed=array_keys($route);
 		}
 		if (!$allowed) {
@@ -1416,13 +1449,15 @@ class F3 extends Base {
 		Transmit a file for downloading by HTTP client; If kilobytes per
 		second is specified, output is throttled (bandwidth will not be
 		controlled by default); Return TRUE if successful, FALSE otherwise;
-		Support for partial downloads is indicated by third argument
+		Support for partial downloads is indicated by third argument;
+		Download as attachment if fourth argument is TRUE
 			@param $file string
 			@param $kbps int
-			@param $partial
+			@param $partial bool
+			@param $attach bool
 			@public
 	**/
-	static function send($file,$kbps=0,$partial=TRUE) {
+	static function send($file,$kbps=0,$partial=TRUE,$attach=FALSE) {
 		$file=self::resolve($file);
 		if (!is_file($file)) {
 			self::error(404);
@@ -1432,6 +1467,10 @@ class F3 extends Base {
 			header(self::HTTP_Content.': application/octet-stream');
 			header(self::HTTP_Partial.': '.($partial?'bytes':'none'));
 			header(self::HTTP_Length.': '.filesize($file));
+			if ($attach)
+				header(self::HTTP_Disposition.': attachment; '.
+					'filename="'.basename($file).'"');
+			flush();
 		}
 		$ctr=1;
 		$handle=fopen($file,'r');
@@ -1445,6 +1484,7 @@ class F3 extends Base {
 			}
 			// Send 1KiB and reset timer
 			echo fread($handle,1024);
+			flush();
 		}
 		fclose($handle);
 		die;
@@ -1790,8 +1830,9 @@ class F3 extends Base {
 			self::mock('GET '.$_SERVER['argv'][1]);
 		}
 		// Hydrate framework variables
-		$base=self::fixslashes(
-			preg_replace('/\/[^\/]+$/','',$_SERVER['SCRIPT_NAME']));
+		$base=implode('/',array_map('urlencode',
+			explode('/',self::fixslashes(
+			preg_replace('/\/[^\/]+$/','',$_SERVER['SCRIPT_NAME'])))));
 		$scheme=PHP_SAPI=='cli'?
 			NULL:
 			isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']!='off' ||
@@ -1815,6 +1856,8 @@ class F3 extends Base {
 			'ENCODING'=>$charset,
 			// Last error
 			'ERROR'=>NULL,
+			// Auto-escape feature
+			'ESCAPE'=>FALSE,
 			// Allow/prohibit framework class extension
 			'EXTEND'=>TRUE,
 			// IP addresses exempt from spam detection
@@ -2002,7 +2045,7 @@ class F3 extends Base {
 	static function __callStatic($func,array $args) {
 		if (self::$vars['PROXY'] &&
 			$glob=glob(self::fixslashes(
-				self::$vars['PLUGINS'].'/*.php',GLOB_NOSORT)))
+				self::$vars['PLUGINS'].'/*.php'),GLOB_NOSORT))
 			foreach ($glob as $file) {
 				$class=strstr(basename($file),'.php',TRUE);
 				// Prevent recursive calls
@@ -2202,7 +2245,7 @@ class Cache extends Base {
 			$self=__CLASS__;
 			self::$ref=self::mutex(
 				function() use($self) {
-					$ref=@shmop_open($ftok=ftok(__FILE__,'C'),'c',0644,
+					$ref=@shmop_open(fileinode(__FILE__),'c',0644,
 						$self::bytes(ini_get('memory_limit')));
 					if ($ref && !unserialize(trim(shmop_read($ref,0,0xFFFF))))
 						shmop_write($ref,serialize(array()).chr(0),0);
