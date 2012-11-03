@@ -27,22 +27,25 @@ class Export_Flot implements Export_Interface {
   *
   */
   public static function render(array $data, $filename = NULL, $config = array()) {
-    if(!isset($row['date'])) { return '[]'; }
+    $column_num = 0;
+    $column_names = array_keys($data[0]);
     $output = array();
-    $y = 0;
-    foreach($data as $row) {
-      $x = 0;
-      foreach($row as $label => $value) {
-        $date = date('U', strtotime($row['date'])) * 1000; ///assumes X is a date ??
-        if($y == 0 && $x > 0) {
-          $ouput[] = array("label" => $label, "data" => array());
-        }
-        if($x > 0) {
-          $ouput[$x - 1]['data'][] = array($date, $value);
-        }
-        $x++;
+    $row = 0;
+    foreach($column_names as $col_name) {
+      // First column contains the X-Axis labels
+      if($column_num === 0) { 
+        $categories = Matrix::pick($data, $col_name);
+        $column_num++; 
+        continue; 
       }
-      $y++;
+      //Subsequent columns contain 'data series' for the chart
+      $output[] = array('label' => String::humanize($col_name), 'data' => array());
+      $row_data = array_map(function($in) { return (float) preg_replace('/[^0-9,\.]/', '', $in); }, Matrix::pick($data, $col_name));
+      foreach($row_data as $k => $row_val) {
+        $category = preg_replace('/[^0-9,\.]/', '', $categories[$k]);
+        $output[$row]['data'][] = array($category, $row_val);
+      }
+      $row++;
     }
     return json_encode($output);
   }
