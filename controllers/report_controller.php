@@ -48,9 +48,11 @@ class Report_Controller extends Crud_Controller {
   */
   protected static function _renderParamsForm($report, $action = 'render', array $form_vals = array()) {
     //TODO: loop through all properties for template/form vars instead of just query and input_data_uri?
-    $vars = array_unique(Mustache_Helper::vars($report->query) + Mustache_Helper::vars($report->input_data_uri));
-    $vals = !empty($form_vals) ? $form_vals : F3::get('GET');
-    $form_html = Form::open("/report/{$action}/{$report->id}", array('method' => 'get')) . "<table><thead></thead><tbody><tr><td>";
+    //TODO: Load a saved configuration for values
+    //TODO: Use form library to generate/validate form elements
+    $vars = array_unique(Mustache_Helper::vars($report->clean_properties['query']) + Mustache_Helper::vars($report->clean_properties['input_data_uri']));
+    $vals = !empty($form_vals) ? $form_vals : F3::get('REQUEST');
+    $form_html = Form::open("/report/{$action}/{$report->id}", array('method' => 'post')) . "<table><thead></thead><tbody><tr><td>";
     //Currently all fields are required; TODO: make this configurable
     $input_attribs = array('required' => 'required');
     foreach($vars as $var) {
@@ -58,14 +60,20 @@ class Report_Controller extends Crud_Controller {
       $form_html .= '<td>' . Form::label($var, String::humanize($var)) . ': ' . Form::input($var, $val, $input_attribs) . '&nbsp;</td>';
     }
     //Build the drop down for the report rendering output formats
-    $output_formats = array('table' => 'HTML Table', 'highcharts' => 'Highcharts Line Graph', 'csv' => 'CSV', 'xml' => 'XML');
-    $output_val = isset($_GET['sqrl']['context']) ? $_GET['sqrl']['context'] : 'table';
+    //TODO: automate the generation of this
+    $output_formats = array(
+      'table' => 'HTML Table', 
+      'highcharts' => 'Highcharts Line Graph', 
+      'flot' => 'Flot Line Graph',
+      'csv' => 'CSV', 
+      'xml' => 'XML',
+      'json' => 'JSON'
+    );
+    $output_val = F3::get('REQUEST.sqrl.context') ?: 'table';
     $select_attribs = array('title' => 'Report Output Format');
     $form_html .= '<td>' . Form::select('sqrl[context]', $output_formats, $output_val, $select_attribs) . '</td>';
-    $form_html .= '<td>' . Form::submit('sqrl[run]', 'Run', array('value' => 'run', 'title'=>'Run the report and render the results')) . '</td></tr></table>' . Form::close();
+    $form_html .= '<td>' . Form::submit('sqrl[run]', 'Run', array('value' => 'run', 'title' => 'Run the report and render the results')) . '</td></tr></table>' . Form::close();
     return $form_html;
-    //TODO: Load a saved configuration for values
-    //TODO: Use form library to generate/validate form elements
   }
 
 
@@ -157,11 +165,17 @@ class Report_Controller extends Crud_Controller {
     //TODO: run form validation and spit out messages on failure
     //Load the data from the data source and render the results
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
-    $preview = isset($_GET['preview']);
-    F3::set('content', Export::render($report->getResults($preview)));
+    $preview = isset($_POST['preview']);
+    $report_results = (strtolower(F3::get('POST.sqrl.run')) === 'run') ? Export::render($report->getResults($preview)) : '';
+    F3::set('report_results', $report_results);
     F3::set('page_title', $report->name);
     F3::set('form', self::_renderParamsForm($report));
-    echo Export::loadLayout();
+    $layout = Export::loadLayout();
+    if($layout === false) {
+      self::results();
+    } else {
+      echo $layout;
+    }
   }
 
 
@@ -178,7 +192,7 @@ class Report_Controller extends Crud_Controller {
     //TODO: run form validation and spit out messages on failure
     //Load the data from the data source and render the results
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
-    $preview = isset($_GET['preview']);
+    $preview = isset($_REQUEST['preview']);
     echo Export::render($report->getResults($preview), $filename);
   }
 
@@ -230,7 +244,9 @@ class Report_Controller extends Crud_Controller {
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/optionlist', 'Report_Controller::optionlist', 30);
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/email/@id', 'Report_Controller::email');
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/form/@id', 'Report_Controller::form', 10);
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/render/@id', 'Report_Controller::render', 10);
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/results/@id', 'Report_Controller::results', 10);
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/run/@id', 'Report_Controller::run', 600);
+F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/render/@id', 'Report_Controller::render', 120);
+F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/results/@id', 'Report_Controller::results', 120);
+F3::route('POST ' . F3::get('URL_BASE_PATH') . 'report/render/@id', 'Report_Controller::render', 120);
+F3::route('POST ' . F3::get('URL_BASE_PATH') . 'report/results/@id', 'Report_Controller::results', 120);
+F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/run/@id', 'Report_Controller::run', 120);
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/validate/@id', 'Report_Controller::validate');

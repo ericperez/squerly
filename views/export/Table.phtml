@@ -33,11 +33,12 @@
    </head>
   <body>
   <div style='text-align:center;'><h2>{{@page_title}}</h2></div><br/>
-  {{@content}}
+  <div id='form_div' style='clear:both;background-color:#C5EDFA;'>{{@form}}</div></br>
+  {{@report_results}}
 
   <script type='application/x-javascript'>
     $(document).ready(function() {
-      $('table').dataTable({
+      $('.datatable').dataTable({
         "bJQueryUI"      : true,
         "sPaginationType": "full_numbers",
         "sDom"           : 'T<"clear">lfrtip',
