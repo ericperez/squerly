@@ -745,12 +745,12 @@ class Axon extends Base {
 			$fields=$values='';
 			$bind=array();
 			foreach ($this->fields as $field=>$val) {
-				$fields.=($fields?',':'').
-					(preg_match('/^mysql$/',$this->db->backend)?
-						('`'.$field.'`'):$field);
 				if (isset($this->mod[$field])) {
-					$values.=($values?',':'').':'.$field;
-					$bind[':'.$field]=array($val,$this->types[$field]);
+					$fields.=($fields?',':'').
+						(preg_match('/^mysql$/',$this->db->backend)?
+							('`'.$field.'`'):$field);
+						$values.=($values?',':'').':'.$field;
+						$bind[':'.$field]=array($val,$this->types[$field]);
 				}
 			}
 			if ($bind)
