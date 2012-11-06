@@ -85,7 +85,7 @@ class Report_Sql extends Report_Base {
     $this->processed_query = SQL::stripComments($this->processed_query); //Strip off all comments
     $this->processed_query = str_replace(';', '', $this->processed_query); //Remove all semi-colons (prevents multiple SQL statements from being run)
     //Use (sanitized) $_GET as bind-parameters unless overridden in $bind_params
-    $bind_params = (empty($bind_params)) ? F3::get('GET') : $bind_params;
+    $bind_params = (empty($bind_params)) ? F3::get('REQUEST') : $bind_params;
     //Swap out the mustache/template tags with bind-parameter placeholders and gets an array of bind parameters/values
     list($this->processed_query, $this->bind_params) = Mustache_Helper::renderSQL($this->processed_query, $bind_params);
     if($preview) { 

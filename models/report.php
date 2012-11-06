@@ -65,24 +65,15 @@ class Report extends Report_Base {
   *
   * Returns an array of 'actions' available for the report model (to be rendered on the Index page)
   *
-  * @param int $id ID of report (to be plugged into the HTML returned)
+  * @param object $record Report Record object
   * @return array 'Title' => 'HTML markup'
-  *
+  * 
+  * @todo Create method to enumerate available output formats and build sqrl[context] drop-down
   */
-  public static function getIndexActions($id) {
+  public static function getIndexActions($record) {
+    $id = $record['id'];
     return array(
-      'Preview Results' => "
-        <div title='This will not work for reports with required inputs'>
-        <form action='/report/render/{$id}'>
-        <input type='hidden' name='preview' value='1' />
-        <select name='context'>
-          <option value='table'>HTML Table</option>
-          <option value='json'>JSON</option>
-          <option value='highcharts'>Line Graph</option>
-        </select>
-        <input type='submit' value='Preview' />
-        </form>
-        </div>",
+      'Load' => "<a href='/report/render/{$id}'>Load</a>",
     );
   }
 

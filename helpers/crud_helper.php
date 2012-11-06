@@ -33,17 +33,17 @@ class CRUD_Helper {
     foreach($records as &$record) {
       $id = $record['id'];
       //TODO: find a faster way of doing this
-      $additional_actions = @$class_name::getIndexActions($id) ?: array();
+      $additional_actions = @$class_name::getIndexActions($record) ?: array();
       $actions = array(
         //TODO: add BASE_URL_PATH to the URLS!!
         array("Delete" => "<a href='/{$model}/delete/{$id}'>Delete</a>"),
         array("Edit" => "<a href='/{$model}/edit/{$id}'>Edit</a>"),
-        array("View" => "<a href='/{$model}/view/{$id}'>View</a>"),
+        array("Details" => "<a href='/{$model}/view/{$id}'>View</a>"),
 
       );
-      if(!empty($additional_actions)) { $actions[] = $additional_actions; }
+      if(!empty($additional_actions)) { array_unshift($actions, $additional_actions); }
       foreach($actions as $action) {
-        $record = $action + $record;
+        $record = $record + $action;
       }
     }
     return $records;
@@ -304,27 +304,27 @@ class CRUD_Helper {
 
     //TODO: This should be able to read the CRUD routes and be generated from that
     $nav_arr = array(
-      'home'   => array('Home' => F3::get('URL_BASE_PATH')),
-      'index'  => array('Back to Index' => $model_path),
-      'add'    => array("Add {$model_friendly}" => $model_path . "/add"),
-      'edit'   => array("Edit {$model_friendly} {$id}" => $model_path . "/edit/{$id}"),
-      'delete' => array("Delete {$model_friendly} {$id}" => $model_path . "/delete/{$id}"),
-      'view'   => array("View {$model_friendly} {$id}" => $model_path . "/view/{$id}"),
-      'search' => array("Search {$model_plural}" => $model_path . "/search"),
+      'home'    => array('Home' => F3::get('URL_BASE_PATH')),
+      'index'   => array('Back to Index' => $model_path),
+      'add'     => array("Add {$model_friendly}" => $model_path . "/add"),
+      'edit'    => array("Edit {$model_friendly} {$id}" => $model_path . "/edit/{$id}"),
+      'delete'  => array("Delete {$model_friendly} {$id}" => $model_path . "/delete/{$id}"),
+      'details' => array("View {$model_friendly} {$id} details" => $model_path . "/view/{$id}"),
+      'search'  => array("Search {$model_plural}" => $model_path . "/search"),
     );
 
     $nav = array();
 
     switch($action) {
       case 'edit':
-        $nav = array($nav_arr['view'], $nav_arr['delete'], $nav_arr['search']);
+        $nav = array($nav_arr['details'], $nav_arr['delete'], $nav_arr['search']);
         break;
 
       case 'delete':
-        $nav = array($nav_arr['view'], $nav_arr['edit'], $nav_arr['search']);
+        $nav = array($nav_arr['details'], $nav_arr['edit'], $nav_arr['search']);
         break;
 
-      case 'view':
+      case 'details':
         $nav = array($nav_arr['edit'], $nav_arr['delete'], $nav_arr['search']);
         break;
 
