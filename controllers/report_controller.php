@@ -65,12 +65,14 @@ class Report_Controller extends Crud_Controller {
       'table' => 'HTML Table', 
       'highcharts' => 'Highcharts Line Graph', 
       'flot' => 'Flot Line Graph',
+      'pchart' => 'pChart Line Graph',
       'csv' => 'CSV', 
       'xml' => 'XML',
       'json' => 'JSON'
     );
     $output_val = F3::get('REQUEST.sqrl.context') ?: 'table';
     $select_attribs = array('title' => 'Report Output Format');
+    $form_html .= '<td>' . Form::label('sqrl[preview]', 'Preview?') . Form::checkbox('sqrl[preview]', '1') . '</td>';
     $form_html .= '<td>' . Form::select('sqrl[context]', $output_formats, $output_val, $select_attribs) . '</td>';
     $form_html .= '<td>' . Form::submit('sqrl[run]', 'Run', array('value' => 'run', 'title' => 'Run the report and render the results')) . '</td></tr></table>' . Form::close();
     return $form_html;
@@ -165,7 +167,7 @@ class Report_Controller extends Crud_Controller {
     //TODO: run form validation and spit out messages on failure
     //Load the data from the data source and render the results
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
-    $preview = isset($_POST['preview']);
+    $preview = isset($_POST['sqrl']['preview']);
     $report_results = (strtolower(F3::get('POST.sqrl.run')) === 'run') ? Export::render($report->getResults($preview)) : '';
     F3::set('report_results', $report_results);
     F3::set('page_title', $report->name);
@@ -192,7 +194,7 @@ class Report_Controller extends Crud_Controller {
     //TODO: run form validation and spit out messages on failure
     //Load the data from the data source and render the results
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
-    $preview = isset($_REQUEST['preview']);
+    $preview = isset($_POST['sqrl']['preview']);
     echo Export::render($report->getResults($preview), $filename);
   }
 
