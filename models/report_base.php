@@ -74,8 +74,8 @@ class Report_Base extends Report_Abstract {
         }
         ini_restore("allow_url_include");
         ini_restore("allow_url_fopen");
-        return ob_get_clean();
-      } : $this->query;
+        return trim(ob_get_clean(), "\n\r\t ");
+      } : trim($this->query, "\n\r\t ");
     return true;
   }
 

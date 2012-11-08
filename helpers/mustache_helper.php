@@ -133,7 +133,7 @@ class Mustache_Helper
       }
     }
 
-    return array($bound_sql, $template_tags);
+    return array(trim($bound_sql, "\n\r\t "), $template_tags);
   }
 
 }

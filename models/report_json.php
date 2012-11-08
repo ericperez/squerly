@@ -40,7 +40,7 @@ class Report_Json extends Report_Base {
   protected function _preprocessQuery($preview) {
     $this->_phpPreprocess(); // Run the query through PHP
     //Replace any template vars/tags in the report input_data_uri property
-    $template_vals = F3::get('GET');
+    $template_vals = F3::get('REQUEST');
     $this->input_data_uri = Mustache_Helper::render($this->input_data_uri, $template_vals, 'rawurlencode');
   }
 
