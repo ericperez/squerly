@@ -65,7 +65,7 @@ class Export_Highcharts implements Export_Interface {
         continue; 
       }
       //Subsequent columns contain 'data series' for the chart
-      $series_data = array_map(function($in) { return (float) preg_replace('/[^0-9,\.]/', '', $in); }, Matrix::pick($data, $col_name));
+      $series_data = array_map(function($in) { return (float) preg_replace('/[^0-9,\.\-e]/', '', $in); }, Matrix::pick($data, $col_name));
       $series = new HighRollerSeriesData();
       $series
         ->addName(String::humanize($col_name))

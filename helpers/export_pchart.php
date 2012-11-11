@@ -43,7 +43,7 @@ class Export_Pchart implements Export_Interface {
       }
       //Subsequent columns contain 'data series' for the chart
       $human_col_name = String::humanize($col_name);
-      $row_data = array_map(function($in) { return (float) preg_replace('/[^0-9,\.]/', '', $in); }, Matrix::pick($data, $col_name));
+      $row_data = array_map(function($in) { return (float) preg_replace('/[^0-9,\.\-e]/', '', $in); }, Matrix::pick($data, $col_name));
       $output = array();
       $pChart->addPoints($row_data, $human_col_name);
       $pChart->setSerieWeight($human_col_name, 0.8);

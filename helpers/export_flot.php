@@ -40,7 +40,7 @@ class Export_Flot implements Export_Interface {
       }
       //Subsequent columns contain 'data series' for the chart
       $output[] = array('label' => String::humanize($col_name), 'data' => array());
-      $row_data = array_map(function($in) { return (float) preg_replace('/[^0-9,\.]/', '', $in); }, Matrix::pick($data, $col_name));
+      $row_data = array_map(function($in) { return (float) preg_replace('/[^0-9,\.\-e]/', '', $in); }, Matrix::pick($data, $col_name));
       foreach($row_data as $k => $row_val) {
         $category = preg_replace('/[^0-9,\.]/', '', $categories[$k]);
         $output[$row]['data'][] = array($category, $row_val);
