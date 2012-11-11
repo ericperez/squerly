@@ -307,24 +307,25 @@ class CRUD_Helper {
       'home'    => array('Home' => F3::get('URL_BASE_PATH')),
       'index'   => array('Back to Index' => $model_path),
       'add'     => array("Add {$model_friendly}" => $model_path . "/add"),
-      'edit'    => array("Edit {$model_friendly} {$id}" => $model_path . "/edit/{$id}"),
+      'copy'    => array("Copy {$model_friendly} {$id}" => $model_path . "/copy/{$id}"),
       'delete'  => array("Delete {$model_friendly} {$id}" => $model_path . "/delete/{$id}"),
-      'details' => array("View {$model_friendly} {$id} details" => $model_path . "/view/{$id}"),
+      'edit'    => array("Edit {$model_friendly} {$id}" => $model_path . "/edit/{$id}"),
       'search'  => array("Search {$model_plural}" => $model_path . "/search"),
+      'view'    => array("View {$model_friendly} {$id} details" => $model_path . "/view/{$id}"),
     );
 
     $nav = array();
 
     switch($action) {
       case 'edit':
-        $nav = array($nav_arr['details'], $nav_arr['delete'], $nav_arr['search']);
+        $nav = array($nav_arr['view'], $nav_arr['delete'], $nav_arr['search']);
         break;
 
       case 'delete':
-        $nav = array($nav_arr['details'], $nav_arr['edit'], $nav_arr['search']);
+        $nav = array($nav_arr['view'], $nav_arr['edit'], $nav_arr['search']);
         break;
 
-      case 'details':
+      case 'view':
         $nav = array($nav_arr['edit'], $nav_arr['delete'], $nav_arr['search']);
         break;
 

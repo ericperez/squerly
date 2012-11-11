@@ -66,10 +66,11 @@ class Crud_Controller implements Crud_Controller_Interface {
     //TODO: add permissions handling
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/optionlist', 'Crud_Controller::optionlist', 30);
 
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model', 'Crud_Controller::index', 10);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model', 'Crud_Controller::index', 0);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/add', 'Crud_Controller::add', 600);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/delete/@id', 'Crud_Controller::delete', 600);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/edit/@id', 'Crud_Controller::edit', 0);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/copy/@id', 'Crud_Controller::copy', 0);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export', 'Crud_Controller::exportMultiple', 10);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export/@id', 'Crud_Controller::exportOne', 10);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/search', 'Crud_Controller::search', 10);
@@ -157,6 +158,47 @@ class Crud_Controller implements Crud_Controller_Interface {
       $values = array('created_at' => $now, 'updated_at' => $now);
       $form = (isset(self::$_forms['add']) && Crud_Helper::getForm(self::$_forms['add']))
         ?: CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
+      F3::set('form', $form);
+    }
+    if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
+    echo Template::serve('layout.html');
+  }
+
+
+
+ /**
+  *
+  * 'Copy Record' action
+  * 
+  * @param boolean $try_to_delegate If true, an attempt will be made to find a Crud_Controller-extending
+  *   class (based on the model name) and run code in it's 'add' method; if false, standard CRUD code is run
+  *
+  * @todo Clean this up; currently a lot of this code is copy/pasted from the 'add' action
+  * 
+  */
+  public static function copy($try_to_delegate = true) {
+    F3::clear('content');
+    $id = (int) F3::get('PARAMS.id');
+    list($model, $model_friendly) = CRUD_Helper::getModelName();
+    //If controller exists for the specific CRUD model, call that first
+    if($try_to_delegate && Crud_Controller::delegate($model, 'copy') !== false) { return; }
+    if(!F3::exists('navigation')) { F3::set('navigation', CRUD_Helper::navigation('copy')); }
+    $title = 'Copy ' . $model_friendly . ' ' . $id;
+    if(!F3::exists('title')) { F3::set('title', $title); }
+    if(!F3::exists('page_title')) { F3::set('page_title', $title . F3::get('PAGE_TITLE_BASE')); }
+    $csrf_token = 'QOFJq34igj3'; //TODO: generate real token
+    $record = CRUD::loadRecord($model);
+    $record[0]->id = null; //Unset the 'id' field; TODO: this should look up the 'actual' primary key
+    $record[0]->copyTo('record');
+    if(!F3::exists('form')) { 
+      $form_config = array(
+        'action' => F3::get('URL_BASE_PATH') . $model . "/add/token/{$csrf_token}",
+        'method' => 'post',
+      );
+      //Set the 'updated_at' field to current date
+      $now = date('Y-m-d');
+      $values = array('updated_at' => $now) + F3::get('record');
+      $form = CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
       F3::set('form', $form);
     }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
