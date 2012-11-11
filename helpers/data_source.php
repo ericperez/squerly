@@ -10,7 +10,7 @@
   * @link http://www.squerly.net
   * 
   * @todo refactor this as a factory/plugin loader?
-  * @todo Add more import methods for Google Spreadsheets, MongoDB, CouchDB, Hive, etc.
+  * @todo Add more import methods for Google Spreadsheets, MongoDB, CouchDB, etc.
   * 
   */
 class Data_Source {
@@ -81,26 +81,30 @@ class Data_Source {
   * @param string $input CSV string
   * @param int $max_rows Maximum number of rows of CSV data to load
   * @param string $delimiter Character that delimits the CSV fields (defaults to a comma)
-  * @param array $header If $input is a
+  * @param array $header Array of field/header columns
+  * @param string $row_trim_charts String of characters to trim off of each row
+  * @param int $ignore_lines Number of lines to skip
   * @return array 2D associative array holding a representation of the CSV data
   *
   */
-  public static function loadCSVString($input, $max_rows = 0, $delimiter = ',', array $header) {
+  public static function loadCSVString($input, $max_rows = 0, $delimiter = ',', array $header, $row_trim_chars = '', $ignore_lines = 0) {
     $output = array();
-    $input_rows = explode(PHP_EOL, $input);
+    $input_rows = ($ignore_lines === 0) ? explode(PHP_EOL, $input) : array_slice(explode(PHP_EOL, $input), $ignore_lines); 
     $input = null;
     $row = 1;
 
     foreach($input_rows as &$data) {
+      if($row_trim_chars !== '') { $data = trim($data, $row_trim_chars); }
       $data = explode($delimiter, $data);
 
-      //Build the header/column names
+      //Build the header/column names row
       if($row === 1 && empty($header)) {
         $header = array_map('strval', array_keys($data));
         $row++;
         continue;
       }
 
+      //Build the data rows
       if(!(sizeof($data) == 1 && empty($data[0]))) { 
         $output[] = array_combine($header, array_map('trim', $data));
         if($max_rows > 0 && $row++ > $max_rows) { break; }
