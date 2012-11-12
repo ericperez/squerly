@@ -47,7 +47,8 @@ class Crud_Controller implements Crud_Controller_Interface {
     list($model, $model_friendly) = CRUD_Helper::getModelName();
     $limit = F3::get('RECORDS_PER_PAGE');
     $page = (int) F3::get('GET.page') ?: 1;
-    $records = CRUD::loadRecords($fields, $limit, $page, false);
+    $primary_key = Db_Meta::getPrimaryKeys($model);
+    $records = CRUD::loadRecords($fields, $limit, $page, false, null, $primary_key . ' DESC');
     if(!empty($records)) {
       F3::set('content', Export::render(CRUD_Helper::preprocessRecordData($records), $model, 'table'));
     } else {

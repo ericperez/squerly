@@ -90,7 +90,8 @@ class CRUD extends Axon {
   * @todo Consolidate with 'loadRecord' ??
   * 
   */
-  public static function loadRecords($fields = '*', $limit = 0, $page = 0, $use_default_model = false, $where = NULL) {
+  public static function loadRecords($fields = '*', $limit = 0, $page = 0, $use_default_model = false, $where = NULL, $order_by) {
+    if($order_by === '') { $order_by = Db_Meta::getPrimaryKeys($model); }
     if(empty($fields)) { $fields = '*'; }
     list($model, $model_friendly) = CRUD_Helper::getModelName($use_default_model);
     $offset = ($page > 0 && $limit > 0) ? (int) ($page * $limit) - $limit : 0;
@@ -100,7 +101,7 @@ class CRUD extends Axon {
       $offset = $limit - F3::get('RECORDS_PER_PAGE');
     }
     $where = !is_null($where) ? $where : SQL::buildWhereFromArray($model, F3::get('GET'));
-    return $records->select($fields, $where, NULL, Db_Meta::getPrimaryKeys($model), $limit, $offset, false);
+    return $records->select($fields, $where, NULL, $order_by, $limit, $offset, false);
   }
 
 

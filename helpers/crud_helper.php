@@ -318,15 +318,15 @@ class CRUD_Helper {
 
     switch($action) {
       case 'edit':
-        $nav = array($nav_arr['view'], $nav_arr['delete'], $nav_arr['search']);
+        $nav = array($nav_arr['view'], $nav_arr['delete'], $nav_arr['copy'], $nav_arr['search']);
         break;
 
       case 'delete':
-        $nav = array($nav_arr['view'], $nav_arr['edit'], $nav_arr['search']);
+        $nav = array($nav_arr['view'], $nav_arr['edit'], $nav_arr['copy'], $nav_arr['search']);
         break;
 
       case 'view':
-        $nav = array($nav_arr['edit'], $nav_arr['delete'], $nav_arr['search']);
+        $nav = array($nav_arr['edit'], $nav_arr['delete'], $nav_arr['copy'], $nav_arr['search']);
         break;
 
       case 'search':
