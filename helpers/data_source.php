@@ -87,7 +87,7 @@ class Data_Source {
   * @return array 2D associative array holding a representation of the CSV data
   *
   */
-  public static function loadCSVString($input, $max_rows = 0, $delimiter = ',', array $header, $row_trim_chars = '', $ignore_lines = 0) {
+  public static function loadCSVString($input, $max_rows = 0, $delimiter = ',', array $header = array(), $row_trim_chars = '', $ignore_lines = 0) {
     $output = array();
     $input_rows = ($ignore_lines === 0) ? explode(PHP_EOL, $input) : array_slice(explode(PHP_EOL, $input), $ignore_lines); 
     $input = null;
@@ -99,7 +99,7 @@ class Data_Source {
 
       //Build the header/column names row
       if($row === 1 && empty($header)) {
-        $header = array_map('strval', array_keys($data));
+        $header = array_map('strval', $data);
         $row++;
         continue;
       }

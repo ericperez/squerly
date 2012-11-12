@@ -16,6 +16,7 @@
   *
   */
 class Report_Csv extends Report_Base {
+  public $bind_params = array();
   const REPORT_PREVIEW_ROWS = 10;
 
   /**
@@ -40,13 +41,22 @@ class Report_Csv extends Report_Base {
    *
    * _preprocessQuery - preprocess in PHP
    * @param $preview boolean - If TRUE, limits the number of rows in the report results to self::REPORT_PREVIEW_ROWS
+   * @todo get $preview working
    *
    */
-  protected function _preprocessQuery($preview) {
+  protected function _preprocessQuery($preview, array $template_vals = array()) {
     $this->_phpPreprocess(); // Run the query through PHP
+    //Use (sanitized) $_GET as bind-parameters unless overridden in $bind_params
+    $template_vals = (empty($template_vals)) ? F3::get('REQUEST') : $template_vals;
+    //Swap out the mustache/template tags with bind-parameter placeholders and gets an array of bind parameters/values
+    list($this->processed_query, $this->bind_params) = Mustache_Helper::renderSQL($this->processed_query, $template_vals, '{[', ']}');
+
+    //D3Linq doesn't support 'bind parameters' so instead of keeping them separate, they are going to be replaced into the query template
+    $this->processed_query = Mustache_Helper::render($this->processed_query, array_map('addslashes', $this->bind_params));
+
     //Replace any template vars/tags in the report input_data_uri property
-    $template_vals = F3::get('REQUEST');
     $this->input_data_uri = Mustache_Helper::render($this->input_data_uri, $template_vals, 'rawurlencode');
+
   }
 
 
@@ -100,7 +110,19 @@ class Report_Csv extends Report_Base {
    */
   public function getData($preview = false) {
     $max_rows = ($preview) ? self::REPORT_PREVIEW_ROWS : 0;
-    $this->results = Data_Source::loadCSVFile($this->input_data_uri, $max_rows);
+    //Run the data through D3Linq which semantically parses 'SQL' and applies it to 2D data
+    //TODO: abstract this code out and add it to JSON and XML reports
+    if($this->processed_query !== '') {
+      $GLOBALS['data'] = Data_Source::loadCSVFile($this->input_data_uri, $max_rows);
+      $this->results = array();
+      $linq = new D3Linq();
+      $linq->Query($this->processed_query);
+      while($row = $linq->fetch_assoc()){
+        $this->results[] = $row;
+      }
+    } else {
+      $this->results = Data_Source::loadCSVFile($this->input_data_uri, $max_rows);
+    }
   }
 
 
