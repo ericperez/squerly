@@ -37,9 +37,6 @@ F3::set('DB',
 
 //Fat-Free Framework Setup Variables
 F3::set('DEBUG', 3); //Debug output verbosity
-F3::set('UI', 'views/'); //Path to UI/Views
-F3::set('AUTOLOAD', 'lib/; models/; controllers/; helpers/; forms/; vendor/; vendor/php_kml/;');
-F3::set('IMPORTS', 'views/');
 F3::set('CACHE', FALSE); //Enable or disable caching globally TODO: temporary set to false for testing/dev
 //F3::set('PLUGINS', '');
 
@@ -50,7 +47,7 @@ F3::set('RECORDS_PER_PAGE', 1000); //Max number of records to display per page o
 F3::set('DEFAULT_MODEL', 'report');
 F3::set('CSRF_EXPIRY_HOURS', 8); //Number of hours the CSRF tokens remain valid (TODO: Implement)
 F3::set('DB_TABLE_PREFIX', ''); //Used in case DB tables have a common prefix (which wont be used on the URI path) (TODO: Implement)
-F3::set('REPORT_CACHE_EXPIRE', '60'); //Number of seconds to cache SQL-based Report results (TODO: Expand to emcompass all reports)
+F3::set('REPORT_CACHE_EXPIRE', 120); //Number of seconds to cache SQL-based Report results (TODO: Expand to emcompass all reports)
 
 //Locale Setup Variables
 putenv('LC_ALL=en_US');

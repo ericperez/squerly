@@ -16,10 +16,28 @@ if(strnatcmp(phpversion(), '5.3.0') <= 0) { die('ERROR: Squerly requires PHP 5.3
 
 require __DIR__ . '/lib/base.php'; //Fat-Free Framework (F3) core code
 require __DIR__ . '/config/squerly.config.php'; //Squerly configuration settings
+
+//Fat-Free Framework vars
+F3::set('UI', 'views/'); //Path to UI/Views
+F3::set('AUTOLOAD', '
+  lib/,
+  models/,
+  controllers/,
+  helpers/,
+  helpers/export/,
+  helpers/transform,
+  forms/,vendor/,
+  vendor/php_kml/,
+  vendor/phpseclib/,
+  vendor/PHPLinq/
+');
+F3::set('IMPORTS', 'views/');
+
 //TODO: autoload these or 'require' in a loop
-require __DIR__ . '/controllers/auth_controller.php';
+//require __DIR__ . '/controllers/auth_controller.php';
 require __DIR__ . '/controllers/report_controller.php';
-require __DIR__ . '/vendor/depage-forms/htmlform.php'; //depage forms library
+//require __DIR__ . '/vendor/depage-forms/htmlform.php'; //depage forms library
+
 
 //Workaround for undefined 'gettext'/_() method (disables any non-default translations)
 //@see http://www.php.net/manual/en/gettext.installation.php
