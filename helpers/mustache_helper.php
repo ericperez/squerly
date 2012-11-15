@@ -124,16 +124,18 @@ class Mustache_Helper
     }
 
     //If there are duplicate template tag names within a query, they need to be made unique
-    foreach($template_keys as $template_key) {
-      $num_keys = substr_count($bound_sql, $param_prefix . $template_key . $param_suffix);
+    foreach(array_unique($template_keys) as $template_key) {
+      $tag = $param_prefix . $template_key . $param_suffix;
+      $num_keys = substr_count($bound_sql, $tag);
       for($i = $num_keys; $i > 1; $i--) {
         $new_key = String::numeralWords(mt_rand(0, 9) . '_' . ($i - 1)) . '_unique_' . $template_key;
-        $template_tags[$new_key] = $template_tags[$template_key];
-        $bound_sql = preg_replace('/' . $template_key . '/', $new_key, $bound_sql, 1);
+        $new_tag = $param_prefix . $new_key . $param_suffix;
+        $template_tags[$new_key] = $template_tags[$template_key]; //Assign new tag value of original key
+        $bound_sql = String::str_replace_limit($tag, $new_tag, $bound_sql, 1);
       }
     }
-
-    return array(trim($bound_sql, "\n\r\t "), $template_tags);
+    $bound_sql = trim($bound_sql, "\n\r\t ");
+    return array($bound_sql, $template_tags);
   }
 
 }

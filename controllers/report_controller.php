@@ -61,19 +61,17 @@ class Report_Controller extends Crud_Controller {
     }
     //Build the drop down for the report rendering output formats
     //TODO: automate the generation of this
-    $output_formats = array(
-      'table' => 'HTML Table', 
-      'highcharts' => 'Highcharts Line Graph', 
-      'flot' => 'Flot Line Graph',
-      'pchart' => 'pChart Line Graph',
-      'csv' => 'CSV', 
-      'xml' => 'XML',
-      'json' => 'JSON'
-    );
+    $output_formats = Export::pairs();
     $output_val = F3::get('REQUEST.sqrl.context') ?: 'table';
-    $select_attribs = array('title' => 'Report Output Format');
+    $output_attribs = array('title' => 'Report Output Format');
+
+    
+    $transformation_attribs = array('title' => 'Apply a data transformation');
+    //$transformations = Transformation::pairs();
+
     $form_html .= '<td>' . Form::label('sqrl[preview]', 'Preview?') . Form::checkbox('sqrl[preview]', '1') . '</td>';
-    $form_html .= '<td>' . Form::select('sqrl[context]', $output_formats, $output_val, $select_attribs) . '</td>';
+    $form_html .= '<td>' . Form::select('sqrl[context]', $output_formats, $output_val, $output_attribs) . '</td>';
+    //$form_html .= '<td>' . Form::select('sqrl[transformation]', $transformations, '', $transformation_attribs) . '</td>';
     $form_html .= '<td>' . Form::submit('sqrl[run]', 'Run', array('value' => 'run', 'title' => 'Run the report and render the results')) . '</td></tr></table>' . Form::close();
     return $form_html;
   }

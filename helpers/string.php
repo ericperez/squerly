@@ -106,6 +106,37 @@ class String {
 
  /**
   *
+  * Like built-in str_replace but contains a 'limit' argument like preg_replace
+  *
+  * @param string $search Search string
+  * @param string $replace Replacement string
+  * @param string $subject String to search
+  * @param int $limit Number of replacements to make
+  * @param int &$count Number of matches
+  * 
+  * @return string $subject with $search string replaced with $subject string replace $limit number of times
+  * 
+  */
+  public static function str_replace_limit($search,$replace,$subject,$limit,&$count = null)
+  {
+      $count = 0;
+      if ($limit <= 0) return $subject;
+      $occurrences = substr_count($subject,$search);
+      if ($occurrences === 0) return $subject;
+      else if ($occurrences <= $limit) return str_replace($search,$replace,$subject,$count);
+      //Do limited replace
+      $position = 0;
+      //Iterate through occurrences until we get to the last occurrence of $search we're going to replace
+      for ($i = 0; $i < $limit; $i++)
+          $position = strpos($subject,$search,$position) + strlen($search);
+      $substring = substr($subject,0,$position + 1);
+      $substring = str_replace($search,$replace,$substring,$count);
+      return substr_replace($subject,$substring,0,$position+1);
+  }
+
+
+ /**
+  *
   * Prevents the class from being instantiated--all of it's methods should be called statically
   *
   */

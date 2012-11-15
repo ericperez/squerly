@@ -90,10 +90,10 @@ class CRUD extends Axon {
   * @todo Consolidate with 'loadRecord' ??
   * 
   */
-  public static function loadRecords($fields = '*', $limit = 0, $page = 0, $use_default_model = false, $where = NULL, $order_by) {
-    if($order_by === '') { $order_by = Db_Meta::getPrimaryKeys($model); }
+  public static function loadRecords($fields = '*', $limit = 0, $page = 0, $use_default_model = false, $where = NULL, $order_by = '') {
     if(empty($fields)) { $fields = '*'; }
     list($model, $model_friendly) = CRUD_Helper::getModelName($use_default_model);
+    if($order_by === '') { $order_by = Db_Meta::getPrimaryKeys($model); }
     $offset = ($page > 0 && $limit > 0) ? (int) ($page * $limit) - $limit : 0;
     $records = new Axon($model);
     $model_count = $records->found();

@@ -33,28 +33,6 @@ class Export {
   }
 
 
- /**
-  *
-  * Calls a rendering plugin with the input 2D data array
-  * 
-  * @param array $data 2D array of data to be exported
-  * @param string $filename Name of file to be sent back to the user (if applicable)
-  * @param string $output_format Determines which export helper gets called (defaults to HTML table)
-  * @param array $config Array of configuration settings
-  *
-  */
-  public static function render($data, $filename = 'download.txt', $output_format = '', array $config = array()) {
-    if(!$data) { $data = array(array()); }
-    $export_plugin = 'Export_' . self::getOutputFormat($output_format);
-    $class_implements = @class_implements($export_plugin) ?: array(); //Get plugin interfaces
-    if(@class_exists($export_plugin) && in_array('Export_Interface', $class_implements)) {
-      return $export_plugin::render($data, $filename, $config);
-    } else {
-      F3::error('', 'Invalid export plugin or plugin not found.');
-    }
-  }
-
-
 /**
   *
   * Renders an export plugin using an HTML layout
@@ -73,6 +51,50 @@ class Export {
       return Template::serve($layout_path, null);
     } else {
       return false;
+    }
+  }
+
+
+ /**
+  *
+  * Enumerates all the export plugins and returns an an array of their names
+  * 
+  * @return array of export plugins in format 'short_name' => 'friendly name'
+  * 
+  */
+  public static function pairs() {
+    //TODO: Automate this...
+    return array(
+      'table' => 'HTML Table',
+      'highcharts' => 'Highcharts Line Graph',
+      'flot' => 'FLOT Line Graph',
+      'pchart' => 'PChart Line Graph',
+      'csv' => 'CSV',
+      'json' => 'JSON',
+      'xml' => 'XML',
+      'kml_points' => 'KML Points',
+    );
+  }
+
+
+ /**
+  *
+  * Calls a rendering plugin with the input 2D data array
+  * 
+  * @param array $data 2D array of data to be exported
+  * @param string $filename Name of file to be sent back to the user (if applicable)
+  * @param string $output_format Determines which export helper gets called (defaults to HTML table)
+  * @param array $config Array of configuration settings
+  *
+  */
+  public static function render($data, $filename = 'download.txt', $output_format = '', array $config = array()) {
+    if(!$data) { $data = array(array()); }
+    $export_plugin = 'Export_' . self::getOutputFormat($output_format);
+    $class_implements = @class_implements($export_plugin) ?: array(); //Get plugin interfaces
+    if(@class_exists($export_plugin) && in_array('Export_Interface', $class_implements)) {
+      return $export_plugin::render($data, $filename, $config);
+    } else {
+      F3::error('', 'Invalid export plugin or plugin not found.');
     }
   }
 
