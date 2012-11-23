@@ -62,7 +62,7 @@ class Report_Controller extends Crud_Controller {
     }
     //Build the drop down for the report rendering output formats
     $output_formats = Export::pairs();
-    $output_val = $_REQUEST['sqrl']['context'] ?: 'table';
+    $output_val = isset($_REQUEST['sqrl']['context']) ? $_REQUEST['sqrl']['context'] : 'table';
     $output_attribs = array('title' => 'Report Output Format');
 
     //Build the drop down for the report output data transformations
