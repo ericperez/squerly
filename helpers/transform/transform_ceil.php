@@ -29,9 +29,10 @@ class Transform_Ceil implements Transform_Interface {
     $output = array();
     foreach($data as $row) {
       //Calculate the absolute values
+      $y_val = array_shift($row);
       $vals = array_values($row);
       $vals = array_map('floatval', $vals);
-      $vals = array_map('ceil', $vals);
+      $vals = array($y_val) + array_map('ceil', $vals);
 
       //Get the key values
       $keys = array_keys($row);
