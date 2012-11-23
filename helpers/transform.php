@@ -46,8 +46,12 @@ class Transform  {
       'minmaxmean' => 'Min/Max/Mean Values',
       'sum'        => 'Sum of All Values',
       'mean'       => 'Mean Average of All Values',
+      'round'      => 'Round off all Decimal Points',
       'min'        => 'Minimum Values',
       'max'        => 'Maximum Values',
+      'abs'        => 'Absolute Values',
+      'ceil'       => 'Round All Values Up',
+      'floor'      => 'Round All Values Down',
     );
   }
 

@@ -1,7 +1,7 @@
 <?php
 /**
   *
-  * Squerly - Transformation class to calculate sums of all columnar values in a 2D array
+  * Squerly - Transformation class to calculate absolute values for numeric data in a 2D array
   * 
   * 
   * @author Eric Perez <ericperez@squerly.net>
@@ -11,12 +11,12 @@
   * @link http://www.squerly.net
   * 
   */
-class Transform_Sum implements Transform_Interface {
+class Transform_Round implements Transform_Interface {
 
 
 /**
   *
-  * Calculates sums of all columnar values in a two-dimensional data array
+  *  Calculates absolute values for numeric data in a 2D array
   * 
   * @param array $data 2D associative array of data to be transformed
   * @param array $fields Array of fields to apply the tranformation to (defaults to all fields)
@@ -26,13 +26,16 @@ class Transform_Sum implements Transform_Interface {
   * 
   */
   public static function run(array $data, array $fields = array()) {
-    $col_names = array_keys($data[0]);
-    $y_col = $col_names[0];
     $output = array();
     foreach($data as $row) {
+      //Calculate the absolute values
       $vals = array_values($row);
-      $y_val = array_shift($vals); //First column contains y-axis value
-      $output[] = array($y_col => $y_val, 'SUM' => array_sum($vals));
+      $vals = array_map('floatval', $vals);
+      $vals = array_map('round', $vals);
+
+      //Get the key values
+      $keys = array_keys($row);
+      $output[] = array_combine($keys, $vals); 
     }
     return $output;
   }
