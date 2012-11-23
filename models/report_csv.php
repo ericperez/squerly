@@ -62,17 +62,6 @@ class Report_Csv extends Report_Base {
 
   /**
    *
-   * _postprocessResults - runs the results of the report query through any necessary post-processing
-   *
-   */
-  protected function _postprocessResults() {
-    $postprocess_code = String::stripComments($this->postprocess_code);
-    if(!empty($postprocess_code)) { $this->_phpPostprocess(); }
-  }
-
-
-  /**
-   *
    * getResults - Runs the report query against the database and returns the results
    *
    */

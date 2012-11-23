@@ -51,7 +51,8 @@ class Report_Controller extends Crud_Controller {
     //TODO: Load a saved configuration for values
     //TODO: Use form library to generate/validate form elements
     $vars = array_unique(Mustache_Helper::vars($report->clean_properties['query']) + Mustache_Helper::vars($report->clean_properties['input_data_uri']));
-    $vals = !empty($form_vals) ? $form_vals : F3::get('REQUEST');
+    $vals = !empty($form_vals) ? $form_vals : $_REQUEST ;
+    //TODO
     $form_html = Form::open("/report/{$action}/{$report->id}", array('method' => 'post')) . "<table><thead></thead><tbody><tr><td>";
     //Currently all fields are required; TODO: make this configurable
     $input_attribs = array('required' => 'required');
@@ -60,18 +61,18 @@ class Report_Controller extends Crud_Controller {
       $form_html .= '<td>' . Form::label($var, String::humanize($var)) . ': ' . Form::input($var, $val, $input_attribs) . '&nbsp;</td>';
     }
     //Build the drop down for the report rendering output formats
-    //TODO: automate the generation of this
     $output_formats = Export::pairs();
-    $output_val = F3::get('REQUEST.sqrl.context') ?: 'table';
+    $output_val = $_REQUEST['sqrl']['context'] ?: 'table';
     $output_attribs = array('title' => 'Report Output Format');
 
-    
-    $transformation_attribs = array('title' => 'Apply a data transformation');
-    //$transformations = Transformation::pairs();
+    //Build the drop down for the report output data transformations
+    $transform = Transform::pairs();
+    $transform_val = F3::get('REQUEST.sqrl.transform') ?: '';
+    $transform_attribs = array('title' => 'Apply a data transformation');
 
-    $form_html .= '<td>' . Form::label('sqrl[preview]', 'Preview?') . Form::checkbox('sqrl[preview]', '1') . '</td>';
     $form_html .= '<td>' . Form::select('sqrl[context]', $output_formats, $output_val, $output_attribs) . '</td>';
-    //$form_html .= '<td>' . Form::select('sqrl[transformation]', $transformations, '', $transformation_attribs) . '</td>';
+    $form_html .= '<td>' . Form::select('sqrl[transform]', $transform, $transform_val , $transform_attribs) . '</td>';
+    $form_html .= '<td>' . Form::label('sqrl[preview]', 'Preview?') . Form::checkbox('sqrl[preview]', '1') . '</td>';
     $form_html .= '<td>' . Form::submit('sqrl[run]', 'Run', array('value' => 'run', 'title' => 'Run the report and render the results')) . '</td></tr></table>' . Form::close();
     return $form_html;
   }
@@ -86,8 +87,15 @@ class Report_Controller extends Crud_Controller {
   */
   public static function email($id = null) {
     $report = self::_loadReport($id);
+    $emailer = new SMTP();
+    $emailer->set('From', 'test@squerly.net');
+    $emailer->set('To', 'zerep@rocketmail.com');
+    $emailer->set('Subject', 'Squerly Test');
+    $emailer->set('Body', 'This is a Squerly test.');
+    $emailer->send();
+
     //TODO: 
-    //Load a saved configuration
+    //Load a saved configuration (or use $_REQUEST)
     //Validate form
     //Get the report results
     //Send out the email

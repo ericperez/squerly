@@ -21,15 +21,16 @@ class Export {
   *
   * Attempts to determine the output format the user requested
   * 
-  * Uses $output_format if passed in, otherwise looks at $_GET['sqrl']['context'], and lastly
-  *   defaults to 'table' (HTML Table) output format
+  * Uses $output_format if passed in, otherwise looks at $_REQUEST['sqrl']['context'], and lastly
+  *   defaults to 'Table' (HTML Table) output format
   * 
   * @param string $output_format Output type name
   * @return string Name of output format
   * 
   */
   public static function getOutputFormat($output_format = '') {
-      return $output_format ?: String::modelToClass(F3::get('REQUEST.sqrl.context')) ?: 'table';
+    $request_format = isset($_REQUEST['sqrl']['context']) ? $_REQUEST['sqrl']['context'] : '';
+    return $output_format ?: String::modelToClass($request_format) ?: 'Table';
   }
 
 

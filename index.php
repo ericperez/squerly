@@ -25,13 +25,14 @@ F3::set('AUTOLOAD', '
   controllers/,
   helpers/,
   helpers/export/,
-  helpers/transform,
+  helpers/transform/,
   forms/,vendor/,
   vendor/php_kml/,
   vendor/phpseclib/,
   vendor/PHPLinq/
 ');
 F3::set('IMPORTS', 'views/');
+F3::set('TEMP', 'tmp/');
 
 //TODO: autoload these or 'require' in a loop
 //require __DIR__ . '/controllers/auth_controller.php';

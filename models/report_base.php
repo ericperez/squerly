@@ -104,10 +104,14 @@ class Report_Base extends Report_Abstract {
 
   /**
    *
-   *  Runs the results of the report query through any necessary post-processing
+   * _postprocessResults - runs the results of the report query through any necessary post-processing
    *
    */
-  protected function _postprocessResults() {}
+  protected function _postprocessResults() {
+    $postprocess_code = String::stripComments($this->postprocess_code);
+    if(!empty($postprocess_code)) { $this->_phpPostprocess(); }
+    $this->results = Transform::run($this->results);
+  }
 
 
   /**

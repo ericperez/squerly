@@ -38,6 +38,7 @@ class CRUD_Helper {
         //TODO: add BASE_URL_PATH to the URLS!!
         array("Delete" => "<a href='/{$model}/delete/{$id}'>Delete</a>"),
         array("Edit" => "<a href='/{$model}/edit/{$id}'>Edit</a>"),
+        array("Copy" => "<a href='/{$model}/copy/{$id}'>Copy</a>"),
         array("Details" => "<a href='/{$model}/view/{$id}'>View</a>"),
 
       );

@@ -155,7 +155,7 @@ class Crud_Controller implements Crud_Controller_Interface {
       );
       //var_dump(self::$_forms); exit;
       //Set the 'updated_at' field to current date
-      $now = date('Y-m-d');
+      $now = date('Y-m-d h:i:s');
       $values = array('created_at' => $now, 'updated_at' => $now);
       $form = (isset(self::$_forms['add']) && Crud_Helper::getForm(self::$_forms['add']))
         ?: CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
@@ -197,7 +197,7 @@ class Crud_Controller implements Crud_Controller_Interface {
         'method' => 'post',
       );
       //Set the 'updated_at' field to current date
-      $now = date('Y-m-d');
+      $now = date('Y-m-d h:i:s');
       $values = array('updated_at' => $now) + F3::get('record');
       $form = CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
       F3::set('form', $form);
@@ -234,7 +234,7 @@ class Crud_Controller implements Crud_Controller_Interface {
         'method' => 'post',
       );
       //Set the 'updated_at' field to current date
-      $now = date('Y-m-d');
+      $now = date('Y-m-d h:m:s');
       $values = array('updated_at' => $now) + F3::get('record');
       $form = CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
       F3::set('form', $form);

@@ -16,7 +16,9 @@
   *
   */
 class Report_Sql extends Report_Base {
+
   public $bind_params = array();
+  public $processed_query = '';
 
   const REPORT_DISALLOWED_KEYWORD = 'Disallowed keyword found in report; aborting.';
   const REPORT_NOT_SELECT_STATEMENT = 'Report query must be a SELECT statment; aborting.';
@@ -85,24 +87,13 @@ class Report_Sql extends Report_Base {
     $this->processed_query = SQL::stripComments($this->processed_query); //Strip off all comments
     $this->processed_query = str_replace(';', '', $this->processed_query); //Remove all semi-colons (prevents multiple SQL statements from being run)
     //Use (sanitized) $_GET as bind-parameters unless overridden in $bind_params
-    $bind_params = (empty($bind_params)) ? F3::get('REQUEST') : $bind_params;
+    $bind_params = (empty($bind_params)) ? $_REQUEST : $bind_params;
     //Swap out the mustache/template tags with bind-parameter placeholders and gets an array of bind parameters/values
     list($this->processed_query, $this->bind_params) = Mustache_Helper::renderSQL($this->processed_query, $bind_params);
     if($preview) { 
       $this->processed_query = SQL::overrideLimit($this->processed_query, self::REPORT_PREVIEW_ROWS); 
     }
     $this->_addReportIdentifierComment(); //Add identifying comment to the query
-  }
-
-
-  /**
-   *
-   * _postprocessQuery - runs the results of the report query through any necessary post-processing
-   *
-   */
-  protected function _postprocessResults() {
-    $postprocess_code = String::stripComments($this->postprocess_code);
-    if(!empty($postprocess_code)) { $this->_phpPostprocess(); }
   }
 
 
