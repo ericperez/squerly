@@ -29,7 +29,7 @@ class Report_Controller extends Crud_Controller {
   protected static function _loadReport($id = null) {
     $id = is_int($id) ? $id : (int) F3::get('PARAMS["id"]') ?: null;
     if(!$id) { F3::reroute(F3::get('URL_BASE_PATH') . '/report'); }
-    $report = Report::delegate($id);
+    $report = Report::load_model($id);
     return $report;
   }
 

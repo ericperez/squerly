@@ -26,7 +26,7 @@ class CRUD extends Axon {
   * @return object Instance of CRUD-subclass specified in $model
   *
   */
-  public static function delegate($model) {
+  public static function load_model($model) {
     $class_name = String::modelToClass($model);
     if(@class_exists($class_name) && @is_subclass_of($class_name, 'CRUD')) {
       return new $class_name();
@@ -59,7 +59,7 @@ class CRUD extends Axon {
     if(empty($primary_key)) { F3::error('', 'Every table must have a primary key to be used with AXON ORM/CRUD'); }
 
     //Figure out if custom class exists for model; if so, instantiate that instead of CRUD
-    $record = self::delegate($model);
+    $record = self::load_model($model);
     $record->load("{$primary_key} = {$id}");
     //Make sure record with id $id exists
     if($record->dry()) {

@@ -47,7 +47,7 @@ class Report extends Report_Base {
   * @return object Instance of report sub-class
   *
   */
-  public static function delegate($id) {
+  public static function load_model($id) {
     $report = new self();
     $report->load("id = {$id}");
     if($report->dry()) { 
