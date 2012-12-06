@@ -164,12 +164,14 @@ class CRUD_Helper {
 
         case 'textarea':
           $value = $field_attribs['value'];
+          $field_attribs['style'] = 'width: 800px; height: 300px;';
           unset($field_attribs['value'], $field_attribs['type']);
           $output .= '<td>' . Form::textarea($field_attribs['name'], $value, $field_attribs) . "</td></tr>\n";
           break;
 
         default: //Handles number, date, datetime, time, and text fields
           $value = $field_attribs['value'];
+          $field_attribs['style'] = 'width: 400px;';
           $output .= '<td>' . Form::input($field_attribs['name'], $value, $field_attribs) . "</td></tr>\n";
           break;
       }
