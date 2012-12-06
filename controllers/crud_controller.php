@@ -50,7 +50,7 @@ class Crud_Controller implements Crud_Controller_Interface {
     $primary_key = Db_Meta::getPrimaryKeys($model);
     $records = CRUD::loadRecords($fields, $limit, $page, false, null, $primary_key . ' DESC');
     if(!empty($records)) {
-      F3::set('content', Export::render(CRUD_Helper::preprocessRecordData($records), $model, 'table'));
+      F3::set('content', Export::render(CRUD_Helper::preprocessRecordData($records), $model, 'table'), false, false);
     } else {
       $records_name = Inflector::plural($model_friendly);
       F3::set('content', "No {$records_name} Found");
@@ -159,7 +159,7 @@ class Crud_Controller implements Crud_Controller_Interface {
       $values = array('created_at' => $now, 'updated_at' => $now);
       $form = (isset(self::$_forms['add']) && Crud_Helper::getForm(self::$_forms['add']))
         ?: CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
-      F3::set('form', $form);
+      F3::set('form', $form, false, false);
     }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
     echo Template::serve('layout.html');
@@ -200,7 +200,7 @@ class Crud_Controller implements Crud_Controller_Interface {
       $now = date('Y-m-d h:i:s');
       $values = array('updated_at' => $now) + F3::get('record');
       $form = CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
-      F3::set('form', $form);
+      F3::set('form', $form, false, false);
     }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
     echo Template::serve('layout.html');
@@ -237,7 +237,7 @@ class Crud_Controller implements Crud_Controller_Interface {
       $now = date('Y-m-d h:m:s');
       $values = array('updated_at' => $now) + F3::get('record');
       $form = CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
-      F3::set('form', $form);
+      F3::set('form', $form, false, false);
     }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
     echo Template::serve('layout.html');
@@ -267,7 +267,9 @@ class Crud_Controller implements Crud_Controller_Interface {
     $record->copyFrom('POST'); //, $allowed_fields); //TODO: create blacklist of fields to not accept from POST
     $record->save();
     $record_id = $record->_id;
-    $action = ($id > 0 && $record->id > 0) ? "{$record->id} updated" : "{$record_id} added";
+    $action = ($id > 0 && $record->id > 0) ? 
+      "<a href='/report/render/{$record->id}'>{$record->id}</a> updated" : 
+      "<a href='/report/render/{$record_id}'>{$record_id}</a> added";
     Notify::info("{$model_friendly} {$action} successfully.");
     F3::reroute(F3::get('URL_BASE_PATH') . $model);
   }
@@ -296,7 +298,7 @@ class Crud_Controller implements Crud_Controller_Interface {
     }
     if(!F3::exists('form')) { 
       $form = CRUD_Helper::buildDeleteForm($model, $id);
-      F3::set('form', $form);
+      F3::set('form', $form, false, false);
     }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
     echo Template::serve('layout.html');
@@ -411,7 +413,7 @@ class Crud_Controller implements Crud_Controller_Interface {
         'method' => 'get',
       );
       $form = CRUD_Helper::buildFormFromModel($model, array(), array(), $form_config);
-      F3::set('form', $form);
+      F3::set('form', $form, false, false);
     }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
     echo Template::serve('layout.html');
@@ -442,14 +444,14 @@ class Crud_Controller implements Crud_Controller_Interface {
         'collapsed' => true
       );
       $form = CRUD_Helper::buildFormFromModel($model, array(), array(), $form_config);
-      F3::set('form', $form);
+      F3::set('form', $form, false, false);
     }
     $limit = F3::get('RECORDS_PER_PAGE');
     $page = (int) F3::get('GET.page') ?: 1;
     $records = CRUD::loadRecords('*', $limit, $page, false);
     if(!F3::exists('content')) { 
       if(!empty($records)) {
-        F3::set('content', Export::render(CRUD_Helper::preprocessRecordData($records), $model, 'table'));
+        F3::set('content', Export::render(CRUD_Helper::preprocessRecordData($records), $model, 'table'), false, false);
       } else {
         $records_name = Inflector::plural($model_friendly);
         F3::set('content', "No {$records_name} match the specified criteria.");
@@ -481,7 +483,7 @@ class Crud_Controller implements Crud_Controller_Interface {
     $record[0]->copyTo('record');
     //TODO: fix issue with {{id}} being parse by F3 templater
     $record_content = array(F3::get('record'));
-    if(!F3::exists('content')) { F3::set('content', Export::render($record_content, 'table'), $model); }
+    if(!F3::exists('content')) { F3::set('content', Export::render($record_content, 'table', $model), false, false); }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
     echo Template::serve('layout.html');
   }
