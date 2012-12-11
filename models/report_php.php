@@ -21,12 +21,15 @@ class Report_Php extends Report_Base {
 
   /**
    *
-   * getResults - Runs the report query against the database and returns the results
+   * Gets the result set back from the data source (in this case, PHP code)
+   * 
+   * @param $max_return_rows integer Maximum number of rows of data to be returned (0 is unlimited)
+   * @param $input_values array Array of input key-value pairs to plug into the report query
    *
    */
-  public function getResults($preview = false) {
-    $this->_preprocessQuery($preview); //Pre-process the query through various filters
-    $this->_postprocessResults();
+  public function getResults($max_return_rows = 0, array $input_values = array()) {
+    $this->_preprocessQuery($max_return_rows, $input_values); //Pre-process the query through various filters
+    $this->_postprocessResults($max_return_rows);
     return $this->results;
   }
 

@@ -36,43 +36,48 @@ class Report_Xml extends Report_Base {
 
   /**
    *
-   * _preprocessQuery - preprocess in PHP
-   * @param $preview boolean - If TRUE, limits the number of rows in the report results to self::REPORT_PREVIEW_ROWS
+   * Preprocess in PHP
+   * 
+   * @param $max_return_rows integer Maximum number of rows of data to be returned (0 is unlimited)
+   * @param $input_values array Array of input key-value pairs to plug into the report query
    *
    */
-  protected function _preprocessQuery($preview) {
+  protected function _preprocessQuery($max_return_rows = 0, $input_values = array()) {
     $this->_phpPreprocess(); // Run the query through PHP
     //Replace any template vars/tags in the report input_data_uri property
-    $template_vals = F3::get('REQUEST');
-    $this->input_data_uri = Mustache_Helper::render($this->input_data_uri, $template_vals, 'rawurlencode');
+    $input_values = empty($input_values) ? $_REQUEST : $input_values;
+    $this->input_data_uri = Mustache_Helper::render($this->input_data_uri, $input_values, 'rawurlencode');
   }
 
 
   /**
    *
-   * getResults - Runs the report query against the database and returns the results
+   * Runs the report query against the XML data source and returns the results
+   * 
+   * @param $max_return_rows integer Maximum number of rows of data to be returned (0 is unlimited)
+   * @param $input_values array Array of input key-value pairs to plug into the report query
    *
    */
-  public function getResults($preview = false) {
-    $this->_preprocessQuery($preview); //Pre-process the query through various filters
+  public function getResults($max_return_rows = 0, array $input_values = array()) {
+    $this->_preprocessQuery($max_return_rows, $input_values); //Pre-process the query through various filters
     if($this->_isValid())
     {
       try {
-        $this->getData($preview);
+        $this->getData($max_return_rows);
       }
       catch(Exception $e) {
         //TODO: Handle exception - display error details in development; generic error message in production
         throw new Exception($e);
       }
     }
-    $this->_postprocessResults();
+    $this->_postprocessResults($max_return_rows);
     return $this->results;
   }
 
 
   /**
    *
-   * getColumns - Returns the column names for a given report
+   * Returns the column names for a given report
    *
    */
   public function getColumns() {
@@ -82,18 +87,17 @@ class Report_Xml extends Report_Base {
 
   /**
    *
-   * getData - Retrieves the initial results data from the data source
+   * Retrieves the initial results data from the data source
    *
    */
-  public function getData($preview = false) {
-    $max_rows = ($preview) ? self::REPORT_PREVIEW_ROWS : 0;
-    $this->results = Data_Source::loadXMLFile($this->input_data_uri, $max_rows);
+  public function getData($max_return_rows = 0) {
+    $this->results = Data_Source::loadXMLFile($this->input_data_uri, $max_return_rows);
   }
 
 
   /**
    *
-   * getFormConfig - Returns the form configuration for a given report
+   * Returns the form configuration for a given report
    *
    */
   public function getFormConfig() {

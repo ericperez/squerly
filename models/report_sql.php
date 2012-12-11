@@ -22,7 +22,6 @@ class Report_Sql extends Report_Base {
 
   const REPORT_DISALLOWED_KEYWORD = 'Disallowed keyword found in report; aborting.';
   const REPORT_NOT_SELECT_STATEMENT = 'Report query must be a SELECT statment; aborting.';
-  const REPORT_PREVIEW_ROWS = 10;
 
   /**
    *
@@ -78,32 +77,38 @@ class Report_Sql extends Report_Base {
   /**
    *
    * Preprocess the report Query in PHP, strips off comments, removes semi-colons, adds identifier comment to report SQL
-   * @param $preview boolean - If TRUE, limits the number of rows in the report results to self::REPORT_PREVIEW_ROWS
-   * @param $bind_params array - Array of bind-parameter key-value pairs to plug into the report query
+   * 
+   * @param $max_return_rows integer Maximum number of rows of data to be returned (0 is unlimited)
+   * @param $input_values array Array of input key-value pairs to plug into the report query
    *
    */
-  protected function _preprocessQuery($preview, array $bind_params = array()) {
+  protected function _preprocessQuery($max_return_rows = 0, array $input_values = array()) {
     $this->_phpPreprocess(); // Run the query through PHP
     $this->processed_query = SQL::stripComments($this->processed_query); //Strip off all comments
     $this->processed_query = str_replace(';', '', $this->processed_query); //Remove all semi-colons (prevents multiple SQL statements from being run)
-    //Use (sanitized) $_GET as bind-parameters unless overridden in $bind_params
-    $bind_params = (empty($bind_params)) ? $_REQUEST : $bind_params;
+    //Use (sanitized) $_GET as bind-parameters unless overridden in $input_values
+    $input_values = (empty($input_values)) ? $_REQUEST : $input_values;
     //Swap out the mustache/template tags with bind-parameter placeholders and gets an array of bind parameters/values
-    list($this->processed_query, $this->bind_params) = Mustache_Helper::renderSQL($this->processed_query, $bind_params);
-    if($preview) { 
-      $this->processed_query = SQL::overrideLimit($this->processed_query, self::REPORT_PREVIEW_ROWS); 
-    }
+    list($this->processed_query, $this->bind_params) = Mustache_Helper::renderSQL($this->processed_query, $input_values);
+
+    //TODO: remove this
+    //if($preview) { 
+    //  $this->processed_query = SQL::overrideLimit($this->processed_query, self::REPORT_PREVIEW_ROWS); 
+    //}
     $this->_addReportIdentifierComment(); //Add identifying comment to the query
   }
 
 
   /**
    *
-   * getResults - Runs the report query against the database and returns the results
+   * Runs the report query against the database and returns the results
+   * 
+   * @param $max_return_rows integer Maximum number of rows of data to be returned (0 is unlimited)
+   * @param $input_values array Array of input key-value pairs to plug into the report query
    *
    */
-  public function getResults($preview = false) {
-    $this->_preprocessQuery($preview); //Pre-process the query through various filters
+  public function getResults($max_return_rows = 0, array $input_values = array()) {
+    $this->_preprocessQuery($max_return_rows, $input_values); //Pre-process the query through various filters
     if($this->_isValid())
     {
       try {
@@ -114,7 +119,7 @@ class Report_Sql extends Report_Base {
         throw new Exception($e);
       }
     }
-    $this->_postprocessResults();
+    $this->_postprocessResults($max_return_rows);
     return $this->results;
   }
 

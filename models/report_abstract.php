@@ -42,11 +42,13 @@ abstract class Report_Abstract extends CRUD implements Report_Interface {
 
   /**
    *
-   * Preprocess in PHP, strips off comments, removes semi-colons, adds identifier comment to report SQL
-   * @param integer $max_return_rows - Maximum number of rows to return in the result set
+   * Preprocess query through PHP
+   *    
+   * @param $max_return_rows integer Maximum number of rows of data to be returned
+   * @param $input_values array Array of input key-value pairs to plug into the report query
    *
    */
-  abstract protected function _preprocessQuery($max_return_rows);
+  abstract protected function _preprocessQuery($max_return_rows, array $input_values);
 
 
   /**
@@ -54,6 +56,6 @@ abstract class Report_Abstract extends CRUD implements Report_Interface {
    * Runs the results of the report query through any necessary post-processing
    *
    */
-  abstract protected function _postprocessResults();
+  abstract protected function _postprocessResults($max_return_rows);
 
 }

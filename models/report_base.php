@@ -17,15 +17,18 @@ class Report_Base extends Report_Abstract {
   public $processed_query = '';
   public $results = array();
   public $clean_properties = array();
+  public static $model = 'report';
 
 
  /**
   *
   * Syncronize the model with the DB
+  * 
+  * @todo Is this neccessary?
   *
   */
   public function __construct() {
-    $this->sync(F3::get('DB_TABLE_PREFIX') . 'report');
+    $this->sync(F3::get('DB_TABLE_PREFIX') . self::$model);
   }
 
 
@@ -82,11 +85,13 @@ class Report_Base extends Report_Abstract {
 
   /**
    *
-   * Preprocess in PHP, strips off comments, removes semi-colons, adds identifier comment to report SQL
-   * @param integer $max_return_rows - Maximum number of rows to return in the result set
+   * Preprocess query through PHP
+   * 
+   * @param $max_return_rows integer Maximum number of rows of data to be returned (0 is unlimited)
+   * @param $input_values array Array of input key-value pairs to plug into the report query
    *
    */
-  protected function _preprocessQuery($max_return_rows) {}
+  protected function _preprocessQuery($max_return_rows = 0, array $input_values = array()) {}
 
 
   /**
@@ -107,20 +112,25 @@ class Report_Base extends Report_Abstract {
    * _postprocessResults - runs the results of the report query through any necessary post-processing
    *
    */
-  protected function _postprocessResults() {
+  protected function _postprocessResults($max_return_rows = 0) {
     $postprocess_code = String::stripComments($this->postprocess_code);
     if(!empty($postprocess_code)) { $this->_phpPostprocess(); }
     $this->results = Transform::run($this->results);
+    if($max_return_rows > 0 && sizeof($this->results) > $max_return_rows) { 
+      $this->results = array_slice($this->results, 0, $max_return_rows); 
+    }
   }
 
 
   /**
    *
    * Runs the report query against the data source and returns the results
-   * @param integer $max_return_rows - Maximum number of rows to return in the result set
+   * 
+   * @param $max_return_rows integer Maximum number of rows of data to be returned (0 is unlimited)
+   * @param $input_values array Array of input key-value pairs to plug into the report query
    *
    */
-  public function getResults($max_return_rows = null) {}
+  public function getResults($max_return_rows = 0, array $input_values = array()) {}
 
 
   /**

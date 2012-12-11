@@ -17,12 +17,13 @@
   */
 class Report_Csv extends Report_Base {
   public $bind_params = array();
-  const REPORT_PREVIEW_ROWS = 10;
 
   /**
    *
-   * _isValid - checks report validity
-   * @return boolean - True is valid, False if invalid
+   * Checks report/query validity
+   * 
+   * @return boolean True is valid, False if invalid
+   * @todo Finish this
    *
    */
   protected function _isValid()
@@ -39,45 +40,50 @@ class Report_Csv extends Report_Base {
 
   /**
    *
-   * _preprocessQuery - preprocess in PHP
-   * @param $preview boolean - If TRUE, limits the number of rows in the report results to self::REPORT_PREVIEW_ROWS
-   * @todo get $preview working
+   *  Preprocess query with PHP
+   * 
+   * @param $max_return_rows integer Maximum number of rows of data to be returned (0 is unlimited)
+   * @param $input_values array Array of input key-value pairs to plug into the report query
    *
    */
-  protected function _preprocessQuery($preview, array $template_vals = array()) {
+  protected function _preprocessQuery($max_return_rows = 0, array $input_values = array()) {
     $this->_phpPreprocess(); // Run the query through PHP
-    //Use (sanitized) $_GET as bind-parameters unless overridden in $bind_params
-    $template_vals = (empty($template_vals)) ? F3::get('REQUEST') : $template_vals;
+    //Use $_REQUEST as bind-parameters unless overridden in $bind_params
+    //TODO: figure out why F3::get('REQUEST') doesn't always work
+    $input_values = (empty($input_values)) ? $_REQUEST : $input_values;
     //Swap out the mustache/template tags with bind-parameter placeholders and gets an array of bind parameters/values
-    list($this->processed_query, $this->bind_params) = Mustache_Helper::renderSQL($this->processed_query, $template_vals, '{[', ']}');
+    list($this->processed_query, $this->bind_params) = Mustache_Helper::renderSQL($this->processed_query, $input_values, '{[', ']}');
 
     //D3Linq doesn't support 'bind parameters' so instead of keeping them separate, they are going to be replaced into the query template
     $this->processed_query = Mustache_Helper::render($this->processed_query, array_map('addslashes', $this->bind_params));
 
     //Replace any template vars/tags in the report input_data_uri property
-    $this->input_data_uri = Mustache_Helper::render($this->input_data_uri, $template_vals, 'rawurlencode');
+    $this->input_data_uri = Mustache_Helper::render($this->input_data_uri, $input_values, 'rawurlencode');
 
   }
 
 
   /**
    *
-   * getResults - Runs the report query against the database and returns the results
+   * Runs the report query against the CSV data source and returns the results
+   * 
+   * @param $max_return_rows integer Maximum number of rows of data to be returned (0 is unlimited)
+   * @param $input_values array Array of input key-value pairs to plug into the report query
    *
    */
-  public function getResults($preview = false) {
-    $this->_preprocessQuery($preview); //Pre-process the query through various filters
+  public function getResults($max_return_rows = 0, array $input_values = array()) {
+    $this->_preprocessQuery($max_return_rows, $input_values); //Pre-process the query through various filters
     if($this->_isValid())
     {
       try {
-        $this->getData($preview);
+        $this->getData($max_return_rows);
       }
       catch(Exception $e) {
         //TODO: Handle exception - display error details in development; generic error message in production
         throw new Exception($e);
       }
     }
-    $this->_postprocessResults();
+    $this->_postprocessResults($max_return_rows);
     return $this->results;
   }
 
@@ -94,15 +100,17 @@ class Report_Csv extends Report_Base {
 
   /**
    *
-   * getData - Retrieves the initial results data from the data source
+   * Retrieves the initial results data from the data source
+   * 
+   * @todo Should this be public?
    *
    */
-  public function getData($preview = false) {
-    $max_rows = ($preview) ? self::REPORT_PREVIEW_ROWS : 0;
-    //Run the data through D3Linq which semantically parses 'SQL' and applies it to 2D data
+  public function getData($max_return_rows = 0) {
+    //Run the data through D3Linq which semantically parses 'SQL' and applies it to 2D array data
     //TODO: abstract this code out and add it to JSON and XML reports
     if($this->processed_query !== '') {
-      $GLOBALS['data'] = Data_Source::loadCSVFile($this->input_data_uri, $max_rows);
+      //Unfortunately the way that the D3Linq library is written, this data must go into $GLOBALS['data']
+      $GLOBALS['data'] = Data_Source::loadCSVFile($this->input_data_uri, $max_return_rows);
       $this->results = array();
       $linq = new D3Linq();
       $linq->Query($this->processed_query);
@@ -110,14 +118,14 @@ class Report_Csv extends Report_Base {
         $this->results[] = $row;
       }
     } else {
-      $this->results = Data_Source::loadCSVFile($this->input_data_uri, $max_rows);
+      $this->results = Data_Source::loadCSVFile($this->input_data_uri, $max_return_rows);
     }
   }
 
 
   /**
    *
-   * getFormConfig - Returns the form configuration for a given report
+   * Returns the form configuration for a given report
    *
    */
   public function getFormConfig() {
