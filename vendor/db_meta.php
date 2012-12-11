@@ -248,13 +248,14 @@ class Db_Meta {
   * Resolves foreign keys on record result set to convert foreign IDs to names/labels
   * 
   * @param array $record_data
+  * @param boolean $id_in_name - If true, the ID of the model will be prepended on the name
   * @param string $DBC Database connection variable name
   * @return array Record Data with foreign keys IDs resolved to names/labels
   * 
   * @todo Clean this up
   * 
   */
-  public static function resolveForeignKeys(array $record_data, $DBC = 'DB') {
+  public static function resolveForeignKeys(array $record_data, $id_in_name = true, $DBC = 'DB') {
     $tables = Db_Meta::getTables($DBC);
     $skip_cols = array();
     $fks = array();
@@ -293,8 +294,26 @@ class Db_Meta {
           $primary_key = self::getPrimaryKeys($table);
           $primary_cols[$table] = $primary_key;
         }
-        if(!$name_col || !$primary_key) { continue; }
-        $sql = "SELECT {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val";
+        if(!$v || !$name_col || !$primary_key) { continue; }
+
+        //TODO: Consolidate this code using the F3 'DB' class
+        $db_type = F3::get("{$DBC}->backend");
+        switch($db_type) {
+          case 'pgsql':
+          case 'sqlite':
+            $sql = ($id_in_name) ? 
+              "SELECT '[' || {$v} || '] ' || {$name_col} AS {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val" :
+              "SELECT {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val";
+          break;
+
+          case 'mysql':
+          default:
+            $sql = ($id_in_name) ? 
+              "SELECT CONCAT('[', {$v}, '] ', {$name_col}) AS {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val" :
+              "SELECT {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val";
+          break;   
+        }
+
         DB::sql($sql, array(':pk_val' => $v), 120, $DBC); //Cache result for two minutes
         $result = F3::get("{$DBC}->result");
         if(!$result) { continue; } //No match found

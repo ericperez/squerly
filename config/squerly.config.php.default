@@ -54,8 +54,3 @@ putenv('LC_ALL=en_US');
 setlocale(LC_ALL, 'en_US');
 date_default_timezone_set('America/Denver'); //Change this to your own timezone
 
-//Array of data models that may be accessed through the CRUD routing interface
-//Format: 'Friendly Name' => 'model name'
-F3::set('CRUD_TABLE_WHITELIST', array(
-  'Report' => 'report', 
-));

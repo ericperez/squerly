@@ -40,6 +40,12 @@ class String {
       '/Url/'        => 'URL',
       '/Ui/'         => 'UI',
       '/Db/'         => 'DB',
+      '/Mtd/'         => 'MTD',
+      '/Eob/'         => 'EOB',
+      '/Eod/'         => 'EOD',
+      '/Cpm/'         => 'CPM',
+      '/Cpa/'         => 'CPA',
+      '/Cpc/'         => 'CPC',
       '/Javascript/' => 'JavaScript',
     );
     $output = $input;

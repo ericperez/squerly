@@ -37,6 +37,7 @@ F3::set('TEMP', 'tmp/');
 //TODO: autoload these or 'require' in a loop
 //require __DIR__ . '/controllers/auth_controller.php';
 require __DIR__ . '/controllers/report_controller.php';
+require __DIR__ . '/controllers/report_configuration_controller.php';
 //require __DIR__ . '/vendor/depage-forms/htmlform.php'; //depage forms library
 
 
@@ -56,6 +57,14 @@ F3::route('GET ' . F3::get('URL_BASE_PATH'),
     F3::reroute(F3::get('URL_BASE_PATH') . $model);
   }
 );
+
+//Array of data models that may be accessed through the CRUD routing interface
+//Format: 'Friendly Name' => 'model name'
+F3::set('CRUD_TABLE_WHITELIST', array(
+  'Report' => 'report',
+  'Report Configuration' => 'report_configuration',
+  'Email Distribution List' => 'report_distribution_list',
+));
 
 Report_DB_Connection::loadAll(); //Load all the reporting database connections
 Crud_Controller::init();

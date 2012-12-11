@@ -48,18 +48,23 @@ class Report_Controller extends Crud_Controller {
   */
   protected static function _renderParamsForm($report, $action = 'render', array $form_vals = array()) {
     //TODO: loop through all properties for template/form vars instead of just query and input_data_uri?
-    //TODO: Load a saved configuration for values
     //TODO: Use form library to generate/validate form elements
     $vars = array_unique(Mustache_Helper::vars($report->clean_properties['query']) + Mustache_Helper::vars($report->clean_properties['input_data_uri']));
     $vals = !empty($form_vals) ? $form_vals : $_REQUEST ;
-    //TODO
-    $form_html = Form::open("/report/{$action}/{$report->id}", array('method' => 'post')) . "<table><thead></thead><tbody><tr><td>";
+    //TODO: load form action from report property
+    $form_html = "<div style='padding: 5px;'>" . Form::open("/report/{$action}/{$report->id}", array('method' => 'post'));
     //Currently all fields are required; TODO: make this configurable
     $input_attribs = array('required' => 'required');
-    foreach($vars as $var) {
-      $val = isset($vals[$var]) ? htmlentities($vals[$var]) : '';
-      $form_html .= '<td>' . Form::label($var, String::humanize($var)) . ': ' . Form::input($var, $val, $input_attribs) . '&nbsp;</td>';
-    }
+
+    //Build the drop down for the saved report configurations
+    $config_where = "report_id = " . F3::get('PARAMS.id');
+    //TODO: make this smarter -- set table name in model
+    $config_list = array('' => '(Select)') + Report_Configuration::pairs('report_configuration', false, $config_where, 'pkey DESC');
+    $config_attribs = array(
+      'title' => 'Load a Saved Report Configuration',
+      'onchange' => 'squerly.report_configuration.getValues(this.value);',
+    );
+
     //Build the drop down for the report rendering output formats
     $output_formats = Export::pairs();
     $output_val = isset($_REQUEST['sqrl']['context']) ? $_REQUEST['sqrl']['context'] : 'table';
@@ -67,13 +72,34 @@ class Report_Controller extends Crud_Controller {
 
     //Build the drop down for the report output data transformations
     $transform = Transform::pairs();
-    $transform_val = F3::get('REQUEST.sqrl.transform') ?: '';
+    $transform_val = isset($_REQUEST['sqrl']['transform']) ? $_REQUEST['sqrl']['transform'] : '';
     $transform_attribs = array('title' => 'Apply a data transformation');
 
-    $form_html .= '<td>' . Form::select('sqrl[context]', $output_formats, $output_val, $output_attribs) . '</td>';
-    $form_html .= '<td>' . Form::select('sqrl[transform]', $transform, $transform_val , $transform_attribs) . '</td>';
-    $form_html .= '<td>' . Form::label('sqrl[preview]', 'Preview?') . Form::checkbox('sqrl[preview]', '1') . '</td>';
-    $form_html .= '<td>' . Form::submit('sqrl[run]', 'Run', array('value' => 'run', 'title' => 'Run the report and render the results')) . '</td></tr></table>' . Form::close();
+    //Save report config button attributes
+    $save_config_attribs = array(
+      'title' => 'Save the current report configuration',
+      'onclick' => 'squerly.report_configuration.save();',
+    );
+
+    foreach($vars as $var) {
+      $val = isset($vals[$var]) ? htmlentities($vals[$var]) : '';
+      $form_html .= Form::label($var, String::humanize($var)) . ': ' . Form::input($var, $val, $input_attribs) . '&nbsp;';
+    }
+
+    $form_html .= '<br><br>';
+    $form_html .= Form::label('sqrl[config]', 'Load a Saved Configuration:') . 
+      Form::select('sqrl[config]', $config_list, '', $config_attribs) . '&nbsp;' .
+      Form::label('sqrl[context]', 'Output Format:') . 
+      Form::select('sqrl[context]', $output_formats, $output_val, $output_attribs) . '&nbsp;' .
+      Form::label('sqrl[transform]', 'Data Transformation:') .
+      Form::select('sqrl[transform]', $transform, $transform_val , $transform_attribs) . '&nbsp;' .
+      Form::label('sqrl[preview]', 'Preview?') . 
+      Form::checkbox('sqrl[preview]', '10') . '&nbsp;' .
+      Form::button('sqrl[save_config]', 'Save Config', $save_config_attribs) .
+      Form::submit('sqrl[run]', 'Run', array('value' => 'run', 'title' => 'Run the report and render the results')) .
+      '<br>';
+
+    $form_html  .= '</div>' . Form::close();
     return $form_html;
   }
 
@@ -139,6 +165,16 @@ class Report_Controller extends Crud_Controller {
 
  /**
   *
+  * Load action
+  *   
+  */
+  public static function load() {
+    self::render(null, false);
+  }
+
+
+ /**
+  *
   * 'HTML Select' Action - Echos ID/name value pairs for a given model as an HTML select element
   * 
   * This can be used in AJAX calls to populate the innerHTML of a DIV with the list of available model instances
@@ -163,18 +199,20 @@ class Report_Controller extends Crud_Controller {
   * 
   * In contrast to 'results,' this action will load any front-end plugins necessary to render the report 
   *   results; if no render template is available, this method will returns the same data as 'results'
-  *
+  * 
   * @param int $id Report ID to load
+  * @param boolean $render_results Determines whether the report is run against the data source and the results rendered
   *
   */
-  public static function render($id = null) {
+  public static function render($id = null, $render_results = true) {
     session_write_close(); //Open sessions will block concurrent requests
     $report = self::_loadReport($id);
     //TODO: run form validation and spit out messages on failure
     //Load the data from the data source and render the results
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
-    $preview = isset($_POST['sqrl']['preview']);
-    $report_results = (strtolower(F3::get('POST.sqrl.run')) === 'run') ? Export::render($report->getResults($preview)) : '';
+    $max_return_rows = (isset($_REQUEST['sqrl']['preview'])) ? $_REQUEST['sqrl']['preview'] : 0;
+    $report_results = ($render_results && strtolower(F3::get('POST.sqrl.run')) === 'run') ? 
+      Export::render($report->getResults($max_return_rows)) : '';
     F3::set('report_results', $report_results);
     F3::set('page_title', $report->name);
     F3::set('form', self::_renderParamsForm($report));
@@ -200,8 +238,8 @@ class Report_Controller extends Crud_Controller {
     //TODO: run form validation and spit out messages on failure
     //Load the data from the data source and render the results
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
-    $preview = isset($_POST['sqrl']['preview']);
-    echo Export::render($report->getResults($preview), $filename);
+    $max_return_rows = (isset($_REQUEST['sqrl']['preview'])) ? $_REQUEST['sqrl']['preview'] : 0;
+    echo Export::render($report->getResults($max_return_rows), $filename);
   }
 
 
@@ -255,6 +293,7 @@ F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/form/@id', 'Report_Control
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/render/@id', 'Report_Controller::render', 120);
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/results/@id', 'Report_Controller::results', 120);
 F3::route('POST ' . F3::get('URL_BASE_PATH') . 'report/render/@id', 'Report_Controller::render', 120);
+F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/load/@id', 'Report_Controller::load', 120);
 F3::route('POST ' . F3::get('URL_BASE_PATH') . 'report/results/@id', 'Report_Controller::results', 120);
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/run/@id', 'Report_Controller::run', 120);
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/validate/@id', 'Report_Controller::validate');

@@ -33,7 +33,10 @@ class CRUD_Helper {
     foreach($records as &$record) {
       $id = $record['id'];
       //TODO: find a faster way of doing this
-      $additional_actions = @$class_name::getIndexActions($record) ?: array();
+      $additional_actions = array();
+      if(class_exists($class_name)) { //TODO: && implements interface that defines getIndexActions!
+        $additional_actions = @$class_name::getIndexActions($record) ?: array();
+      }
       $actions = array(
         //TODO: add BASE_URL_PATH to the URLS!!
         array("Delete" => "<a href='/{$model}/delete/{$id}'>Delete</a>"),
@@ -144,7 +147,7 @@ class CRUD_Helper {
         case 'foreign_key':
           $value = $field_attribs['value'];
           unset($field_attribs['value'], $field_attribs['type']);
-          $options = array('' => '(No Selection)') + CRUD::pairs(Db_Meta::colToTable($field['COLUMN_NAME']));
+          $options = array('' => '(No Selection)') + CRUD::pairs(Db_Meta::colToTable($field['COLUMN_NAME']), true);
           $output .= '<td>' . Form::select($field_attribs['name'], $options, $value, $field_attribs) . "</td></tr>\n";
           break;
 

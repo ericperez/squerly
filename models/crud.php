@@ -29,7 +29,7 @@ class CRUD extends Axon {
   public static function load_model($model) {
     $class_name = String::modelToClass($model);
     if(@class_exists($class_name) && @is_subclass_of($class_name, 'CRUD')) {
-      return new $class_name();
+      return new $class_name($model);
     } else {
       return new self($model);
     }
@@ -112,17 +112,18 @@ class CRUD extends Axon {
   *
   * This method is very useful for building HTML SELECT option lists where ids/names for one DB table are needed.
   *
-  * @param string $model - Name of whitelisted DB table
-  * @param boolean $id_in_name - If true, the ID of the model will be prepended on the name
+  * @param string $model Name of whitelisted DB table
+  * @param boolean $id_in_name If true, the ID of the model will be prepended on the name
   * @param string $where SQL query WHERE clause items to limit model instances that are matched
-  * @param string $order_by - SQL ORDER BY clause value that determined the order the records are returned in
+  * @param string $order_by SQL ORDER BY clause value that determined the order the records are returned in
   * @see SQL::DBOptionlist()
   * @return array Array containing key/value pairs for the specified table
   * 
   * @todo Switch 'order_by' to support arrays
   * 
   */
-  public static function pairs($model, $id_in_name = false, $where = '', $order_by = 'pkey ASC') {
+  public static function pairs($model = null, $id_in_name = false, $where = '', $order_by = 'pkey ASC') {
+    if($model === null) { list($model, $model_friendly) = CRUD_Helper::getModelName(false); }
     $primary_key = Db_Meta::getPrimaryKeys($model);
     $name_field = Db_Meta::getNameColumn($model);
     if(empty($primary_key)) { F3::error('', "Unable to determine primary key for model {$model}"); }
@@ -145,10 +146,9 @@ class CRUD extends Axon {
         $sql = ($id_in_name) ? 
           "SELECT {$primary_key} AS pkey, CONCAT('[', {$primary_key}, '] ', {$name_field}) AS value FROM {$model} {$where_clause} {$order_by_clause}" :
           "SELECT {$primary_key} AS pkey, {$name_field} AS value FROM {$model} {$where_clause} {$order_by_clause}";
-      break;
-        
+      break;   
     }
-    return SQL::DBOptionlist($sql);
+    return SQL::DBOptionlist($sql) ?: array('' => 'N/A');
   }
 
 }

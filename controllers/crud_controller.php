@@ -65,15 +65,15 @@ class Crud_Controller implements Crud_Controller_Interface {
   */
   public static function setUpRoutes() {
     //TODO: add permissions handling
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/optionlist', 'Crud_Controller::optionlist', 30);
-
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/optionlist', 'Crud_Controller::optionlist', 10);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model', 'Crud_Controller::index', 0);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/add', 'Crud_Controller::add', 600);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/delete/@id', 'Crud_Controller::delete', 600);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/add', 'Crud_Controller::add', 10);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/delete/@id', 'Crud_Controller::delete', 10);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/edit/@id', 'Crud_Controller::edit', 0);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/copy/@id', 'Crud_Controller::copy', 0);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export', 'Crud_Controller::exportMultiple', 10);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export/@id', 'Crud_Controller::exportOne', 10);
+    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/migrate', 'Crud_Controller::migrate', 10);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/search', 'Crud_Controller::search', 10);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/searchresults', 'Crud_Controller::searchResults', 10);
     F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/view/@id', 'Crud_Controller::view', 10);
@@ -250,10 +250,14 @@ class Crud_Controller implements Crud_Controller_Interface {
   * 
   * @param boolean $try_to_delegate If true, an attempt will be made to find a Crud_Controller-extending
   *   class (based on the model name) and run code in it's 'addEditProcess' method; if false, standard CRUD code is run
+  * @param boolean $do_redirect If true, redirects back to model index page; if false, returns true;
   *
   */
-  public static function addEditProcess($try_to_delegate = true) {
+  public static function addEditProcess($try_to_delegate = true, $do_redirect = true) {
     $id = (int) F3::get('PARAMS.id') ?: null;
+    $post_redirect = isset($_POST['sqrl']['redirect']) ? $_POST['sqrl']['redirect'] : null;
+    $do_redirect = is_null($post_redirect) ? $do_redirect : $post_redirect;
+
     list($model, $model_friendly) = CRUD_Helper::getModelName();
     //If controller exists for the specific CRUD model, call that first
     if($try_to_delegate && Crud_Controller::delegate($model, 'addEditProcess') !== false) { return; }
@@ -266,10 +270,12 @@ class Crud_Controller implements Crud_Controller_Interface {
     //$allowed_fields = array_diff_key();
     $record->copyFrom('POST'); //, $allowed_fields); //TODO: create blacklist of fields to not accept from POST
     $record->save();
+    if($do_redirect !== true) { return true; }
+
     $record_id = $record->_id;
     $action = ($id > 0 && $record->id > 0) ? 
-      "<a href='/report/render/{$record->id}'>{$record->id}</a> updated" : 
-      "<a href='/report/render/{$record_id}'>{$record_id}</a> added";
+      "<a href='/report/load/{$record->id}'>{$record->id}</a> updated" : 
+      "<a href='/report/load/{$record_id}'>{$record_id}</a> added";
     Notify::info("{$model_friendly} {$action} successfully.");
     F3::reroute(F3::get('URL_BASE_PATH') . $model);
   }
@@ -379,10 +385,11 @@ class Crud_Controller implements Crud_Controller_Interface {
   */
   public static function optionlist($config = null, $where = '', $order_by = '') {
     list($model, $model_friendly) = CRUD_Helper::getModelName();
+    //TODO: move 'no selection/select' option to CRUD::pairs method
     $options = array('' => '(No Selection)') + CRUD::pairs($model, true, $where, $order_by);
     $config = $config ?: array(
-      'id' => 'report_id',
-      'name' => 'report_id'
+      'id' => $model . '_id',
+      'name' => $model . '_id',
     );
     $output = Form::select($model, $options, NULL, $config) . PHP_EOL;
     echo $output;
