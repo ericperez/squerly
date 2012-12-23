@@ -35,9 +35,9 @@ F3::set('IMPORTS', 'views/');
 F3::set('TEMP', 'tmp/');
 
 //TODO: autoload these or 'require' in a loop
-//require __DIR__ . '/controllers/auth_controller.php';
-require __DIR__ . '/controllers/report_controller.php';
-require __DIR__ . '/controllers/report_configuration_controller.php';
+@include_once __DIR__ . '/controllers/auth_controller.php';
+@include_once __DIR__ . '/controllers/report_controller.php';
+@include_once __DIR__ . '/controllers/report_configuration_controller.php';
 //require __DIR__ . '/vendor/depage-forms/htmlform.php'; //depage forms library
 
 
@@ -63,7 +63,8 @@ F3::route('GET ' . F3::get('URL_BASE_PATH'),
 F3::set('CRUD_TABLE_WHITELIST', array(
   'Report' => 'report',
   'Report Configuration' => 'report_configuration',
-  'Email Distribution List' => 'report_distribution_list',
+  'Email Distribution List' => 'email_distribution_list',
+  'Email Schedule' => 'email_schedule',
 ));
 
 Report_DB_Connection::loadAll(); //Load all the reporting database connections

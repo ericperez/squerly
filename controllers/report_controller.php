@@ -16,6 +16,7 @@
 
 class Report_Controller extends Crud_Controller {
   //TODO: implement this
+  public static $_model = 'report';
   protected static $_forms = array('add' => 'Form_Report_Add');
 
  /**
@@ -27,7 +28,7 @@ class Report_Controller extends Crud_Controller {
   *
   */
   protected static function _loadReport($id = null) {
-    $id = is_int($id) ? $id : (int) F3::get('PARAMS["id"]') ?: null;
+    $id = is_int($id) ? $id : (int) F3::get('PARAMS.id') ?: null;
     if(!$id) { F3::reroute(F3::get('URL_BASE_PATH') . '/report'); }
     $report = Report::load_model($id);
     return $report;
@@ -57,9 +58,10 @@ class Report_Controller extends Crud_Controller {
     $input_attribs = array('required' => 'required');
 
     //Build the drop down for the saved report configurations
-    $config_where = "report_id = " . F3::get('PARAMS.id');
+    $report_id = (int) F3::get('PARAMS.id');
+    $config_where = "report_id = " . $report_id;
     //TODO: make this smarter -- set table name in model
-    $config_list = array('' => '(Select)') + Report_Configuration::pairs('report_configuration', false, $config_where, 'pkey DESC');
+    $config_list = array('' => '(Select)'); // + Report_Configuration::pairs('report_configuration', false, $config_where, 'pkey DESC');
     $config_attribs = array(
       'title' => 'Load a Saved Report Configuration',
       'onchange' => 'squerly.report_configuration.getValues(this.value);',
@@ -77,6 +79,7 @@ class Report_Controller extends Crud_Controller {
 
     //Save report config button attributes
     $save_config_attribs = array(
+      'type' => 'button',
       'title' => 'Save the current report configuration',
       'onclick' => 'squerly.report_configuration.save();',
     );
@@ -139,10 +142,10 @@ class Report_Controller extends Crud_Controller {
   * @todo Update this to use the depage-forms library
   *
   */
-  public static function form() {
+  public static function form($id = null) {
     //TODO: Load a saved configuration
     //TODO: Validate form
-    $report = self::_loadReport();
+    $report = self::_loadReport($id);
     echo self::_renderParamsForm($report);
   }
 
@@ -155,11 +158,12 @@ class Report_Controller extends Crud_Controller {
   *
   *   
   */
-  public static function index($bogus = false) {
+  public static function index() {
+    F3::set('PARAMS.model', self::$_model); //TODO: put this in a better place
     //These are the fields that show up on the index page
     $index_fields = 'id, type, name, enabled, hidden_from_ui, created_at, updated_at';
     self::_getIndexRecords($index_fields);
-    parent::index(false);
+    parent::index();
   }
 
 
@@ -287,6 +291,7 @@ class Report_Controller extends Crud_Controller {
 
 //Report Routes
 //TODO: put these into a method
+F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report', 'Report_Controller::index', 10);
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/optionlist', 'Report_Controller::optionlist', 30);
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/email/@id', 'Report_Controller::email');
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/form/@id', 'Report_Controller::form', 10);
