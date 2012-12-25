@@ -90,18 +90,18 @@ class Report_Controller extends Crud_Controller {
     }
 
     $form_html .= '<br><br>';
-    $form_html .= Form::label('sqrl[config]', 'Load a Saved Configuration:') . 
+    $form_html .= 
+      Form::label('sqrl[config]', 'Load a Saved Configuration: ') . 
       Form::select('sqrl[config]', $config_list, '', $config_attribs) . '&nbsp;' .
-      Form::label('sqrl[context]', 'Output Format:') . 
+      Form::label('sqrl[context]', 'Output Format: ') . 
       Form::select('sqrl[context]', $output_formats, $output_val, $output_attribs) . '&nbsp;' .
-      Form::label('sqrl[transform]', 'Data Transformation:') .
+      Form::label('sqrl[transform]', 'Data Transformation: ') .
       Form::select('sqrl[transform]', $transform, $transform_val , $transform_attribs) . '&nbsp;' .
       Form::label('sqrl[preview]', 'Preview?') . 
       Form::checkbox('sqrl[preview]', '10') . '&nbsp;' .
       Form::button('sqrl[save_config]', 'Save Config', $save_config_attribs) .
-      Form::submit('sqrl[run]', 'Run', array('value' => 'run', 'title' => 'Run the report and render the results')) .
-      '<br>';
-
+      Form::hidden('sqrl[report_id]', $report_id) .
+      Form::submit('sqrl[run]', 'Run', array('value' => 'run', 'title' => 'Run the report and render the results'));
     $form_html  .= '</div>' . Form::close();
     return $form_html;
   }
