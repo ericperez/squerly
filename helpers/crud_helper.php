@@ -87,7 +87,6 @@ class CRUD_Helper {
     $form_header = isset($form_config['header']) ? '<h3>' . $form_config['header'] . '</h3><br/>' : '';
     $form_method = isset($form_config['method']) ? $form_config['method'] : 'post';
     $form_action = isset($form_config['action']) ? $form_config['action'] : '#'; //Post to current URI as default
-
     $output = Form::open($form_action, array('method' => $form_method));
     $output .= $form_header . "<table class='datatable'><thead></thead><tbody>"; //TODO: add fields to thead!!!!
     $table_desc = Db_Meta::describeTable($model, $DBC);
@@ -133,7 +132,7 @@ class CRUD_Helper {
       } else {
         //Build the Field Label
         $label = String::humanize($field['COLUMN_NAME']);
-        $output .= '<tr><td>' . Form::label($field_attribs['name'], $label) . "</td>\n";
+        $output .= '<tr><td style="white-space:nowrap; width:1%">' . Form::label($field_attribs['name'], $label) . "</td>\n";
       }
 
       //Determine if a field is a foreign key; if so, get key/value pairs to the foreign table
@@ -174,7 +173,7 @@ class CRUD_Helper {
 
         default: //Handles number, date, datetime, time, and text fields
           $value = $field_attribs['value'];
-          $field_attribs['style'] = 'width: 400px;';
+          if($field_attribs['type'] !== 'hidden') { $field_attribs['style'] = 'width: 400px;'; }
           $output .= '<td>' . Form::input($field_attribs['name'], $value, $field_attribs) . "</td></tr>\n";
           break;
       }
@@ -200,7 +199,8 @@ class CRUD_Helper {
   public static function buildDeleteForm($model, $id) {
     $model_path = self::getModelPath();
     $csrf_token = 'asdlfj4234oK'; //TODO: generate real token
-    $form_action = "{$model_path}/delete/{$id}/token/{$csrf_token}";
+    $redirect = 'true'; //TODO: read this from 'redirect' PARAM
+    $form_action = "{$model_path}/delete/{$id}/token/{$csrf_token}/redirect/{$redirect}";
     $output = 
       Form::open($form_action) . "\n" .
       Form::submit('delete', 'Yes') . '&nbsp;' . "\n" .
@@ -316,23 +316,24 @@ class CRUD_Helper {
       'copy'    => array("Copy {$model_friendly} {$id}" => $model_path . "/copy/{$id}"),
       'delete'  => array("Delete {$model_friendly} {$id}" => $model_path . "/delete/{$id}"),
       'edit'    => array("Edit {$model_friendly} {$id}" => $model_path . "/edit/{$id}"),
+      'load'    => array("Load {$model_friendly} {$id}" => $model_path . "/load/{$id}"),
       'search'  => array("Search {$model_plural}" => $model_path . "/search"),
-      'view'    => array("View {$model_friendly} {$id} details" => $model_path . "/view/{$id}"),
+      'view'    => array("View {$model_friendly} {$id} Details" => $model_path . "/view/{$id}"),
     );
 
     $nav = array();
 
     switch($action) {
       case 'edit':
-        $nav = array($nav_arr['view'], $nav_arr['delete'], $nav_arr['copy'], $nav_arr['search']);
+        $nav = array($nav_arr['load'], $nav_arr['view'], $nav_arr['delete'], $nav_arr['copy'], $nav_arr['search']);
         break;
 
       case 'delete':
-        $nav = array($nav_arr['view'], $nav_arr['edit'], $nav_arr['copy'], $nav_arr['search']);
+        $nav = array($nav_arr['load'], $nav_arr['view'], $nav_arr['edit'], $nav_arr['copy'], $nav_arr['search']);
         break;
 
       case 'view':
-        $nav = array($nav_arr['edit'], $nav_arr['delete'], $nav_arr['copy'], $nav_arr['search']);
+        $nav = array($nav_arr['load'], $nav_arr['edit'], $nav_arr['delete'], $nav_arr['copy'], $nav_arr['search']);
         break;
 
       case 'search':
