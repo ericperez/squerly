@@ -210,7 +210,7 @@ class Db_Meta {
     //Cycle through all the columns and see if they look like table names/references
     foreach($columns as $col) {
       $table_col = self::colToTable($col);
-      if(in_array($table_col, $tables)) {
+      if($table_col !== $table && in_array($table_col, $tables)) {
         $foreign_keys[] = $col;
       }
     }
@@ -302,19 +302,19 @@ class Db_Meta {
           case 'pgsql':
           case 'sqlite':
             $sql = ($id_in_name) ? 
-              "SELECT '[' || {$v} || '] ' || {$name_col} AS {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val" :
+              "SELECT '[{$v}] ' || {$name_col} AS {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val" :
               "SELECT {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val";
           break;
 
           case 'mysql':
           default:
             $sql = ($id_in_name) ? 
-              "SELECT CONCAT('[', {$v}, '] ', {$name_col}) AS {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val" :
+              "SELECT CONCAT('[', '{$v}', '] ', {$name_col}) AS {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val" :
               "SELECT {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val";
           break;   
         }
 
-        DB::sql($sql, array(':pk_val' => $v), 120, $DBC); //Cache result for two minutes
+        DB::sql($sql, array(':pk_val' => $v), 60, $DBC); //Cache result for one minute
         $result = F3::get("{$DBC}->result");
         if(!$result) { continue; } //No match found
         $v = $result[0][$name_col];
