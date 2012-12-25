@@ -65,21 +65,24 @@ class Crud_Controller implements Crud_Controller_Interface {
   */
   public static function setUpRoutes() {
     //TODO: add permissions handling
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/optionlist', 'Crud_Controller::optionlist', 10);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model', 'Crud_Controller::index', 0);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/add', 'Crud_Controller::add', 10);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/delete/@id', 'Crud_Controller::delete', 10);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/edit/@id', 'Crud_Controller::edit', 0);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/copy/@id', 'Crud_Controller::copy', 0);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export', 'Crud_Controller::exportMultiple', 10);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/export/@id', 'Crud_Controller::exportOne', 10);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/migrate', 'Crud_Controller::migrate', 10);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/search', 'Crud_Controller::search', 10);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/searchresults', 'Crud_Controller::searchResults', 10);
-    F3::route('GET ' . F3::get('URL_BASE_PATH') . '@model/view/@id', 'Crud_Controller::view', 10);
+    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/optionlist', 'Crud_Controller::optionlist', 10);
+    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model', 'Crud_Controller::index', 10);
+    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/add', 'Crud_Controller::add', 10);
+    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/delete/@id', 'Crud_Controller::delete', 10);
+    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/edit/@id', 'Crud_Controller::edit', 0);
+    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/copy/@id', 'Crud_Controller::copy', 0);
+    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/export', 'Crud_Controller::exportMultiple', 10);
+    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/export/@id', 'Crud_Controller::exportOne', 10);
+    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/migrate', 'Crud_Controller::migrate', 10);
+    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/search', 'Crud_Controller::search', 10);
+    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/searchresults', 'Crud_Controller::searchResults', 10);
+    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/view/@id', 'Crud_Controller::view', 10);
     F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/add/token/@token', 'Crud_Controller::addEditProcess');
     F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/edit/@id/token/@token', 'Crud_Controller::addEditProcess');
     F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/delete/@id/token/@token', 'Crud_Controller::deleteProcess');
+    F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/add/token/@token/redirect/@redirect', 'Crud_Controller::addEditProcess');
+    F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/edit/@id/token/@token/redirect/@redirect', 'Crud_Controller::addEditProcess');
+    F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/delete/@id/token/@token/redirect/@redirect', 'Crud_Controller::deleteProcess');
   }
 
 
@@ -107,15 +110,10 @@ class Crud_Controller implements Crud_Controller_Interface {
  /**
   *
   * 'List Records/Index' action
-  * 
-  * @param boolean $try_to_delegate If true, an attempt will be made to find a Crud_Controller-extending
-  *   class (based on the model name) and run code in it's 'index' method; if false, standard CRUD code is run
   *   
   */
-  public static function index($try_to_delegate = true) {
+  public static function index() {
     list($model, $model_friendly) = CRUD_Helper::getModelName();
-    //If controller exists for the specific CRUD model, call that first
-    if($try_to_delegate && Crud_Controller::delegate($model, 'index') !== false) { return; }
     //TODO: create an array to hold the F3 vars and set values in a loop
     if(!F3::exists('navigation')) { F3::set('navigation', CRUD_Helper::navigation('index')); }
     $records_name = Inflector::plural($model_friendly);
@@ -133,16 +131,12 @@ class Crud_Controller implements Crud_Controller_Interface {
  /**
   *
   * 'Add Record' action
-  *
-  * @param boolean $try_to_delegate If true, an attempt will be made to find a Crud_Controller-extending
-  *   class (based on the model name) and run code in it's 'add' method; if false, standard CRUD code is run
   * 
   */
-  public static function add($try_to_delegate = true) {
+  public static function add() {
     //if(!F3::get('SESSION.user')) { F3::reroute(F3::get('URL_BASE_PATH') . 'auth/login'; }; //TODO: Permission Check
     F3::clear('content');
     list($model, $model_friendly) = CRUD_Helper::getModelName();
-    if($try_to_delegate && Crud_Controller::delegate($model, 'add') !== false) { return; }
     if(!F3::exists('navigation')) { F3::set('navigation', CRUD_Helper::navigation('add')); }
     $title = 'Add ' . $model_friendly;
     if(!F3::exists('title')) { F3::set('title', $title); }
@@ -150,7 +144,7 @@ class Crud_Controller implements Crud_Controller_Interface {
     $csrf_token = 'QOFJq34igj3'; //TODO: generate real token
     if(!F3::exists('form')) { 
       $form_config = array(
-        'action' => F3::get('URL_BASE_PATH') . $model . "/add/token/{$csrf_token}",
+        'action' => F3::get('URL_BASE_PATH') . $model . "/add/token/{$csrf_token}/redirect/true",
         'method' => 'post',
       );
       //var_dump(self::$_forms); exit;
@@ -170,19 +164,14 @@ class Crud_Controller implements Crud_Controller_Interface {
  /**
   *
   * 'Copy Record' action
-  * 
-  * @param boolean $try_to_delegate If true, an attempt will be made to find a Crud_Controller-extending
-  *   class (based on the model name) and run code in it's 'add' method; if false, standard CRUD code is run
   *
   * @todo Clean this up; currently a lot of this code is copy/pasted from the 'add' action
   * 
   */
-  public static function copy($try_to_delegate = true) {
+  public static function copy() {
     F3::clear('content');
     $id = (int) F3::get('PARAMS.id');
     list($model, $model_friendly) = CRUD_Helper::getModelName();
-    //If controller exists for the specific CRUD model, call that first
-    if($try_to_delegate && Crud_Controller::delegate($model, 'copy') !== false) { return; }
     if(!F3::exists('navigation')) { F3::set('navigation', CRUD_Helper::navigation('copy')); }
     $title = 'Copy ' . $model_friendly . ' ' . $id;
     if(!F3::exists('title')) { F3::set('title', $title); }
@@ -193,7 +182,7 @@ class Crud_Controller implements Crud_Controller_Interface {
     $record[0]->copyTo('record');
     if(!F3::exists('form')) { 
       $form_config = array(
-        'action' => F3::get('URL_BASE_PATH') . $model . "/add/token/{$csrf_token}",
+        'action' => F3::get('URL_BASE_PATH') . $model . "/add/token/{$csrf_token}/redirect/true",
         'method' => 'post',
       );
       //Set the 'updated_at' field to current date
@@ -211,16 +200,11 @@ class Crud_Controller implements Crud_Controller_Interface {
   *
   * 'Edit Record' action
   * 
-  * @param boolean $try_to_delegate If true, an attempt will be made to find a Crud_Controller-extending
-  *   class (based on the model name) and run code in it's 'add' method; if false, standard CRUD code is run
-  *
   */
-  public static function edit($try_to_delegate = true) {
+  public static function edit() {
     F3::clear('content');
     $id = (int) F3::get('PARAMS.id');
     list($model, $model_friendly) = CRUD_Helper::getModelName();
-    //If controller exists for the specific CRUD model, call that first
-    if($try_to_delegate && Crud_Controller::delegate($model, 'edit') !== false) { return; }
     if(!F3::exists('navigation')) { F3::set('navigation', CRUD_Helper::navigation('edit')); }
     $title = 'Edit ' . $model_friendly . ' ' . $id;
     if(!F3::exists('title')) { F3::set('title', $title); }
@@ -230,7 +214,7 @@ class Crud_Controller implements Crud_Controller_Interface {
     $record[0]->copyTo('record');
     if(!F3::exists('form')) { 
       $form_config = array(
-        'action' => F3::get('URL_BASE_PATH') . $model . "/edit/${id}/token/{$csrf_token}",
+        'action' => F3::get('URL_BASE_PATH') . $model . "/edit/${id}/token/{$csrf_token}/redirect/true",
         'method' => 'post',
       );
       //Set the 'updated_at' field to current date
@@ -248,19 +232,11 @@ class Crud_Controller implements Crud_Controller_Interface {
   *
   * 'Add and Edit Record POST/Processing' action
   * 
-  * @param boolean $try_to_delegate If true, an attempt will be made to find a Crud_Controller-extending
-  *   class (based on the model name) and run code in it's 'addEditProcess' method; if false, standard CRUD code is run
-  * @param boolean $do_redirect If true, redirects back to model index page; if false, returns true;
-  *
   */
-  public static function addEditProcess($try_to_delegate = true, $do_redirect = true) {
+  public static function addEditProcess() {
     $id = (int) F3::get('PARAMS.id') ?: null;
-    $post_redirect = isset($_POST['sqrl']['redirect']) ? $_POST['sqrl']['redirect'] : null;
-    $do_redirect = is_null($post_redirect) ? $do_redirect : $post_redirect;
 
     list($model, $model_friendly) = CRUD_Helper::getModelName();
-    //If controller exists for the specific CRUD model, call that first
-    if($try_to_delegate && Crud_Controller::delegate($model, 'addEditProcess') !== false) { return; }
     //TODO: add form validation
     //TODO: validate csrf token (kohana version)
 
@@ -270,7 +246,7 @@ class Crud_Controller implements Crud_Controller_Interface {
     //$allowed_fields = array_diff_key();
     $record->copyFrom('POST'); //, $allowed_fields); //TODO: create blacklist of fields to not accept from POST
     $record->save();
-    if($do_redirect !== true) { return true; }
+    if(!F3::exists('PARAMS.redirect') || F3::get('PARAMS.redirect') !== 'true') { return true; }
 
     $record_id = $record->_id;
     $action = ($id > 0 && $record->id > 0) ? 
@@ -285,15 +261,10 @@ class Crud_Controller implements Crud_Controller_Interface {
   *
   * 'Delete Record' action
   * 
-  * @param boolean $try_to_delegate If true, an attempt will be made to find a Crud_Controller-extending
-  *   class (based on the model name) and run code in it's 'index' method; if false, standard CRUD code is run
-  *
   */
-  public static function delete($try_to_delegate = true) {
+  public static function delete() {
     $id = (int) F3::get('PARAMS.id');
     list($model, $model_friendly) = CRUD_Helper::getModelName();
-    //If controller exists for the specific CRUD model, call that first
-    if($try_to_delegate && Crud_Controller::delegate($model, 'delete') !== false) { return; }
     if(!F3::exists('navigation')) { F3::set('navigation', CRUD_Helper::navigation('delete')); }
     $record = CRUD::loadRecord($model);
     $title = 'Delete ' . $model_friendly . ' ' . $id;
@@ -314,26 +285,23 @@ class Crud_Controller implements Crud_Controller_Interface {
  /**
   *
   * 'Delete Record POST/Processing' action
-  * 
-  * @param boolean $try_to_delegate If true, an attempt will be made to find a Crud_Controller-extending
-  *   class (based on the model name) and run code in it's 'index' method; if false, standard CRUD code is run
   *
   */
-  public static function deleteProcess($try_to_delegate = true) {
+  public static function deleteProcess() {
     $id = (int) F3::get('PARAMS.id');
     list($model, $model_friendly) = CRUD_Helper::getModelName();
-    //If controller exists for the specific CRUD model, call that first
-    if($try_to_delegate && Crud_Controller::delegate($model, 'deleteProcess') !== false) { return; }
     $model_path = F3::get('URL_BASE_PATH') . $model;
     $delete_param = F3::get('POST.delete');
     //TODO: validate the CSRF token
     if($delete_param !== 'Yes') { 
       Notify::info("{$model_friendly} {$id} was not deleted.");
+      if(!F3::exists('PARAMS.redirect') || F3::get('PARAMS.redirect') !== 'true') { return true; }
       F3::reroute($model_path);
       return;
     }
     $record = CRUD::loadRecord($model);
     $record[0]->erase();
+    if(!F3::exists('PARAMS.redirect') || F3::get('PARAMS.redirect') !== 'true') { return true; }
     Notify::info("{$model_friendly} {$id} deleted successfully.");
     F3::reroute($model_path);
   }
@@ -400,16 +368,11 @@ class Crud_Controller implements Crud_Controller_Interface {
   *
   * 'Search Records' action
   * 
-  * @param boolean $try_to_delegate If true, an attempt will be made to find a Crud_Controller-extending
-  *   class (based on the model name) and run code in it's 'index' method; if false, standard CRUD code is run
-  *
   */
-  public static function search($try_to_delegate = true) {
+  public static function search() {
     F3::clear('content');
     list($model, $model_friendly) = CRUD_Helper::getModelName();
     $records_name = Inflector::plural($model_friendly);
-    //If controller exists for the specific CRUD model, call that first
-    if($try_to_delegate && Crud_Controller::delegate($model, 'search') !== false) { return; }
     if(!F3::exists('navigation')) { F3::set('navigation', CRUD_Helper::navigation('search')); }
     $title = 'Search ' . $records_name;
     if(!F3::exists('title')) { F3::set('title', $title); }
@@ -431,14 +394,9 @@ class Crud_Controller implements Crud_Controller_Interface {
   *
   * 'Search Results' action
   * 
-  * @param boolean $try_to_delegate If true, an attempt will be made to find a Crud_Controller-extending
-  *   class (based on the model name) and run code in it's 'index' method; if false, standard CRUD code is run
-  *
   */
-  public static function searchResults($try_to_delegate = true) {
+  public static function searchResults() {
     list($model, $model_friendly) = CRUD_Helper::getModelName();
-    //If controller exists for the specific CRUD model, call that first
-    if($try_to_delegate && Crud_Controller::delegate($model, 'searchResults') !== false) { return; }
     if(!F3::exists('navigation')) { F3::set('navigation', CRUD_Helper::navigation('search')); }
     $title = $model_friendly . ' Search Results';
     if(!F3::exists('title')) { F3::set('title', $title); }
@@ -473,15 +431,10 @@ class Crud_Controller implements Crud_Controller_Interface {
   *
   * 'View Record' action
   *
-  * @param boolean $try_to_delegate If true, an attempt will be made to find a Crud_Controller-extending
-  *   class (based on the model name) and run code in it's 'view' method; if false, standard CRUD code is run
-  * 
   */
-  public static function view($try_to_delegate = true) {
+  public static function view() {
     $id = (int) F3::get('PARAMS.id');
     list($model, $model_friendly) = CRUD_Helper::getModelName();
-    //If controller exists for the specific CRUD model, call that first
-    if($try_to_delegate && Crud_Controller::delegate($model, 'view') !== false) { return; }
     if(!F3::exists('navigation')) { F3::set('navigation', CRUD_Helper::navigation('view')); }
     $title = 'View ' . $model_friendly . ' ' . $id;
     if(!F3::exists('title')) { F3::set('title', $title); }
