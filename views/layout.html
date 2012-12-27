@@ -1,25 +1,52 @@
 <?php //TODO: Expand this; add 'themes', etc. ?>
 <!DOCTYPE html>
 <html>
-   <head>
-      <title>{{@page_title}}</title>
-      <meta charset='utf8' />
-      <?php //TODO: automate loading of CSS/JS w/ PHP/RequireJS; move these to a better place ?>
-      <!-- JS -->
+  <head>
+    <title>{{@page_title}}</title>
+    <meta charset='utf8' />
+    <?php //TODO: automate loading of CSS/JS w/ PHP/RequireJS; move these to a better place ?>
 
-      <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.min.js"></script>
-      <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.min.js"></script>
-      <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
-      <script type="text/javascript" src="/assets/js/TableTools/media/js/TableTools.js"></script>
-      <script type="text/javascript" src="/assets/js/TableTools/media/js/ZeroClipboard.js"></script>
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/ui-darkness/jquery-ui-1.9.0.custom.min.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/js/TableTools/media/css/TableTools.css" />
 
-      <!-- CSS -->
-      <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" />
-      <link rel="stylesheet" type="text/css" href="/assets/css/ui-darkness/jquery-ui-1.9.0.custom.min.css" />
-      <link rel="stylesheet" type="text/css" href="/assets/js/TableTools/media/css/TableTools.css" />
+    <link rel="stylesheet" href="/assets/js/CodeMirror/lib/codemirror.css">
+    <link rel="stylesheet" href="/assets/js/CodeMirror/theme/lesser-dark.css">
 
-      <?php //Temporary Styles ?>
-      <style type='text/css'>
+
+    <!-- JS -->
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.min.js"></script>
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.min.js"></script>
+
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="/assets/js/TableTools/media/js/TableTools.js"></script>
+    <script type="text/javascript" src="/assets/js/TableTools/media/js/ZeroClipboard.js"></script>
+    <script type="text/javascript" src="/assets/js/jQuery.unserializeForm.js"></script>
+    <script type="text/javascript" src="/assets/js/squerly.js"></script>
+
+    <script type="text/javascript" src="/assets/js/CodeMirror/lib/codemirror.js"></script>
+    <script type="text/javascript" src="/assets/js/CodeMirror/mode/mysql/mysql.js"></script>
+    <script type="text/javascript" src="/assets/js/CodeMirror/mode/php/php.js"></script>
+
+    <script type="text/javascript">
+       //TODO: this is temporary until I have time for a better solution
+       $(function() {
+          if($('#query')[0]) {
+             CodeMirror.fromTextArea($('#query')[0], { 
+                mode: 'mysql', theme: 'lesser-dark', lineNumbers: true, tabSize: 2
+             });
+          }
+          if($('#postprocess_code')[0]) {
+             CodeMirror.fromTextArea($('#postprocess_code')[0], { 
+                mode: 'php', theme: 'lesser-dark', lineNumbers: true, tabSize: 2
+             });
+          }
+       });
+    </script>
+
+    <?php //Temporary Styles ?>
+    <style type='text/css'>
       html, body { margin: 0; padding: 0; width: 100%; font: 100%/1em "Lucida Grande", Verdana, Arial, Helvetica, sans-serif; color: #111; font-size: 12px; }
       table.dataTable tr.odd { background-color: #F5F5F5; }
       table.dataTable tr.odd td.sorting_1,
@@ -30,23 +57,25 @@
       table.dataTable tr.even td.sorting_1, 
       table.dataTable tr.even td.sorting_2,
       table.dataTable tr.even td.sorting_3 { background-color: #DDDDDD; }
-      </style>
 
-   </head>
-   <body>
-      <F3:include href="{{@content_file}}"/>
-      {{@header}}
-      <div><h1>{{@title}}</h1></div><br/>
-      {{@flash_msgs}}
-      {{@navigation}}
-      {{@form}}
-      {{@pagination}}
-      {{@content}}
-      {{@footer}}
+      a.ui-button { margin: 0px !important; }
+    </style>
+
+  </head>
+  <body>
+    <F3:include href="{{@content_file}}"/>
+    {{@header}}
+    <div><h1>{{@title}}</h1></div><br/>
+    {{@flash_msgs}}
+    {{@navigation}}
+    {{@form}}
+    {{@pagination}}
+    {{@content}}
+    {{@footer}}
 
       <script type='application/x-javascript'>
         $(document).ready(function() {
-          $('table').dataTable({
+          $('.datatable').dataTable({
             "bJQueryUI"      : true,
             "sPaginationType": "full_numbers",
             "sDom"           : 'T<"clear">lfrtip',

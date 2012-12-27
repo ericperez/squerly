@@ -33,43 +33,39 @@ CREATE TABLE `test_table` (
 ) ENGINE=innoDB;
 
 
--- DROP TABLE IF EXISTS report;
-CREATE TABLE `report` (
-  `id` int(6) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `type` varchar(63) NOT NULL,
-  `notes` varchar(255) DEFAULT '',
-  `keywords` varchar(255) DEFAULT '',
-  `description` TEXT DEFAULT '',
-  `hidden_from_ui` BOOLEAN DEFAULT false,
-  `enabled` BOOLEAN DEFAULT true,
-  `db_adapter` VARCHAR(255),
-  `input_data_uri` VARCHAR(4095),
-  `query` text,
-  `postprocess_code` text,
-  `created_at` DATETIME NOT NULL,
-  `updated_at` DATETIME NOT NULL,
-  PRIMARY KEY (`id`) -- UNIQUE name??
-) ENGINE=innoDB;
-
-
 -- Report Config Table
 -- DROP TABLE IF EXISTS report_config;
-CREATE TABLE `report_config` (
+CREATE TABLE `report_configuration` (
   `id` int(6) NOT NULL AUTO_INCREMENT,
   `report_id` int(6) NOT NULL,
+  `report_distribution_list_id` int(6),
   `name` varchar(255) NOT NULL,
-  `notes` text,
-  `form_values` varchar(4095),
   `enabled` boolean DEFAULT true,
-  `send_empty_results` boolean DEFAULT false,
-  `cron_schedule` varchar(20),
-  `email_recipients` varchar(1023),
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
+  `description` varchar(255),
+  `input_values` varchar(4095),
+  `created_at` DATETIME DEFAULT NULL,
+  `updated_at` TIMESTAMP DEFAULT NOW(),
+  PRIMARY KEY (`id`)
+) ENGINE=innoDB;
+-- TODO: Alter table add foreign key to report_distribution_list
+
+
+
+-- Report Distribution List Table
+CREATE TABLE `report_distribution_list` (
+  `id` int(6) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `enabled` boolean DEFAULT true,
+  `description` varchar(255),
+  `email_recipients` varchar(4095),
+  `email_empty_results` boolean DEFAULT false,
+  `email_schedule` varchar(255),
+  `created_at` DATETIME DEFAULT NULL,
+  `updated_at` TIMESTAMP DEFAULT NOW(),
   PRIMARY KEY (`id`)
 ) ENGINE=innoDB;
 -- TODO: Alter table add foreign key to report
+
 
 
 -- Report Drilldown Table

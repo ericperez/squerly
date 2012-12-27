@@ -1,19 +1,61 @@
--- Main Report Table
-
 BEGIN TRANSACTION;
 
+-- Primary Report Table
 CREATE TABLE 'report' (
-  'id' INTEGER PRIMARY KEY ASC NOT NULL,
-  'name' VARCHAR(255) NOT NULL,
+  'id' INTEGER PRIMARY KEY ASC NOT NULL,  
+  'name' varchar(255) NOT NULL,
+  'description' VARCHAR(255) DEFAULT '',
+  'enabled' boolean DEFAULT 1,
   'type' VARCHAR(63) NOT NULL,
-  'notes' VARCHAR(255) DEFAULT '',
-  'keywords' VARCHAR(255) DEFAULT '',
-  'hidden_from_ui' BOOLEAN DEFAULT 0,
-  'enabled' BOOLEAN DEFAULT 1,
-  'db_adapter' VARCHAR(255),
+  'data_source' VARCHAR(255),
   'input_data_uri' VARCHAR(4095),
   'query' TEXT,
-  'postprocess_code' TEXT
+  'postprocess_code' TEXT,
+  'keywords' VARCHAR(255) DEFAULT '',
+  'hidden_from_ui' BOOLEAN DEFAULT 0,
+  'default_refresh_time' INT DEFAULT 0,
+  'default_cache_time' INT DEFAULT 0,
+  'default_export_context' VARCHAR(255) DEFAULT '',
+  'form_action' VARCHAR(4) DEFAULT 'get',
+  'created_at' DATETIME DEFAULT NULL,
+  'updated_at' DATETIME DEFAULT (DATETIME('now','localtime'))
+);
+
+-- Saved Report Form Configurations
+CREATE TABLE 'report_configuration' (
+  'id' INTEGER PRIMARY KEY ASC NOT NULL,  
+  'name' varchar(255) NOT NULL,
+  'description' VARCHAR(255) DEFAULT '',
+  'enabled' boolean DEFAULT 1,
+  'report_id' INTEGER NOT NULL,
+  'email_distribution_list_id' INTEGER,
+  'email_schedule_id' INTEGER,
+  'email_empty_results' boolean NOT NULL DEFAULT false,
+  'input_values' varchar(4095),
+  'created_at' DATETIME DEFAULT NULL,
+  'updated_at' DATETIME DEFAULT (DATETIME('now','localtime'))
+);
+
+
+
+-- Email distribution lists for Reports
+CREATE TABLE 'email_distribution_list' (
+  'id' INTEGER PRIMARY KEY ASC NOT NULL,  
+  'name' varchar(255) NOT NULL,
+  'description' VARCHAR(255) DEFAULT '',
+  'enabled' boolean DEFAULT true,
+  'email_recipients' varchar(4095) NOT NULL,
+  'created_at' DATETIME DEFAULT NULL,
+  'updated_at' DATETIME DEFAULT (DATETIME('now','localtime'))
+);
+
+-- Email Schedules for Reports
+CREATE TABLE 'email_schedule' (
+  'id' INTEGER PRIMARY KEY ASC NOT NULL,  
+  'name' varchar(255) NOT NULL,
+  'description' VARCHAR(255) DEFAULT '',
+  'enabled' boolean DEFAULT true,
+  'email_schedule' varchar(1023) NOT NULL,[]
   'created_at' DATETIME DEFAULT NULL,
   'updated_at' DATETIME DEFAULT (DATETIME('now','localtime'))
 );
