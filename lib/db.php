@@ -18,6 +18,18 @@
 //! SQL data access layer
 class DB extends Base {
 
+	/**
+	*
+	* Strips all the comments off of a SQL query
+	* 
+	* @param string $sql input SQL
+	* @return string Input SQL with all comments stripped off
+	*
+	*/
+		public static function stripComments($sql) {
+		return trim(preg_replace('/(--.*)|(((\/\*)+?[\w\W]+?(\*\/)+))/', '', $sql));
+	}
+
 	//@{ Locale-specific error/exception messages
 	const
 		TEXT_ExecFail='Unable to execute prepared statement: %s',
@@ -117,7 +129,7 @@ class DB extends Base {
 		}
 		for ($i=0,$len=count($cmds);$i<$len;$i++) {
 			list($cmd,$arg)=array($cmds[$i],$args[$i]);
-			$hash='sql.'.self::hash($cmd.var_export($arg,TRUE));
+			$hash='sql.'.self::hash(self::stripComments($cmd) . var_export($arg,TRUE));
 			$cached=Cache::cached($hash);
 			if ($ttl && $cached && $_SERVER['REQUEST_TIME']-$cached<$ttl) {
 				// Gather cached queries for profiler
