@@ -16,7 +16,7 @@ CREATE TABLE `report` (
   `default_refresh_time` INT DEFAULT 0,
   `default_cache_time` INT DEFAULT 0,
   'default_export_context' VARCHAR(255) DEFAULT '',
-  `form_action` VARCHAR(4) DEFAULT 'get',
+  `form_method` VARCHAR(4) DEFAULT 'POST',
   `created_at` DATETIME DEFAULT NULL,
   `updated_at` TIMESTAMP DEFAULT NOW(),
   PRIMARY KEY (`id`)

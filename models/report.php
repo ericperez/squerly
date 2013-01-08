@@ -73,7 +73,8 @@ class Report extends Report_Base {
   public static function getIndexActions($record) {
     $id = $record['id'];
     return array(
-      'Load' => "<a href='/report/render/{$id}'>Load</a>",
+      //TODO: add this to CRUD and remove from here
+      'Load' => "<a href='/report/load/{$id}'>Load</a>",
     );
   }
 

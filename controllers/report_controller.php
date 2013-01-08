@@ -53,7 +53,8 @@ class Report_Controller extends Crud_Controller {
     $vars = array_unique(Mustache_Helper::vars($report->clean_properties['query']) + Mustache_Helper::vars($report->clean_properties['input_data_uri']));
     $vals = !empty($form_vals) ? $form_vals : $_REQUEST ;
     //TODO: load form action from report property
-    $form_html = "<div style='padding: 5px;'>" . Form::open("/report/{$action}/{$report->id}", array('method' => 'post'));
+    $form_method = isset($report->form_method) && in_array(strtolower(trim($report->form_method)), array('get', 'post')) ? $report->form_method : 'post';
+    $form_html = "<div style='padding: 5px;'>" . Form::open("/report/{$action}/{$report->id}", array('method' => $form_method));
     //Currently all fields are required; TODO: make this configurable
     $input_attribs = array('required' => 'required');
 
@@ -215,12 +216,14 @@ class Report_Controller extends Crud_Controller {
     //Load the data from the data source and render the results
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
     $max_return_rows = (isset($_REQUEST['sqrl']['preview'])) ? $_REQUEST['sqrl']['preview'] : 0;
-    $report_results = ($render_results && strtolower(F3::get('POST.sqrl.run')) === 'run') ? 
+    //TODO: update this to not be $_REQUEST, but to read $report->form_method and read from that method only!!
+    $report_results = ($render_results && isset($_REQUEST['sqrl']['run']) && strtolower($_REQUEST['sqrl']['run']) === 'run') ? 
       Export::render($report->getResults($max_return_rows)) : '';
     F3::set('report_results', $report_results);
     F3::set('page_title', $report->name);
     F3::set('form', self::_renderParamsForm($report));
     $layout = Export::loadLayout();
+    //If no layout found, default to 'bare' data
     if($layout === false) {
       self::results();
     } else {
