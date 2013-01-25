@@ -26,7 +26,8 @@ F3::set('AUTOLOAD', '
   helpers/,
   helpers/export/,
   helpers/transform/,
-  forms/,vendor/,
+  forms/,
+  vendor/,
   vendor/php_kml/,
   vendor/phpseclib/,
   vendor/PHPLinq/

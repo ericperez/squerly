@@ -51,7 +51,7 @@ class Report_Controller extends Crud_Controller {
     //TODO: loop through all properties for template/form vars instead of just query and input_data_uri?
     //TODO: Use form library to generate/validate form elements
     $vars = array_unique(Mustache_Helper::vars($report->clean_properties['query']) + Mustache_Helper::vars($report->clean_properties['input_data_uri']));
-    $vals = !empty($form_vals) ? $form_vals : $_REQUEST ;
+    $vals = !empty($form_vals) ? $form_vals : $_REQUEST;
     //TODO: load form action from report property
     $form_method = isset($report->form_method) && in_array(strtolower(trim($report->form_method)), array('get', 'post')) ? $report->form_method : 'post';
     $form_html = "<div style='padding: 5px;'>" . Form::open("/report/{$action}/{$report->id}", array('method' => $form_method));
@@ -62,7 +62,7 @@ class Report_Controller extends Crud_Controller {
     $report_id = (int) F3::get('PARAMS.id');
     $config_where = "report_id = " . $report_id;
     //TODO: make this smarter -- set table name in model
-    $config_list = array('' => '(Select)'); // + Report_Configuration::pairs('report_configuration', false, $config_where, 'pkey DESC');
+    $config_list = array('' => '(Select)') + Report_Configuration::pairs('report_configuration', false, $config_where, 'pkey DESC');
     $config_attribs = array(
       'title' => 'Load a Saved Report Configuration',
       'onchange' => 'squerly.report_configuration.getValues(this.value);',
@@ -71,12 +71,12 @@ class Report_Controller extends Crud_Controller {
     //Build the drop down for the report rendering output formats
     $output_formats = Export::pairs();
     $output_val = isset($_REQUEST['sqrl']['context']) ? $_REQUEST['sqrl']['context'] : 'table';
-    $output_attribs = array('title' => 'Report Output Format');
+    $output_attribs = array('title' => 'Change the report output format');
 
     //Build the drop down for the report output data transformations
     $transform = Transform::pairs();
     $transform_val = isset($_REQUEST['sqrl']['transform']) ? $_REQUEST['sqrl']['transform'] : '';
-    $transform_attribs = array('title' => 'Apply a data transformation');
+    $transform_attribs = array('title' => 'Apply a data transformation (numeric data only)');
 
     //Save report config button attributes
     $save_config_attribs = array(
@@ -105,31 +105,6 @@ class Report_Controller extends Crud_Controller {
       Form::submit('sqrl[run]', 'Run', array('value' => 'run', 'title' => 'Run the report and render the results'));
     $form_html  .= '</div>' . Form::close();
     return $form_html;
-  }
-
-
- /**
-  *
-  * Email report action
-  *
-  * @param int $id Report ID to load
-  *
-  */
-  public static function email($id = null) {
-    $report = self::_loadReport($id);
-    $emailer = new SMTP();
-    $emailer->set('From', 'test@squerly.net');
-    $emailer->set('To', 'zerep@rocketmail.com');
-    $emailer->set('Subject', 'Squerly Test');
-    $emailer->set('Body', 'This is a Squerly test.');
-    $emailer->send();
-
-    //TODO: 
-    //Load a saved configuration (or use $_REQUEST)
-    //Validate form
-    //Get the report results
-    //Send out the email
-
   }
 
 
@@ -217,7 +192,9 @@ class Report_Controller extends Crud_Controller {
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
     $max_return_rows = (isset($_REQUEST['sqrl']['preview'])) ? $_REQUEST['sqrl']['preview'] : 0;
     //TODO: update this to not be $_REQUEST, but to read $report->form_method and read from that method only!!
-    $report_results = ($render_results && isset($_REQUEST['sqrl']['run']) && strtolower($_REQUEST['sqrl']['run']) === 'run') ? 
+    $form_method = isset($report->form_method) && in_array(strtolower(trim($report->form_method)), array('get', 'post')) ? $report->form_method : 'post';
+    $request_method = ($form_method === 'get') ? $_GET : $_POST;
+    $report_results = ($render_results && isset($request_method['sqrl']['run']) && strtolower($request_method['sqrl']['run']) === 'run') ? 
       Export::render($report->getResults($max_return_rows)) : '';
     F3::set('report_results', $report_results);
     F3::set('page_title', $report->name);
