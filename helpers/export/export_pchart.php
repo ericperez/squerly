@@ -25,9 +25,10 @@ class Export_Pchart implements Export_Interface {
   */
   public static function render(array $data, $filename = NULL, $config = array()) {
     /* pChart library inclusions */
-    require_once(__DIR__ . "/../vendor/pChart/class/pData.class.php");
-    require_once(__DIR__ . "/../vendor/pChart/class/pDraw.class.php");
-    require_once(__DIR__ . "/../vendor/pChart/class/pImage.class.php");
+    $base_path = __DIR__ . "/../../vendor/pChart/";
+    require_once($base_path . "class/pData.class.php");
+    require_once($base_path . "class/pDraw.class.php");
+    require_once($base_path . "class/pImage.class.php");
     $pChart = new pData();
 
     $column_num = 0;
@@ -54,7 +55,7 @@ class Export_Pchart implements Export_Interface {
     $chart_image->Antialias = false;
 
     /* Set the default font */
-    $chart_image->setFontProperties(array("FontName" => __DIR__ . "/../vendor/pChart/fonts/pf_arma_five.ttf", "FontSize" => 8));
+    $chart_image->setFontProperties(array("FontName" => $base_path . "/fonts/pf_arma_five.ttf", "FontSize" => 8));
 
     /* Define the chart area */
     $chart_image->setGraphArea(60, 40, 1200, 700);

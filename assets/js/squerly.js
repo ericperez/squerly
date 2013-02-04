@@ -58,7 +58,7 @@ squerly.report_configuration.getValues = function(report_configuration_id) {
   $.get('/report_configuration/getvalues/' + report_configuration_id,
     function(input_values) {
       //TODO: memoize the report configuration values to reduce network traffic
-      var report_form = $("form").eq(0); //TODO: give the main form an 'id' to key off of
+      var report_form = $('#report_form');
       report_form.clearForm();
       report_form.unserializeForm(input_values);
     }
@@ -79,14 +79,14 @@ squerly.report_configuration.getValues = function(report_configuration_id) {
 squerly.report_configuration.save = function(report_configuration_id) {
   var report_configuration_name = window.prompt("Report Configuration Name", ""); //TODO: this does not work in IE
   if(!report_configuration_name) { return; }
-  var report_form = $("form").eq(0); //TODO: give the main form an 'id' to key off of
+  var report_form = $('#report_form');
   var report_config_obj = { 
     report_id: $('[name="sqrl[report_id]"]', report_form).val(),
     name: report_configuration_name,
     input_values: report_form.serialize()
   };
   $.post(
-      '/report_configuration/add/token/QOFJq34igj3/redirect/false', //TODO: get real CSRF token!
+      '/report_configuration/add/token/QOFJq34igj3/redirect/false', //TODO: generate real CSRF token!
       report_config_obj,
       function() { alert('Report Configuration Saved Successfully'); } //TODO: made this more friendly.
   );

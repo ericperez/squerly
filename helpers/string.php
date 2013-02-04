@@ -66,8 +66,7 @@ class String {
   * 
   */
   public static function machine($input, $uc_words = false) {
-    return preg_replace(array('/ /', '/[^0-9a-zA-Z_]/'), array('_', ''), 
-      ($uc_words) ? ucwords(strtolower($input)) : strtolower($input));
+    return preg_replace(array('/[ ]+/', '/[^0-9a-zA-Z_]/'), array('_', ''), ($uc_words) ? ucwords(strtolower($input)) : strtolower($input));
   }
 
 

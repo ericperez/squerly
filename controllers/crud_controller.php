@@ -88,27 +88,6 @@ class Crud_Controller implements Crud_Controller_Interface {
 
  /**
   *
-  * Allows CRUD-extending classes to have their code called via CRUD controller 
-  * 
-  * @param string $model Name of model
-  * @param string $action Name of controller action/method to call
-  * 
-  * @todo Pass original method ARGS to delegated method
-  *
-  */
-  public static function delegate($model, $action) {
-    $controller_class = String::machine($model, true) . '_Controller';
-    if(!@class_exists($controller_class)) { return false; }
-    $class_implements = @class_implements($controller_class) ?: array();
-    if(!in_array('Crud_Controller_Interface', $class_implements)) { 
-      F3::error('', "CRUD controller sub-classes must implement Crud_Controller_Interface"); 
-    }
-    return $controller_class::$action(false);
-  }
-
-
- /**
-  *
   * 'List Records/Index' action
   *   
   */

@@ -50,11 +50,10 @@ class Report_Controller extends Crud_Controller {
   protected static function _renderParamsForm($report, $action = 'render', array $form_vals = array()) {
     //TODO: loop through all properties for template/form vars instead of just query and input_data_uri?
     //TODO: Use form library to generate/validate form elements
-    $vars = array_unique(Mustache_Helper::vars($report->clean_properties['query']) + Mustache_Helper::vars($report->clean_properties['input_data_uri']));
-    $vals = !empty($form_vals) ? $form_vals : $_REQUEST;
+
     //TODO: load form action from report property
     $form_method = isset($report->form_method) && in_array(strtolower(trim($report->form_method)), array('get', 'post')) ? $report->form_method : 'post';
-    $form_html = "<div style='padding: 5px;'>" . Form::open("/report/{$action}/{$report->id}", array('method' => $form_method));
+    $form_html = "<div style='padding: 5px;'>" . Form::open("/report/{$action}/{$report->id}", array('method' => $form_method, 'id' => 'report_form'));
     //Currently all fields are required; TODO: make this configurable
     $input_attribs = array('required' => 'required');
 
@@ -85,6 +84,12 @@ class Report_Controller extends Crud_Controller {
       'onclick' => 'squerly.report_configuration.save();',
     );
 
+    //Cycle through all the form inputs and build the HTML markup for them
+    $vars = array_unique(
+      Mustache_Helper::vars($report->clean_properties['query']) + 
+      Mustache_Helper::vars($report->clean_properties['input_data_uri'])
+    );
+    $vals = !empty($form_vals) ? $form_vals : $_REQUEST;
     foreach($vars as $var) {
       $val = isset($vals[$var]) ? htmlentities($vals[$var]) : '';
       $form_html .= Form::label($var, String::humanize($var)) . ': ' . Form::input($var, $val, $input_attribs) . '&nbsp;';
@@ -191,7 +196,6 @@ class Report_Controller extends Crud_Controller {
     //Load the data from the data source and render the results
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
     $max_return_rows = (isset($_REQUEST['sqrl']['preview'])) ? $_REQUEST['sqrl']['preview'] : 0;
-    //TODO: update this to not be $_REQUEST, but to read $report->form_method and read from that method only!!
     $form_method = isset($report->form_method) && in_array(strtolower(trim($report->form_method)), array('get', 'post')) ? $report->form_method : 'post';
     $request_method = ($form_method === 'get') ? $_GET : $_POST;
     $report_results = ($render_results && isset($request_method['sqrl']['run']) && strtolower($request_method['sqrl']['run']) === 'run') ? 

@@ -27,7 +27,7 @@ class Report_Configuration_Controller extends Crud_Controller {
   public static function getValues($id = null) {
     $id = $id ?: (int) F3::get('PARAMS.id') ?: null;
     if($id === null) { return; }
-    $report_config = new report_configuration('report_configuration');
+    $report_config = new Report_Configuration('report_configuration');
     $report_config_model = $report_config->load("id={$id}");
     if($report_config_model === false) { return; }
     echo $report_config_model->input_values ?: '';
