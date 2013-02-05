@@ -9,7 +9,7 @@
   * but each 'type' of report has it's on PHP class based on it's default data source i.e. SQL database, XML file, CSV file, etc.
   * 
   * @author Eric Perez <ericperez@squerly.net>
-  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @copyright (c)2012-2013 Squerly contributors (Eric Perez, et al.)
   * @license GNU General Public License, version 3 or later
   * @license http://opensource.org/licenses/gpl-3.0.html
   * @link http://www.squerly.net

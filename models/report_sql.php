@@ -9,7 +9,7 @@
   * to delegate to/factory the proper report sub-class based on the 'type' property
   *
   * @author Eric Perez <ericperez@squerly.net>
-  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @copyright (c)2012-2013 Squerly contributors (Eric Perez, et al.)
   * @license GNU General Public License, version 3 or later
   * @license http://opensource.org/licenses/gpl-3.0.html
   * @link http://www.squerly.net
@@ -19,6 +19,11 @@ class Report_Sql extends Report_Base {
 
   public $bind_params = array();
   public $processed_query = '';
+  //TODO: figure out a better way of doing this
+  public static $field_html_classes = array(
+    'query' => 'codemirror_mysql',
+    'postprocess_code' => 'codemirror_php',
+  );
 
   const REPORT_DISALLOWED_KEYWORD = 'Disallowed keyword found in report; aborting.';
   const REPORT_NOT_SELECT_STATEMENT = 'Report query must be a SELECT statment; aborting.';
