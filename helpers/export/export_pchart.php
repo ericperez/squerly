@@ -83,7 +83,8 @@ class Export_Pchart implements Export_Interface {
     $chart_image->drawLegend(20, 10, array("Style" => LEGEND_NOBORDER, "Mode" => LEGEND_HORIZONTAL));
 
     /* Render the picture (choose the best way) */
-    $chart_image->autoOutput(__DIR__ . "/../temp/{$filename}.png"); 
+    $filename = $filename ?: tempnam('/tmp', 'squerly_results_');
+    return $chart_image->autoOutput($filename); 
 
   }
 

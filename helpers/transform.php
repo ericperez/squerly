@@ -68,7 +68,7 @@ class Transform  {
   */
   public static function run($data, $transformation_type = '', array $config = array()) {
     if(!$data) { $data = array(array()); }
-    $transformation_type = self::getTransformation($transformation_type);
+    $transformation_type = $transformation_type ?: self::getTransformation($transformation_type);
     if(!$transformation_type) { return $data; }
     $transform_plugin = 'Transform_' . $transformation_type;
     $class_implements = @class_implements($transform_plugin) ?: array(); //Get plugin interfaces

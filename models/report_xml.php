@@ -58,7 +58,7 @@ class Report_Xml extends Report_Base {
    * @param $input_values array Array of input key-value pairs to plug into the report query
    *
    */
-  public function getResults($max_return_rows = 0, array $input_values = array()) {
+  public function getResults($max_return_rows = 0, array $input_values = array(), $transformation = null) {
     $this->_preprocessQuery($max_return_rows, $input_values); //Pre-process the query through various filters
     if($this->_isValid())
     {
@@ -70,7 +70,7 @@ class Report_Xml extends Report_Base {
         throw new Exception($e);
       }
     }
-    $this->_postprocessResults($max_return_rows);
+    $this->_postprocessResults($max_return_rows, $transformation);
     return $this->results;
   }
 

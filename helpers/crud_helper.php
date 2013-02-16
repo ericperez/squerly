@@ -239,7 +239,7 @@ class CRUD_Helper {
   public static function getModelName($use_default = false) {
     $uri_path = explode('/', F3::get('PARAMS.0')); 
     $model = $use_default ? F3::get('DEFAULT_MODEL') : F3::get('PARAMS.model') ?: $uri_path[1] ?: '';
-    $table = !empty($model) ? CRUD_Helper::addTablePrefix($model) : '';
+    $table = !empty($model) ? self::addTablePrefix($model) : '';
     $table = in_array($table, F3::get('CRUD_TABLE_WHITELIST')) ? $table : null;
     if(!$table) {
       ob_clean(); 
@@ -303,9 +303,9 @@ class CRUD_Helper {
   */
   public static function navigation($action, array $extra_nav = array()) {
     $id = (int) F3::get('PARAMS.id') ?: null;
-    list($model, $model_friendly) = CRUD_Helper::getModelName();
+    list($model, $model_friendly) = self::getModelName();
     $model_plural = Inflector::plural($model_friendly);
-    $model_path = CRUD_Helper::getModelPath();
+    $model_path = self::getModelPath();
     $add_index = true;
 
     //TODO: This should be able to read the CRUD routes and be generated from that
