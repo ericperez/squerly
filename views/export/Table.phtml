@@ -5,7 +5,6 @@
       <meta charset='utf8' />
       <?php //TODO: automate loading of CSS/JS w/ PHP/RequireJS; move these to a better place ?>
       <!-- JS -->
-
       <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.min.js"></script>
       <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.min.js"></script>
       <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
@@ -18,6 +17,7 @@
       <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" />
       <link rel="stylesheet" type="text/css" href="/assets/css/ui-darkness/jquery-ui-1.9.0.custom.min.css" />
       <link rel="stylesheet" type="text/css" href="/assets/js/TableTools/media/css/TableTools.css" />
+      <link rel="stylesheet" type="text/css" href="/assets/css/squerly.css" />
 
       <?php //Temporary Styles ?>
         <style type='text/css'>
@@ -35,9 +35,9 @@
       </style>
    </head>
   <body>
-  <div style='text-align:center;'><h2>{{@page_title}}</h2></div><br/>
-  <div id='form_div' style='clear:both;background-color:#DDDDDD;'>{{@form}}</div></br>
-  {{@report_results}}
+  <div id='page_title_div'><h2>{{@page_title}}</h2></div><br/>
+  <div id='form_div'>{{@form}}</div></br>
+  <div id='report_results'>{{@report_results}}</div>
 
   <script type='application/x-javascript'>
     $(document).ready(function() {

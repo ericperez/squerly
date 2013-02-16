@@ -1,0 +1,9 @@
+#page_title_div { 
+  text-align:center; 
+}
+#form_div { 
+  clear:both; margin-left:10px; margin-right:10px; background-color:#BBBBBB; border-radius:10px; -moz-border-radius: 10px
+}
+#report_results { 
+  height: 85%; width: 100%; 
+}
