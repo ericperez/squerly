@@ -12,10 +12,11 @@
   */
 
 //Check to make sure PHP version 5.3 or higher is being used; bail if not
-if(strnatcmp(phpversion(), '5.3.0') <= 0) { die('ERROR: Squerly requires PHP 5.3 or higher to run.'); }
+if(version_compare(phpversion(), '5.3.0', '<')) { die('ERROR: Squerly requires PHP 5.3 or higher to run.'); }
 
 require __DIR__ . '/lib/base.php'; //Fat-Free Framework (F3) core code
 require __DIR__ . '/config/squerly.config.php'; //Squerly configuration settings
+require __DIR__ . '/vendor/autoload.php'; //Composer package management/autoloading
 
 //Fat-Free Framework vars
 F3::set('UI', 'views/'); //Path to UI/Views
@@ -66,9 +67,14 @@ F3::set('CRUD_TABLE_WHITELIST', array(
   'Report Configuration' => 'report_configuration',
   'Email Distribution List' => 'email_distribution_list',
   'Email Schedule' => 'email_schedule',
+  //TODO: 'Event Schedule' => 'event_schedule',
 ));
 
 Report_DB_Connection::loadAll(); //Load all the reporting database connections
-Crud_Controller::init();
-session_start();
-F3::run();
+
+//Determine if a simple bootstrap is required or a full application load
+if(!isset($bootstrap_only) || (isset($bootstrap_only) && !$bootstrap_only)) { 
+  Crud_Controller::init();
+  session_start();
+  F3::run();
+}

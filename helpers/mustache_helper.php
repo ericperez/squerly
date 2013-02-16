@@ -1,18 +1,5 @@
 <?php
-//namespace squerly;
-
-//TODO: autoload these
-require __DIR__ . '/../vendor/Mustache/Autoloader.php';
-require __DIR__ . '/../vendor/Mustache/Engine.php';
-require __DIR__ . '/../vendor/Mustache/HelperCollection.php';
-require __DIR__ . '/../vendor/Mustache/Context.php';
-require __DIR__ . '/../vendor/Mustache/Template.php';
-require __DIR__ . '/../vendor/Mustache/Compiler.php';
-require __DIR__ . '/../vendor/Mustache/Tokenizer.php';
-require __DIR__ . '/../vendor/Mustache/Parser.php';
-require __DIR__ . '/../vendor/Mustache/Loader.php';
-require __DIR__ . '/../vendor/Mustache/Loader/StringLoader.php';
-
+//TODO: namespace squerly;
 
 class Mustache_Helper
 {
