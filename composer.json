@@ -1,6 +1,5 @@
 {
   "require": {
-  	"phpmailer/phpmailer": "dev-master",
-  	"mustache/mustache": "2.1.*"
+  	"phpmailer/phpmailer": "dev-master"
   }
 }
