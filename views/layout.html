@@ -13,10 +13,27 @@
 
     <link rel="stylesheet" href="/assets/js/CodeMirror/lib/codemirror.css">
     <link rel="stylesheet" href="/assets/js/CodeMirror/theme/lesser-dark.css">
+    <link rel="stylesheet" href="/assets/css/squerly.css">
 
+    <?php //Temporary Styles ?>
+    <style type='text/css'>
+      table.dataTable tr.odd { background-color: #F5F5F5; }
+      table.dataTable tr.odd td.sorting_1,
+      table.dataTable tr.odd td.sorting_2,
+      table.dataTable tr.odd td.sorting_3 { background-color: #ACACAC; }
+
+      table.dataTable tr.even { background-color: #E6E6E6; }
+      table.dataTable tr.even td.sorting_1, 
+      table.dataTable tr.even td.sorting_2,
+      table.dataTable tr.even td.sorting_3 { background-color: #DDDDDD; }
+
+      a.ui-button { padding: 2px !important; margin: 0px !important; }
+    </style>
+
+    {{@styles}}
 
     <!-- JS -->
-    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.min.js"></script>
+    <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.9.1.min.js"></script>
     <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.min.js"></script>
 
     <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
@@ -32,42 +49,28 @@
     <script type="text/javascript">
        //TODO: this is temporary until I have time for a better solution
        $(function() {
-          if($('#query')[0]) {
-             CodeMirror.fromTextArea($('#query')[0], { 
+          if($('#report_query_input')[0]) {
+             CodeMirror.fromTextArea($('#report_query_input')[0], { 
                 mode: 'mysql', theme: 'lesser-dark', lineNumbers: true, tabSize: 2
              });
           }
-          if($('#postprocess_code')[0]) {
-             CodeMirror.fromTextArea($('#postprocess_code')[0], { 
+          if($('#report_postprocess_code_input')[0]) {
+             CodeMirror.fromTextArea($('#report_postprocess_code_input')[0], { 
                 mode: 'php', theme: 'lesser-dark', lineNumbers: true, tabSize: 2
              });
           }
        });
     </script>
 
-    <?php //Temporary Styles ?>
-    <style type='text/css'>
-      html, body { margin: 0; padding: 0; width: 100%; font: 100%/1em "Lucida Grande", Verdana, Arial, Helvetica, sans-serif; color: #111; font-size: 12px; }
-      table.dataTable tr.odd { background-color: #F5F5F5; }
-      table.dataTable tr.odd td.sorting_1,
-      table.dataTable tr.odd td.sorting_2,
-      table.dataTable tr.odd td.sorting_3 { background-color: #ACACAC; }
-
-      table.dataTable tr.even { background-color: #E6E6E6; }
-      table.dataTable tr.even td.sorting_1, 
-      table.dataTable tr.even td.sorting_2,
-      table.dataTable tr.even td.sorting_3 { background-color: #DDDDDD; }
-
-      a.ui-button { margin: 0px !important; }
-    </style>
+    {{@scripts}}
 
   </head>
   <body>
-    <F3:include href="{{@content_file}}"/>
     {{@header}}
-    <div><h1>{{@title}}</h1></div><br/>
+    <div id='title_div'><h1 style='margin: 5px;'>{{@title}}</h1></div>
     {{@flash_msgs}}
     {{@navigation}}
+    <hr>
     {{@form}}
     {{@pagination}}
     {{@content}}

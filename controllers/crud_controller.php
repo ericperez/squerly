@@ -33,6 +33,7 @@ class Crud_Controller implements Crud_Controller_Interface {
   */
   public static function init() {
     self::setUpRoutes();
+    //TODO: use these to build JS/CSS blocks
     F3::set('javascript', CRUD_Helper::getBaseJavascript());
     F3::set('css', CRUD_Helper::getBaseStylesheets());
   }
@@ -126,10 +127,11 @@ class Crud_Controller implements Crud_Controller_Interface {
         'action' => F3::get('URL_BASE_PATH') . $model . "/add/token/{$csrf_token}/redirect/true",
         'method' => 'post',
       );
-      //var_dump(self::$_forms); exit;
-      //Set the 'updated_at' field to current date
+      //Set the 'created_at' and 'updated_at' fields to current timestamp
+      //TODO: this should happen on the back end, not the form
       $now = date('Y-m-d h:i:s');
       $values = array('created_at' => $now, 'updated_at' => $now);
+
       $form = (isset(self::$_forms['add']) && Crud_Helper::getForm(self::$_forms['add']))
         ?: CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
       F3::set('form', $form, false, false);
@@ -214,17 +216,41 @@ class Crud_Controller implements Crud_Controller_Interface {
   */
   public static function addEditProcess() {
     $id = (int) F3::get('PARAMS.id') ?: null;
-
     list($model, $model_friendly) = CRUD_Helper::getModelName();
     //TODO: add form validation
     //TODO: validate csrf token (kohana version)
 
-    $primary_key = Db_Meta::getPrimaryKeys($model);
-    $record = new Axon($model);
-    if($id > 0) { $record->load("{$primary_key}={$id}"); };
+    function crud_load($model, $id) {
+      $primary_key = Db_Meta::getPrimaryKeys($model);
+      $record = CRUD::load_model($model);
+      if($id > 0) { $record->load("{$primary_key}={$id}"); };
+      return $record;
+    }
+    $record = crud_load($model, $id);
     //$allowed_fields = array_diff_key();
-    $record->copyFrom('POST'); //, $allowed_fields); //TODO: create blacklist of fields to not accept from POST
-    $record->save();
+    
+    //Allow namespacing of POST variables
+    $post_model = 'POST.' . $model;
+    if(F3::exists($post_model)) {
+      $record->copyFrom($post_model);
+
+      //Find related models and save them as well
+      if(isset($record->related_models) && !empty($record->related_models)) {
+        foreach($record->related_models as $related_model) {
+          $post_related_models = 'POST.' . $related_model;
+          if(F3::exists($post_related_models)) {
+            foreach(F3::get($post_related_models) as $post_related_model) {
+              $related_id = isset($post_related_model['id']) ? $post_related_model['id'] : 0;
+              $related_record = crud_load($related_model, $related_id);
+              if(!$related_record->dry()) { $record->save(); }
+            }
+          }
+        }
+      }
+    } else {
+      $record->copyFrom('POST'); //, $allowed_fields); //TODO: create blacklist of fields to not accept from POST      
+    }
+    if(!$record->dry()) { $record->save(); }
     if(!F3::exists('PARAMS.redirect') || F3::get('PARAMS.redirect') !== 'true') { return true; }
 
     $record_id = $record->_id;
@@ -332,6 +358,8 @@ class Crud_Controller implements Crud_Controller_Interface {
   */
   public static function optionlist($config = null, $where = '', $order_by = '') {
     list($model, $model_friendly) = CRUD_Helper::getModelName();
+    //If where not provided, build one from $_GET parameters
+    if(!$where) { $where = SQL::buildWhereFromArray($model, F3::get('GET')); }
     //TODO: move 'no selection/select' option to CRUD::pairs method
     $options = array('' => '(No Selection)') + CRUD::pairs($model, true, $where, $order_by);
     $config = $config ?: array(
@@ -418,11 +446,17 @@ class Crud_Controller implements Crud_Controller_Interface {
     $title = 'View ' . $model_friendly . ' ' . $id;
     if(!F3::exists('title')) { F3::set('title', $title); }
     if(!F3::exists('page_title')) { F3::set('page_title', $title . F3::get('PAGE_TITLE_BASE')); }
-    $record = CRUD::loadRecord($model);
-    $record[0]->copyTo('record');
-    //TODO: fix issue with {{id}} being parse by F3 templater
-    $record_content = array(F3::get('record'));
-    if(!F3::exists('content')) { F3::set('content', Export::render($record_content, 'table', $model), false, false); }
+    if(!F3::exists('content')) { 
+      $record = CRUD::loadRecord($model);
+      $record[0]->copyTo('record');
+      //TODO: fix issue with {{id}} / template tags being parse by F3 templater
+      $record_content = F3::get('record');
+      $field_values = array();
+      foreach($record_content as $k => $v) {
+        $field_values[] = array('Field' => String::humanize($k), 'Value' =>  nl2br(htmlentities($v)));
+      }
+      F3::set('content', Export::render($field_values, '', 'table'), false, false); 
+    }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
     echo Template::serve('layout.html');
   }

@@ -100,6 +100,7 @@ class CRUD extends Axon {
     if($offset > $model_count - ($limit - F3::get('RECORDS_PER_PAGE'))) { 
       $offset = $limit - F3::get('RECORDS_PER_PAGE');
     }
+    //Filter records displayed by values provided through $_GET
     $where = !is_null($where) ? $where : SQL::buildWhereFromArray($model, F3::get('GET'));
     return $records->select($fields, $where, NULL, $order_by, $limit, $offset, false);
   }
@@ -122,7 +123,8 @@ class CRUD extends Axon {
   * @todo Switch 'order_by' to support arrays
   * 
   */
-  public static function pairs($model = null, $id_in_name = false, $where = '', $order_by = 'pkey ASC') {
+  public static function pairs($model = null, $id_in_name = true, $where = '', $order_by = '') {
+    if(!$order_by) { $order_by = '`pkey` DESC'; }
     if($model === null) { list($model, $model_friendly) = CRUD_Helper::getModelName(false); }
     $primary_key = Db_Meta::getPrimaryKeys($model);
     $name_field = Db_Meta::getNameColumn($model);

@@ -99,10 +99,12 @@ class CRUD_Helper {
     $foreign_keys = Db_Meta::getForeignKeys($model);
 
     foreach($table_desc as $field) {
-      if(in_array($field['COLUMN_NAME'], $skip_fields)) { continue; }
+      $column_name = $field['COLUMN_NAME'];
+      if(in_array($column_name, $skip_fields)) { continue; }
+
       $field_attribs = array(
-        'name' => $field['COLUMN_NAME'],
-        'id' => $field['COLUMN_NAME'],
+        'name' => $model . '[' . $column_name . ']', //Namespace using model name
+        'id' => $model . '_' . $column_name . '_input',
         'type' => self::sqlFieldTypeMap($field['DATA_TYPE']),
         'maxlength' => $field['LENGTH'],
         //'size' => $field['LENGTH'],
@@ -132,14 +134,14 @@ class CRUD_Helper {
       } else {
         //Build the Field Label
         $label = String::humanize($field['COLUMN_NAME']);
-        $output .= '<tr><td style="white-space:nowrap; width:1%">' . Form::label($field_attribs['name'], $label) . "</td>\n";
+        $output .= '<tr><td style="white-space:nowrap; width:1%">' . Form::label($field_attribs['id'], $label) . "</td>\n";
       }
 
       //Determine if a field is a foreign key; if so, get key/value pairs to the foreign table
       if(in_array($field['COLUMN_NAME'], $foreign_keys)) { $field_attribs['type'] = 'foreign_key'; }
 
       //Set the field values for existing records
-      $field_attribs['value'] = (array_key_exists($field_attribs['name'], $values)) ? $values[$field_attribs['name']] : '';
+      $field_attribs['value'] = (array_key_exists($column_name, $values)) ? $values[$column_name] : '';
 
       //TODO: consolidate some of this code and clean it up
       switch($field_attribs['type']) { //TODO: update to handle other field/element types
@@ -178,9 +180,8 @@ class CRUD_Helper {
           break;
       }
     }
-    $output .= '<tr><td>&nbsp;</td><td><br/>' . Form::submit('', 'Submit') . '</td></tr>';
-    $output .= '</tbody></table>';
-    $output .= Form::close() . "\n"; 
+    $output .= '<tr><td>&nbsp;</td><td><br/>' . Form::submit('', 'Submit') . "</td></tr>\n";
+    $output .= '</tbody></table>'. Form::close() . "<br><br>\n";
     return $output;
   }
 
@@ -306,57 +307,38 @@ class CRUD_Helper {
     list($model, $model_friendly) = self::getModelName();
     $model_plural = Inflector::plural($model_friendly);
     $model_path = self::getModelPath();
-    $add_index = true;
 
     //TODO: This should be able to read the CRUD routes and be generated from that
-    $nav_arr = array(
+    $basic_nav = array(
       'home'    => array('Home' => F3::get('URL_BASE_PATH')),
       'index'   => array('Back to Index' => $model_path),
-      'add'     => array("Add {$model_friendly}" => $model_path . "/add"),
+      'add'     => array("Create New {$model_friendly}" => $model_path . "/add"),
+      'search'  => array("Search {$model_plural}" => $model_path . "/search"),
+    );
+
+    $record_nav = array(
       'copy'    => array("Copy {$model_friendly} {$id}" => $model_path . "/copy/{$id}"),
       'delete'  => array("Delete {$model_friendly} {$id}" => $model_path . "/delete/{$id}"),
       'edit'    => array("Edit {$model_friendly} {$id}" => $model_path . "/edit/{$id}"),
       'load'    => array("Load {$model_friendly} {$id}" => $model_path . "/load/{$id}"),
-      'search'  => array("Search {$model_plural}" => $model_path . "/search"),
       'view'    => array("View {$model_friendly} {$id} Details" => $model_path . "/view/{$id}"),
     );
 
-    $nav = array();
-
-    switch($action) {
-      case 'edit':
-        $nav = array($nav_arr['load'], $nav_arr['view'], $nav_arr['delete'], $nav_arr['copy'], $nav_arr['search']);
-        break;
-
-      case 'delete':
-        $nav = array($nav_arr['load'], $nav_arr['view'], $nav_arr['edit'], $nav_arr['copy'], $nav_arr['search']);
-        break;
-
-      case 'view':
-        $nav = array($nav_arr['load'], $nav_arr['edit'], $nav_arr['delete'], $nav_arr['copy'], $nav_arr['search']);
-        break;
-
-      case 'search':
-        $nav = array($nav_arr['add']);
-        break;
-
-      case 'index':
-      case 'add':
-      default:
-        $add_index = false;
-        $nav = array($nav_arr['add'], $nav_arr['search']);
-        break;
+    //Remove unwanted navigation items depending on what action is currently
+    if(in_array($action, array_keys($record_nav)) || !in_array($action, array_keys($basic_nav))) { 
+      $nav = $basic_nav + $record_nav + $extra_nav;
+      unset($nav[$action]);
+    } else {
+      $nav = $basic_nav + $extra_nav;
     }
-    if($add_index) { $nav = array_merge(array($nav_arr['index']), $nav); }
-    $nav = array_merge(array($nav_arr['home']), $nav);
-    if(!empty($extra_nav)) { $nav[] = $extra_nav; }
+    if($action === 'index') { unset($nav['index']); }
     $nav_html = array();
     foreach($nav as $item) {
       foreach($item as $label => $path) {
         $nav_html[] = HTML::anchor($path, $label);
       }
     }
-    return '<div>' . join(' | ', $nav_html) . '</div><br/>'; //TODO: turn this into a list
+    return "<div id='navigation_div'>&nbsp;" . join('&nbsp;|&nbsp;', $nav_html) . '</div>'; //TODO: turn this into a list
   }
 
 

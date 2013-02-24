@@ -61,7 +61,7 @@ class Report_Controller extends Crud_Controller {
     $report_id = (int) F3::get('PARAMS.id');
     $config_where = "report_id = " . $report_id;
     //TODO: make this smarter -- set table name in model
-    $config_list = array('' => '(Select)') + Report_Configuration::pairs('report_configuration', false, $config_where, 'pkey DESC');
+    $config_list = array('' => '(Select)') + Report_Configuration::pairs('report_configuration', true, $config_where);
     $config_attribs = array(
       'title' => 'Load a Saved Report Configuration',
       'onchange' => 'squerly.report_configuration.getValues(this.value);',
@@ -95,7 +95,7 @@ class Report_Controller extends Crud_Controller {
       $form_html .= Form::label($var, String::humanize($var)) . ': ' . Form::input($var, $val, $input_attribs) . '&nbsp;';
     }
 
-    $form_html .= '<br><br>';
+    $form_html .= '<br>';
     $form_html .= 
       Form::label('sqrl[config]', 'Load a Saved Configuration: ') . 
       Form::select('sqrl[config]', $config_list, '', $config_attribs) . '&nbsp;' .
@@ -134,9 +134,6 @@ class Report_Controller extends Crud_Controller {
  /**
   *
   * 'List Records/Index' action
-  * 
-  * @param boolean $bogus - Unused param for inheritance sake
-  *
   *   
   */
   public static function index() {
@@ -150,10 +147,11 @@ class Report_Controller extends Crud_Controller {
 
  /**
   *
-  * Load action
+  * Load action (proxies to 'render' action);
   *   
   */
   public static function load() {
+    F3::set('scripts', "<script>$(function() { $('#form_div').show(); });</script>"); //TODO: do this a better way
     self::render(null, false);
   }
 
@@ -203,6 +201,7 @@ class Report_Controller extends Crud_Controller {
     F3::set('report_results', $report_results);
     F3::set('page_title', $report->name);
     F3::set('form', self::_renderParamsForm($report));
+    F3::set('navigation', CRUD_Helper::navigation('load'));
     $layout = Export::loadLayout();
     //If no layout found, default to 'bare' data
     if($layout === false) {

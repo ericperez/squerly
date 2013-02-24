@@ -5,13 +5,15 @@
       <meta charset='utf8' />
       <?php //TODO: automate loading of CSS/JS w/ PHP/RequireJS; move these to a better place ?>
       <!-- JS -->
-      <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.min.js"></script>
+      <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.9.1.min.js"></script>
       <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.min.js"></script>
       <script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
       <script type="text/javascript" src="/assets/js/TableTools/media/js/TableTools.js"></script>
       <script type="text/javascript" src="/assets/js/TableTools/media/js/ZeroClipboard.js"></script>
       <script type="text/javascript" src="/assets/js/jQuery.unserializeForm.js"></script>
       <script type="text/javascript" src="/assets/js/squerly.js"></script>
+
+      {{@scripts}}
 
       <!-- CSS -->
       <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" />
@@ -20,8 +22,7 @@
       <link rel="stylesheet" type="text/css" href="/assets/css/squerly.css" />
 
       <?php //Temporary Styles ?>
-        <style type='text/css'>
-        html, body { margin: 0; padding: 0; width: 100%; font: 100%/1em "Lucida Grande", Verdana, Arial, Helvetica, sans-serif; color: #111; font-size: 12px; }
+      <style type='text/css'>
         table.dataTable tr.odd { background-color: #F5F5F5; }
         table.dataTable tr.odd td.sorting_1,
         table.dataTable tr.odd td.sorting_2,
@@ -31,12 +32,18 @@
         table.dataTable tr.even td.sorting_1, 
         table.dataTable tr.even td.sorting_2,
         table.dataTable tr.even td.sorting_3 { background-color: #DDDDDD; }
+
         a.ui-button { padding: 2px !important; margin: 0px !important; }
       </style>
+
+      {{@styles}}
+
    </head>
   <body>
-  <div id='page_title_div'><h2>{{@page_title}}</h2></div><br/>
-  <div id='form_div'>{{@form}}</div></br>
+  <div id='page_title_div'><h2>{{@page_title}}</h2></div>
+  <!-- .ui-buttonset, .ui-buttonset-multi, .dataTables_length, .dataTables_filter -->
+  <div id='expand_form_div' onclick="$('#form_div').toggle();">[+/-] Show/Hide Options</div><br/>
+  <div id='form_div' style='display: none;'>{{@form}}{{@navigation}}</div><br/>
   <div id='report_results'>{{@report_results}}</div>
 
   <script type='application/x-javascript'>

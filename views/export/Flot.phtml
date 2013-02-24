@@ -1,10 +1,11 @@
 <div id='page_title_div'><h2 style='margin:0px !important'>{{@page_title}}</h2></div>
-<div id='form_div'>{{@form}}</div>
+<div id='expand_form_div' onclick="$('#form_div').toggle();">[+/-] Show/Hide Options</div><br/>
+<div id='form_div' style='display: none;'>{{@form}}{{@navigation}}</div>
 <div id='report_results'></div>
 
 <!-- JS -->
-<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.min.js"></script>
-<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="excanvas.min.js"></script><![endif]-->
+<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.3.min.js"></script>
+<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="/assets/js/flot/excanvas.min.js"></script><![endif]-->
 <script type="text/javascript" src="/assets/js/flot/jquery.flot.js"></script>
 <script type="text/javascript" src="/assets/js/flot/jquery.flot.resize.js"></script>
 <script type="text/javascript" src="/assets/js/jQuery.unserializeForm.js"></script>
