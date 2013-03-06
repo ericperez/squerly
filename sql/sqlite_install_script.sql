@@ -22,16 +22,18 @@ CREATE TABLE 'report' (
 );
 
 -- Saved Report Form Configurations
-CREATE TABLE 'report_configuration' (
+CREATE TABLE 'saved_report' (
   'id' INTEGER PRIMARY KEY ASC NOT NULL,  
   'name' varchar(255) NOT NULL,
-  'description' VARCHAR(255) DEFAULT '',
+  'description' VARCHAR(1023) DEFAULT '',
   'enabled' boolean DEFAULT 1,
   'report_id' INTEGER NOT NULL,
-  'email_distribution_list_id' INTEGER,
-  'email_schedule_id' INTEGER,
-  'email_empty_results' boolean NOT NULL DEFAULT false,
   'input_values' varchar(4095),
+  'created_by' VARCHAR(255), 
+  'created_at' DATETIME DEFAULT NULL,
+  'updated_by' VARCHAR(255),
+  'updated_at' DATETIME DEFAULT (DATETIME('now','localtime'))
+);
   'created_at' DATETIME DEFAULT NULL,
   'updated_at' DATETIME DEFAULT (DATETIME('now','localtime'))
 );

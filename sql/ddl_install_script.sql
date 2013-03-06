@@ -1,5 +1,7 @@
 -- TODO: Make this database agnostic; currently only works for MySQL
 
+-- TODO: update this with changes made in the SQLite DDL install script
+
 -- Report Table
 DROP DATABASE IF EXISTS squerly;
 CREATE DATABASE squerly;

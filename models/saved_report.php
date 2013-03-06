@@ -1,7 +1,7 @@
 <?php
 /**
   *
-  * Squerly - Report Saved Configurations Model
+  * Squerly - Saved Report Configurations Model
   * 
   *
   * @author Eric Perez <ericperez@squerly.net>
@@ -11,22 +11,23 @@
   * @link http://www.squerly.net
   *
   */
-class Report_Configuration extends CRUD {
+class Saved_Report extends CRUD {
 
  /**
   *
-  * This method returns all (enabled) report configuration email schedules (in Crontab format)
+  * This method returns all (enabled) saved report configuration email schedules (in Crontab format)
   *
   * @return array Array of report configuration IDs and Cron schedules
   *
   */
   public static function getEmailCronSchedules() {
-    //TODO: add emails_enabled boolean field to report_configuration ??
+    //TODO: update this query when data structure is finalized
+    return;
     $sql = "
-      SELECT rc.id AS report_configuration_id, email_schedule
-      FROM report_configuration rc
-      INNER JOIN email_schedule es ON(rc.email_schedule_id = es.id)
-      WHERE rc.email_schedule_id > 0 AND rc.enabled = 1
+      SELECT sr.id AS saved_report_id, email_schedule
+      FROM saved_report sr
+      INNER JOIN email_schedule es ON(sr.email_schedule_id = es.id)
+      WHERE sr.email_schedule_id > 0 AND sr.enabled = 1
     ";
     return DB::sql($sql, null, 59);
   }
@@ -34,11 +35,11 @@ class Report_Configuration extends CRUD {
 
  /**
   *
-  * Runs the report against the data source using the report configuration input_values as inputs
+  * Runs the report against the data source using the saved report configuration input_values as inputs
   * 
   * @param TODO!
   *
-  * @return array Report Configuration Results
+  * @return array Saved Report Configuration Results
   *
   */
   public function getResults($max_return_rows = 0, array $input_values = array(), $transformation = null, $output_context = null) {
@@ -60,9 +61,9 @@ class Report_Configuration extends CRUD {
 
  /**
   *
-  * Enumerates all the report configurations and determines which ones need to be run now
+  * Enumerates all the saved report configurations and determines which ones need to be run now
   *
-  * @return array Report Configuration IDs
+  * @return array Saved Report Configuration IDs
   *
   */
   public static function getConfigsScheduledToRun() {

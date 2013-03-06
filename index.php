@@ -39,7 +39,7 @@ F3::set('TEMP', 'tmp/');
 //TODO: autoload these or 'require' in a loop
 @include_once __DIR__ . '/controllers/auth_controller.php';
 @include_once __DIR__ . '/controllers/report_controller.php';
-@include_once __DIR__ . '/controllers/report_configuration_controller.php';
+@include_once __DIR__ . '/controllers/saved_report_controller.php';
 //require __DIR__ . '/vendor/depage-forms/htmlform.php'; //depage forms library
 
 
@@ -64,7 +64,7 @@ F3::route('GET ' . F3::get('URL_BASE_PATH'),
 //Format: 'Friendly Name' => 'model name'
 F3::set('CRUD_TABLE_WHITELIST', array(
   'Report' => 'report',
-  'Report Configuration' => 'report_configuration',
+  'Saved Report Configuration' => 'saved_report',
   'Email Distribution List' => 'email_distribution_list',
   'Email Schedule' => 'email_schedule',
   //TODO: 'Event Schedule' => 'event_schedule',

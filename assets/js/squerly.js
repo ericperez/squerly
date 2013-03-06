@@ -15,12 +15,12 @@
 
 var squerly = {};
 squerly.report = {};
-squerly.report_configuration = {};
+squerly.saved_report = {};
 
 
 /**
   *
-  * Report configuration method to retrieve report saved input parameter values using AJAX
+  * Saved Report/Report configuration method to retrieve report saved input parameter values using AJAX
   *
   * @return void
   *
@@ -49,14 +49,14 @@ squerly.report.configureCodeMirror = function() {
 
 /**
   *
-  * Report configuration method to retrieve report saved input parameter values using AJAX
+  * Saved Report/Report configuration method to retrieve report saved input parameter values using AJAX
   *
-  * @param int report_configuration_id Primary key of a report configuration object
+  * @param int saved_report_id Primary key of a report configuration object
   * @return void
   *
   */
-squerly.report_configuration.getValues = function(report_configuration_id) {
-  $.get('/report_configuration/getvalues/' + report_configuration_id,
+squerly.saved_report.getValues = function(saved_report_id) {
+  $.get('/saved_report/getvalues/' + saved_report_id,
     function(input_values) {
       //TODO: memoize the report configuration values to reduce network traffic
       var report_form = $('#report_form');
@@ -69,16 +69,16 @@ squerly.report_configuration.getValues = function(report_configuration_id) {
 
 /**
   *
-  * Report configuration method to retrieve an optionlist of saved report configurations by report ID
+  * Saved Report/Report configuration method to retrieve an optionlist of saved report configurations by report ID
   *
-  * @param int report_configuration_id Primary key of a report object
+  * @param int saved_report_id Primary key of a report object
   * @return void
   *
   * @todo Make this more generic for all models
   * 
   */
-squerly.report_configuration.loadOptionlist = function(report_id) {
-  url = '/report_configuration/optionlist/?report_id=' + report_id;
+squerly.saved_report.loadOptionlist = function(report_id) {
+  url = '/saved_report/optionlist/?report_id=' + report_id;
   var optionlist = $('[name="sqrl[config]"]');
   optionlist.load(url, '', function() { optionlist[0].selectedIndex = 1; })
 };
@@ -86,29 +86,29 @@ squerly.report_configuration.loadOptionlist = function(report_id) {
 
 /**
   *
-  * Report configuration method to save report input parameter values using AJAX
+  * Saved Report/Report configuration method to save report input parameter values using AJAX
   *
-  * @param int report_configuration_id Primary key of a report configuration object TODO: implement
+  * @param int saved_report_id Primary key of a report configuration object TODO: implement
   * @return void
   *
   *
   * @todo Abstract this out so it encompases all CRUD models/actions
   */
-squerly.report_configuration.save = function(report_configuration_id) {
-  var report_configuration_name = window.prompt("Saved Report Name:", ""); //TODO: this does not work in IE
-  if(!report_configuration_name) { return; }
+squerly.saved_report.save = function(saved_report_id) {
+  var saved_report_name = window.prompt("Saved Report Name:", ""); //TODO: this does not work in IE; use JQuery modal instead
+  if(!saved_report_name) { return; }
   var report_form = $('#report_form');
   var report_config_obj = { 
     report_id: $('[name="sqrl[report_id]"]', report_form).val(),
-    name: report_configuration_name,
+    name: saved_report_name,
     input_values: report_form.serialize()
   };
   $.post(
-      '/report_configuration/add/token/QOFJq34igj3/redirect/false', //TODO: generate real CSRF token!
+      '/saved_report/add/token/QOFJq34igj3/redirect/false', //TODO: generate real CSRF token!
       report_config_obj,
       function() { 
         alert('Saved Report Configuration Added Successfully'); //TODO: make this more friendly.
-        squerly.report_configuration.loadOptionlist(report_config_obj.report_id);
+        squerly.saved_report.loadOptionlist(report_config_obj.report_id);
       }
   );
 };

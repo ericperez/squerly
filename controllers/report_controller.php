@@ -61,10 +61,10 @@ class Report_Controller extends Crud_Controller {
     $report_id = (int) F3::get('PARAMS.id');
     $config_where = "report_id = " . $report_id;
     //TODO: make this smarter -- set table name in model
-    $config_list = array('' => '(Select)') + Report_Configuration::pairs('report_configuration', true, $config_where);
+    $config_list = array('' => '(Select)') + Saved_Report::pairs('saved_report', true, $config_where);
     $config_attribs = array(
       'title' => 'Load a Saved Report Configuration',
-      'onchange' => 'squerly.report_configuration.getValues(this.value);',
+      'onchange' => 'squerly.saved_report.getValues(this.value);',
     );
 
     //Build the drop down for the report rendering output formats
@@ -81,7 +81,7 @@ class Report_Controller extends Crud_Controller {
     $save_config_attribs = array(
       'type' => 'button',
       'title' => 'Save the current report configuration',
-      'onclick' => 'squerly.report_configuration.save();',
+      'onclick' => 'squerly.saved_report.save();',
     );
 
     //Cycle through all the form inputs and build the HTML markup for them
@@ -107,6 +107,7 @@ class Report_Controller extends Crud_Controller {
       Form::checkbox('sqrl[preview]', '10') . '&nbsp;' .
       Form::button('sqrl[save_config]', 'Save Config', $save_config_attribs) .
       Form::hidden('sqrl[report_id]', $report_id) .
+      Form::hidden('sqrl[api_version]', '1.0') . //TODO: turn this into a class constant
       Form::submit('sqrl[run]', 'Run', array('value' => 'run', 'title' => 'Run the report and render the results'));
     $form_html  .= '</div>' . Form::close();
     return $form_html;
@@ -151,7 +152,6 @@ class Report_Controller extends Crud_Controller {
   *   
   */
   public static function load() {
-    F3::set('scripts', "<script>$(function() { $('#form_div').show(); });</script>"); //TODO: do this a better way
     self::render(null, false);
   }
 
@@ -190,6 +190,9 @@ class Report_Controller extends Crud_Controller {
   public static function render($id = null, $render_results = true) {
     session_write_close(); //Open sessions will block concurrent requests
     $report = self::_loadReport($id);
+    if(!$render_results || empty($_GET)) {
+      F3::set('scripts', "<script>$(function() { $('#form_div').show(); });</script>"); //TODO: do this a better way
+    }
     //TODO: run form validation and spit out messages on failure
     //Load the data from the data source and render the results
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
@@ -281,7 +284,7 @@ F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/form/@id', 'Report_Control
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/render/@id', 'Report_Controller::render', 120);
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/results/@id', 'Report_Controller::results', 120);
 F3::route('POST ' . F3::get('URL_BASE_PATH') . 'report/render/@id', 'Report_Controller::render', 120);
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/load/@id', 'Report_Controller::load', 120);
+F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/load/@id', 'Report_Controller::load', 10);
 F3::route('POST ' . F3::get('URL_BASE_PATH') . 'report/results/@id', 'Report_Controller::results', 120);
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/run/@id', 'Report_Controller::run', 120);
 F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/validate/@id', 'Report_Controller::validate');
