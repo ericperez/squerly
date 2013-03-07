@@ -58,11 +58,12 @@
       var isPHP = state.curMode == phpMode;
       if (stream.sol() && state.pending != '"') state.pending = null;
       if (!isPHP) {
-        if (stream.match(/^<\?\w*/)) {
+        //Hack: Disabled check for opening '<?' to switch to 'PHP' mode
+        //if (stream.match(/^<\?\w*/)) {
           state.curMode = phpMode;
           state.curState = state.php;
           return "meta";
-        }
+        //}
         if (state.pending == '"') {
           while (!stream.eol() && stream.next() != '"') {}
           var style = "string";
@@ -121,7 +122,7 @@
 
       innerMode: function(state) { return {state: state.curState, mode: state.curMode}; }
     };
-  }, "htmlmixed");
+  }, "htmlmixed", "clike");
 
   CodeMirror.defineMIME("application/x-httpd-php", "php");
   CodeMirror.defineMIME("application/x-httpd-php-open", {name: "php", startOpen: true});
