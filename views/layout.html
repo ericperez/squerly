@@ -13,6 +13,7 @@
 
     <link rel="stylesheet" type="text/css" href="/assets/js/CodeMirror/lib/codemirror.css">
     <link rel="stylesheet" type="text/css" href="/assets/js/CodeMirror/theme/lesser-dark.css">
+    <link rel="stylesheet" type="text/css" href="/assets/js/tipsy/tipsy.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/squerly.css">
 
     <?php //Temporary Styles ?>
@@ -40,6 +41,7 @@
     <script type="text/javascript" src="/assets/js/TableTools/media/js/TableTools.js"></script>
     <script type="text/javascript" src="/assets/js/TableTools/media/js/ZeroClipboard.js"></script>
     <script type="text/javascript" src="/assets/js/jQuery.unserializeForm.js"></script>
+    <script type="text/javascript" src="/assets/js/tipsy/jquery.tipsy.js"></script>
     <script type="text/javascript" src="/assets/js/squerly.js"></script>
 
     <script type="text/javascript" src="/assets/js/CodeMirror/lib/codemirror.js"></script>
@@ -62,6 +64,8 @@
                 mode: 'php', theme: 'lesser-dark', lineNumbers: true, tabSize: 2, indentWithTabs: false, lineWrapping: true, matchBrackets: true
              });
           }
+
+          $("label").tipsy({'gravity': 'sw', 'fade': true, 'delayIn': 750, 'html': true});
        });
     </script>
 

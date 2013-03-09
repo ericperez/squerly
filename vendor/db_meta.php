@@ -16,7 +16,6 @@ class Db_Meta {
 
   public static $numeric_column_types = array('int', 'tinyint', 'bigint', 'mediumint', 'smallint', 'number',
       'float', 'decimal', 'numeric', 'float', 'double', 'long', 'integer', 'real');
-
   public static $boolean_column_types = array('tinyint', 'bool', 'boolean');
 
 
@@ -26,6 +25,8 @@ class Db_Meta {
   * 
   * @param string $DBC Database connection variable name
   * @return class Instance of appropriate DB Adapter
+  * 
+  * @todo Use build-in fat-free framework methods to do this and remove this
   *
   */
   public static function getDBAdapterClass($DBC = 'DB') {
@@ -231,12 +232,18 @@ class Db_Meta {
   */
   public static function colToTable($col, $DBC = 'DB') {
     $tables = self::getTables($DBC);
+    //Sort by length of table name descending
+    usort($tables, function($first, $second) {
+      return strlen($second) - strlen($first);
+    });
     $fk_suffixes = array('/_id$/', '/_fk$/'); //TODO: expand this
     $col_no_suffix = preg_replace($fk_suffixes, '', $col); //Drop suffixes
     //Deal with any prefixes on table names (such as 'primary_', etc.)
     foreach($tables as $table_name) {
       $regex = "/{$table_name}$/";
-      if(preg_match($regex, $col_no_suffix, $col_table_match)) { return $col_table_match[0]; }
+      if(preg_match($regex, $col_no_suffix, $col_table_match)) { 
+        return $col_table_match[0];
+      }
     }
     return false;
   }

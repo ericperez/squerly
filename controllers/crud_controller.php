@@ -132,9 +132,9 @@ class Crud_Controller implements Crud_Controller_Interface {
       $now = date('Y-m-d h:i:s');
       $values = array('created_at' => $now, 'updated_at' => $now);
 
-      $form = (isset(self::$_forms['add']) && Crud_Helper::getForm(self::$_forms['add']))
+      $form_markup_arr = (isset(self::$_forms['add']) && Crud_Helper::getForm(self::$_forms['add']))
         ?: CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
-      F3::set('form', $form, false, false);
+      F3::set('form', join(PHP_EOL, $form_markup_arr), false, false);
     }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
     echo Template::serve('layout.html');
@@ -169,8 +169,8 @@ class Crud_Controller implements Crud_Controller_Interface {
       //Set the 'updated_at' field to current date
       $now = date('Y-m-d h:i:s');
       $values = array('updated_at' => $now) + F3::get('record');
-      $form = CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
-      F3::set('form', $form, false, false);
+      $form_markup_arr = CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
+      F3::set('form', join(PHP_EOL, $form_markup_arr), false, false);
     }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
     echo Template::serve('layout.html');
@@ -201,8 +201,8 @@ class Crud_Controller implements Crud_Controller_Interface {
       //Set the 'updated_at' field to current date
       $now = date('Y-m-d h:m:s');
       $values = array('updated_at' => $now) + F3::get('record');
-      $form = CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
-      F3::set('form', $form, false, false);
+      $form_markup_arr = CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
+      F3::set('form', join(PHP_EOL, $form_markup_arr), false, false);
     }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
     echo Template::serve('layout.html');
@@ -389,8 +389,8 @@ class Crud_Controller implements Crud_Controller_Interface {
         'action' => F3::get('URL_BASE_PATH') . $model . "/searchresults",
         'method' => 'get',
       );
-      $form = CRUD_Helper::buildFormFromModel($model, array(), array(), $form_config);
-      F3::set('form', $form, false, false);
+      $form_markup_arr = CRUD_Helper::buildFormFromModel($model, array(), array(), $form_config);
+      F3::set('form', join(PHP_EOL, $form_markup_arr), false, false);
     }
     if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
     echo Template::serve('layout.html');
@@ -415,8 +415,8 @@ class Crud_Controller implements Crud_Controller_Interface {
         'header' => 'Perform Another Search',
         'collapsed' => true
       );
-      $form = CRUD_Helper::buildFormFromModel($model, array(), array(), $form_config);
-      F3::set('form', $form, false, false);
+      $form_markup_arr = CRUD_Helper::buildFormFromModel($model, array(), array(), $form_config);
+      F3::set('form', join(PHP_EOL, $form_markup_arr), false, false);
     }
     $limit = F3::get('RECORDS_PER_PAGE');
     $page = (int) F3::get('GET.page') ?: 1;

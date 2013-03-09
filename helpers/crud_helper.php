@@ -81,14 +81,16 @@ class CRUD_Helper {
   * @return string HTML form that mirrors the data structure of DB table
   * 
   * @todo refactor this to use the depage-form model
+  * @todo separate table markup from form markup
   * 
   */
   public static function buildFormFromModel($model, array $field_configs = array(), array $values = array(), array $form_config = array(), $DBC = 'DB') {
     $form_header = isset($form_config['header']) ? '<h3>' . $form_config['header'] . '</h3><br/>' : '';
     $form_method = isset($form_config['method']) ? $form_config['method'] : 'post';
     $form_action = isset($form_config['action']) ? $form_config['action'] : '#'; //Post to current URI as default
-    $output = Form::open($form_action, array('method' => $form_method));
-    $output .= $form_header . "<table class='datatable'><thead></thead><tbody>"; //TODO: add fields to thead!!!!
+    $output = array();
+    $output['form_header_markup'] = Form::open($form_action, array('method' => $form_method));
+    $output['form_header_markup'] .= $form_header . "<table class='datatable'><thead></thead><tbody>"; //TODO: add fields to thead!!!!
     $table_desc = Db_Meta::describeTable($model, $DBC);
     
     //Array of fields to not render in the form
@@ -97,6 +99,7 @@ class CRUD_Helper {
       //'edit_stamp', 'update_stamp', 'last_update', 'last_edit', 'last_edited_at', 'last_updated_at');
 
     $foreign_keys = Db_Meta::getForeignKeys($model);
+    $tooltips = self::getTooltipHTML($model);
 
     foreach($table_desc as $field) {
       $column_name = $field['COLUMN_NAME'];
@@ -107,8 +110,8 @@ class CRUD_Helper {
         'id' => $model . '_' . $column_name . '_input',
         'type' => self::sqlFieldTypeMap($field['DATA_TYPE']),
         'maxlength' => $field['LENGTH'],
+        'title' => isset($tooltips[$column_name]) ? $tooltips[$column_name] : '',
         //'size' => $field['LENGTH'],
-        //'label' => String::humanize($field['COLUMN_NAME']),
       );
 
       //Set HTML5 'required' attribute (on POST forms)
@@ -125,16 +128,18 @@ class CRUD_Helper {
         'recordid', 
         $field['TABLE_NAME'] . '_id', 
         $field['TABLE_NAME'] . 'id',
-        'created_at', //TODO: update date fields on back end instead of form
+        'created_by',
+        'created_at', //TODO: update these fields on back end instead of form
+        'updated_by',
         'updated_at',
       ); 
       if(in_array($field['COLUMN_NAME'], $hidden_fields)) { 
         $field_attribs['type'] = 'hidden'; 
-        $output .= "<tr style='display: none;'><td>&nbsp;</td>\n";
+        $output[$column_name] = "<tr style='display: none;'><td>&nbsp;</td>\n";
       } else {
         //Build the Field Label
-        $label = String::humanize($field['COLUMN_NAME']);
-        $output .= '<tr><td style="white-space:nowrap; width:1%">' . Form::label($field_attribs['id'], $label) . "</td>\n";
+        $label_text = String::humanize($field['COLUMN_NAME']);
+        $output[$column_name] = '<tr><td style="white-space:nowrap; width:1%">' . Form::label($field_attribs['id'], $label_text, array('title' => $field_attribs['title'])) . "</td>\n";
       }
 
       //Determine if a field is a foreign key; if so, get key/value pairs to the foreign table
@@ -149,39 +154,39 @@ class CRUD_Helper {
           $value = $field_attribs['value'];
           unset($field_attribs['value'], $field_attribs['type']);
           $options = array('' => '(No Selection)') + CRUD::pairs(Db_Meta::colToTable($field['COLUMN_NAME']), true);
-          $output .= '<td>' . Form::select($field_attribs['name'], $options, $value, $field_attribs) . "</td></tr>\n";
+          $output[$column_name] .= '<td>' . Form::select($field_attribs['name'], $options, $value, $field_attribs) . "</td></tr>\n";
           break;
 
         case 'boolean':
           $value = $field_attribs['value'];
           unset($field_attribs['value'], $field_attribs['type']);
           $options = array('' => '(No Selection)', '1' => 'Yes', '0' => 'No');
-          $output .= '<td>' . Form::select($field_attribs['name'], $options, $value, $field_attribs) . "</td></tr>\n";
+          $output[$column_name] .= '<td>' . Form::select($field_attribs['name'], $options, $value, $field_attribs) . "</td></tr>\n";
           break;
 
         case 'select':
           $value = $field_attribs['value'];
           unset($field_attribs['value'], $field_attribs['type']);
           $options = array(); //TODO: get option values from $values
-          $output .= '<td>' . Form::select($field_attribs['name'], $options, $value, $field_attribs) . "</td></tr>\n";
+          $output[$column_name] .= '<td>' . Form::select($field_attribs['name'], $options, $value, $field_attribs) . "</td></tr>\n";
           break;
 
         case 'textarea':
           $value = $field_attribs['value'];
           $field_attribs['style'] = 'width: 800px; height: 300px;';
           unset($field_attribs['value'], $field_attribs['type']);
-          $output .= '<td>' . Form::textarea($field_attribs['name'], $value, $field_attribs) . "</td></tr>\n";
+          $output[$column_name] .= '<td>' . Form::textarea($field_attribs['name'], $value, $field_attribs) . "</td></tr>\n";
           break;
 
         default: //Handles number, date, datetime, time, and text fields
           $value = $field_attribs['value'];
           if($field_attribs['type'] !== 'hidden') { $field_attribs['style'] = 'width: 400px;'; }
-          $output .= '<td>' . Form::input($field_attribs['name'], $value, $field_attribs) . "</td></tr>\n";
+          $output[$column_name] .= '<td>' . Form::input($field_attribs['name'], $value, $field_attribs) . "</td></tr>\n";
           break;
       }
     }
-    $output .= '<tr><td>&nbsp;</td><td><br/>' . Form::submit('', 'Submit') . "</td></tr>\n";
-    $output .= '</tbody></table>'. Form::close() . "<br><br>\n";
+    $output['form_footer_markup'] = '<tr><td>&nbsp;</td><td><br/>' . Form::submit('', 'Submit') . "</td></tr>\n";
+    $output['form_footer_markup'] .= '</tbody></table>'. Form::close() . "<br><br>\n";
     return $output;
   }
 
@@ -244,7 +249,7 @@ class CRUD_Helper {
     $table = in_array($table, F3::get('CRUD_TABLE_WHITELIST')) ? $table : null;
     if(!$table) {
       ob_clean(); 
-      F3::error('', 'Could not determine model name.'); exit;
+      F3::error('', 'Could not determine model name or table is not in the whitelist');
     } elseif(!in_array($table, Db_Meta::getTables())) {
       F3::error('', "Configuration Error: Table '{$table}' does not exist!");
     }  else {
@@ -263,6 +268,21 @@ class CRUD_Helper {
   public static function getModelPath() {
     list($model, $model_friendly) = self::getModelName();
     return F3::get('URL_BASE_PATH') . $model;
+  }
+
+
+ /**
+  * 
+  * Fetches form field tooltips for all fields by table name and returns them as an array
+  * 
+  * @param string $table_name CRUD Database table name
+  * @return array Associative array in the format $field_name => $tooltip_html
+  * 
+  */
+  public static function getTooltipHTML($table_name) {
+    $tooltip_file = __DIR__ . "/tooltips/{$table_name}.json";
+    if(!file_exists($tooltip_file)) { return array(); }
+    return json_decode(file_get_contents($tooltip_file), true);
   }
 
 
