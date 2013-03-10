@@ -15,6 +15,7 @@
 
 
 class Saved_Report_Controller extends Crud_Controller {
+  public static $_model = 'saved_report';
 
  /**
   *
@@ -27,13 +28,51 @@ class Saved_Report_Controller extends Crud_Controller {
   public static function getValues($id = null) {
     $id = $id ?: (int) F3::get('PARAMS.id') ?: null;
     if($id === null) { return; }
-    $report_config = new Saved_Report('saved_report');
-    $report_config_model = $report_config->load("id={$id}");
-    if($report_config_model === false) { return; }
-    echo $report_config_model->input_values ?: '';
+    $saved_report_model = new Saved_Report('saved_report');
+    $saved_report = $saved_report_model->load("id={$id}");
+    if($saved_report === false) { return; }
+    echo $saved_report->input_values ?: '';
     return;
   }
 
-}
 
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'saved_report/getvalues/@id', 'Saved_Report_Controller::getValues', 10);
+ /**
+  *
+  * 'List Records/Index' action
+  *   
+  */
+  public static function index() {
+    F3::set('PARAMS.model', self::$_model); //TODO: put this in a better place
+    //These are the fields that show up on the index page
+    $index_fields = 'id, name, enabled, report_id, created_at, updated_at';
+    self::_getIndexRecords($index_fields);
+    parent::index();
+  }
+
+
+ /**
+  *
+  * Load action will load a report with inputs populated by a saved report configuration and render the results
+  * 
+  * @param int $id Saved Report Configuration ID to load
+  * @return string Serailized representation of a report input form
+  *
+  */
+  public static function load($id = null) {
+    session_write_close();
+    $id = $id ?: (int) F3::get('PARAMS.id') ?: null;
+    if($id === null) { return; } //TODO: something else besides just return
+    $saved_report_model = new Saved_Report('saved_report');
+    $saved_report = $saved_report_model->load("id={$id}");
+    if($saved_report === false) { return; }
+    $config = $saved_report->getConfig();
+    $report = Report::load_model($saved_report->report_id);
+    $report_results = Export::render($saved_report->getResults(), '', $config['context']);
+    F3::set('report_results', $report_results);
+    F3::set('page_title', $report->name);
+    $form_values = $saved_report->getInputValues();
+    F3::set('form', report_controller::renderParamsForm($report, 'render', $form_values));
+    echo Export::loadLayout($config['context']);
+  }
+
+}

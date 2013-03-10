@@ -44,8 +44,8 @@ class Export {
   * @return string|boolean HTML markup if layout exists; boolean false if it doesn't
   *
   */
-  public static function loadLayout() {
-    $output_format = self::getOutputFormat();
+  public static function loadLayout($output_format = '') {
+    $output_format = self::getOutputFormat($output_format);
     $layout_path = 'export/' . $output_format . '.phtml';
     $full_path = __DIR__ . '/../views/' . $layout_path;
     if(file_exists($full_path)) {

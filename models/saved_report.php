@@ -1,7 +1,7 @@
 <?php
 /**
   *
-  * Squerly - Saved Report Configurations Model
+  * Squerly - Saved Report Form Configurations Model
   * 
   *
   * @author Eric Perez <ericperez@squerly.net>
@@ -15,47 +15,43 @@ class Saved_Report extends CRUD {
 
  /**
   *
-  * This method returns all (enabled) saved report configuration email schedules (in Crontab format)
-  *
-  * @return array Array of report configuration IDs and Cron schedules
+  * Returns an associative array of configuration values for this saved report
+  * 
+  * @return array Saved Report Configuration configuration values
   *
   */
-  public static function getEmailCronSchedules() {
-    //TODO: update this query when data structure is finalized
-    return;
-    $sql = "
-      SELECT sr.id AS saved_report_id, email_schedule
-      FROM saved_report sr
-      INNER JOIN email_schedule es ON(sr.email_schedule_id = es.id)
-      WHERE sr.email_schedule_id > 0 AND sr.enabled = 1
-    ";
-    return DB::sql($sql, null, 59);
+  public function getConfig() {
+    $saved_report_values = $this->getInputValues();
+    $config_keys = array('max_return_rows' => 0, 'transform' => null, 'context' => null); //TODO: pull these from a unified place
+    return $saved_report_values['sqrl'] + $config_keys;
+  }
+
+ /**
+  *
+  * Returns an associative array of saved form values for a given report
+  * 
+  * @return array Saved Report Configuration form values
+  *
+  */
+  public function getInputValues() {
+    $output = array();
+    parse_str($this->input_values, $output);
+    return $output;
   }
 
 
  /**
   *
   * Runs the report against the data source using the saved report configuration input_values as inputs
-  * 
-  * @param TODO!
   *
   * @return array Saved Report Configuration Results
   *
   */
-  public function getResults($max_return_rows = 0, array $input_values = array(), $transformation = null, $output_context = null) {
-    $config_properties = array();
-    parse_str($this->input_values, $config_properties);
-    //TODO: clean this up 
-    $max_return_rows = $max_return_rows ?: isset($config_properties['sqrl']['max_return_rows']) ? 
-      $config_properties['sqrl']['max_return_rows'] : $max_return_rows; //TODO
-    $transformation = $transformation ?: isset($config_properties['sqrl']['transform']) ? 
-      $config_properties['sqrl']['transform'] : $transformation;
-    $output_context = $output_context ?: isset($config_properties['sqrl']['context']) ? 
-      $config_properties['sqrl']['context'] : $output_context;
+  public function getResults() {
+    $config = $this->getConfig();
+    $saved_report_values = $this->getInputValues();
     $report = Report::load_model($this->report_id);
-    $input_values = array();
-    parse_str($this->input_values, $input_values);
-    return $report->getResults($max_return_rows, $input_values, $transformation);
+    return $report->getResults($config['max_return_rows'], $saved_report_values, $config['transform']);
   }
 
 
@@ -64,6 +60,7 @@ class Saved_Report extends CRUD {
   * Enumerates all the saved report configurations and determines which ones need to be run now
   *
   * @return array Saved Report Configuration IDs
+  * @todo refactor this using new 'schedule / events' tables !!!!
   *
   */
   public static function getConfigsScheduledToRun() {
@@ -76,6 +73,27 @@ class Saved_Report extends CRUD {
       }
     }
     return $output;
+  }
+
+
+ /**
+  *
+  * This method returns all (enabled) saved report configuration email schedules (in Crontab format)
+  *
+  * @return array Array of report configuration IDs and Cron schedules
+  * @todo refactor this using new 'schedule / events' tables !!!!
+  *
+  */
+  public static function getEmailCronSchedules() {
+    //TODO: update this query when data structure is finalized
+    return;
+    $sql = "
+      SELECT sr.id AS saved_report_id, email_schedule
+      FROM saved_report sr
+      INNER JOIN email_schedule es ON(sr.email_schedule_id = es.id)
+      WHERE sr.email_schedule_id > 0 AND sr.enabled = 1
+    ";
+    return DB::sql($sql, null, 59);
   }
 
 }

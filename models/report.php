@@ -70,12 +70,6 @@ class Report extends Report_Base {
   * 
   * @todo Create method to enumerate available output formats and build sqrl[context] drop-down
   */
-  public static function getIndexActions($record) {
-    $id = $record['id'];
-    return array(
-      //TODO: add this to CRUD and remove from here
-      'Load' => "<a href='/report/load/{$id}'>Load</a>",
-    );
-  }
+  public static function getIndexActions($record) {}
 
 }

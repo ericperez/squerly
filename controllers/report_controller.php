@@ -47,7 +47,7 @@ class Report_Controller extends Crud_Controller {
   * @todo Add date widgets to date fields, etc
   * 
   */
-  protected static function _renderParamsForm($report, $action = 'render', array $form_vals = array()) {
+  public static function renderParamsForm($report, $action = 'render', array $form_vals = array()) {
     //TODO: loop through all properties for template/form vars instead of just query and input_data_uri?
     //TODO: Use form library to generate/validate form elements
 
@@ -128,7 +128,7 @@ class Report_Controller extends Crud_Controller {
     //TODO: Load a saved configuration
     //TODO: Validate form
     $report = self::_loadReport($id);
-    echo self::_renderParamsForm($report);
+    echo self::renderParamsForm($report);
   }
 
 
@@ -140,7 +140,7 @@ class Report_Controller extends Crud_Controller {
   public static function index() {
     F3::set('PARAMS.model', self::$_model); //TODO: put this in a better place
     //These are the fields that show up on the index page
-    $index_fields = 'id, type, name, enabled, hidden_from_ui, created_at, updated_at';
+    $index_fields = 'id, type, db_adapter, name, enabled, hidden_from_ui, created_at, updated_at';
     self::_getIndexRecords($index_fields);
     parent::index();
   }
@@ -185,25 +185,26 @@ class Report_Controller extends Crud_Controller {
   * 
   * @param int $id Report ID to load
   * @param boolean $render_results Determines whether the report is run against the data source and the results rendered
+  * @param $input_values array Array of input key-value pairs to plug into the report query
   *
   */
-  public static function render($id = null, $render_results = true) {
+  public static function render($id = null, $render_results = true, $input_values = array()) {
     session_write_close(); //Open sessions will block concurrent requests
     $report = self::_loadReport($id);
     if(!$render_results || empty($_GET)) {
       F3::set('scripts', "<script>$(function() { $('#form_div').show(); });</script>"); //TODO: do this a better way
     }
-    //TODO: run form validation and spit out messages on failure
+    //TODO: run form validation and spit out messages on failure; clean this up
     //Load the data from the data source and render the results
     $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
     $max_return_rows = (isset($_REQUEST['sqrl']['preview'])) ? $_REQUEST['sqrl']['preview'] : 0;
     $form_method = isset($report->form_method) && in_array(strtolower(trim($report->form_method)), array('get', 'post')) ? $report->form_method : 'post';
     $request_method = ($form_method === 'get') ? $_GET : $_POST;
     $report_results = ($render_results && isset($request_method['sqrl']['run']) && strtolower($request_method['sqrl']['run']) === 'run') ? 
-      Export::render($report->getResults($max_return_rows)) : '';
+      Export::render($report->getResults($max_return_rows, $input_values)) : '';
     F3::set('report_results', $report_results);
     F3::set('page_title', $report->name);
-    F3::set('form', self::_renderParamsForm($report));
+    F3::set('form', self::renderParamsForm($report));
     F3::set('navigation', CRUD_Helper::navigation('load'));
     $layout = Export::loadLayout();
     //If no layout found, default to 'bare' data
@@ -235,26 +236,6 @@ class Report_Controller extends Crud_Controller {
 
  /**
   *
-  * Run report action
-  *
-  * @param int $id Report ID to load
-  * 
-  * @todo Finish this
-  *
-  */
-  public static function run($id = null) {
-    $report = self::_loadReport($id);
-    //Get the template tags out of the report query and input URI
-    //TODO: make this an array with report field names as keys??
-
-    //Parse out the mustache tags
-    //Build a form from tags
-    //Send form to view
-  }
-
-
- /**
-  *
   * Report validation (AJAX) action
   *
   * @param int $id Report ID to load
@@ -273,18 +254,3 @@ class Report_Controller extends Crud_Controller {
   }
 
 }
-
-
-//Report Routes
-//TODO: put these into a method
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report', 'Report_Controller::index', 10);
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/optionlist', 'Report_Controller::optionlist', 30);
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/email/@id', 'Report_Controller::email');
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/form/@id', 'Report_Controller::form', 10);
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/render/@id', 'Report_Controller::render', 120);
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/results/@id', 'Report_Controller::results', 120);
-F3::route('POST ' . F3::get('URL_BASE_PATH') . 'report/render/@id', 'Report_Controller::render', 120);
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/load/@id', 'Report_Controller::load', 10);
-F3::route('POST ' . F3::get('URL_BASE_PATH') . 'report/results/@id', 'Report_Controller::results', 120);
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/run/@id', 'Report_Controller::run', 120);
-F3::route('GET ' . F3::get('URL_BASE_PATH') . 'report/validate/@id', 'Report_Controller::validate');

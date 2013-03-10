@@ -19,6 +19,8 @@ require __DIR__ . '/config/squerly.config.php'; //Squerly configuration settings
 require __DIR__ . '/vendor/autoload.php'; //Composer package management/autoloading
 
 //Fat-Free Framework vars
+F3::set('TEMP', 'tmp/');
+F3::set('IMPORTS', 'views/');
 F3::set('UI', 'views/'); //Path to UI/Views
 F3::set('AUTOLOAD', '
   lib/,
@@ -33,15 +35,6 @@ F3::set('AUTOLOAD', '
   vendor/phpseclib/,
   vendor/PHPLinq/
 ');
-F3::set('IMPORTS', 'views/');
-F3::set('TEMP', 'tmp/');
-
-//TODO: autoload these or 'require' in a loop
-@include_once __DIR__ . '/controllers/auth_controller.php';
-@include_once __DIR__ . '/controllers/report_controller.php';
-@include_once __DIR__ . '/controllers/saved_report_controller.php';
-//require __DIR__ . '/vendor/depage-forms/htmlform.php'; //depage forms library
-
 
 //Workaround for undefined 'gettext'/_() method (disables any non-default translations)
 //@see http://www.php.net/manual/en/gettext.installation.php
@@ -71,6 +64,7 @@ F3::set('CRUD_TABLE_WHITELIST', array(
 ));
 
 Report_DB_Connection::loadAll(); //Load all the reporting database connections
+Route::loadAll();
 
 //Determine if a simple bootstrap is required or a full application load
 if(!isset($bootstrap_only) || (isset($bootstrap_only) && !$bootstrap_only)) { 

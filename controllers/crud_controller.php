@@ -42,6 +42,8 @@ class Crud_Controller implements Crud_Controller_Interface {
  /**
   *
   * Sets the 'content' registry value to the fields (in $fields) of the current CRUD model
+  * 
+  * @param string $fields Comma-delimited list of fields that will show up on the Index actions 
   *   
   */
   protected static function _getIndexRecords($fields) {
@@ -103,7 +105,7 @@ class Crud_Controller implements Crud_Controller_Interface {
       self::_getIndexRecords('*');
       //TODO: Set vars for pagination controls
     }
-    if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
+    if(!F3::exists('flash_msgs') || F3::get('flash_msgs') == '') { F3::set('flash_msgs', Notify::renderAll()); }
     echo Template::serve('layout.html');
   }
 
@@ -255,8 +257,8 @@ class Crud_Controller implements Crud_Controller_Interface {
 
     $record_id = $record->_id;
     $action = ($id > 0 && $record->id > 0) ? 
-      "<a href='/report/load/{$record->id}'>{$record->id}</a> updated" : 
-      "<a href='/report/load/{$record_id}'>{$record_id}</a> added";
+      "<a href='/{$model}/load/{$record->id}'>{$record->id}</a> updated" : 
+      "<a href='/{$model}/load/{$record_id}'>{$record_id}</a> added";
     Notify::info("{$model_friendly} {$action} successfully.");
     F3::reroute(F3::get('URL_BASE_PATH') . $model);
   }

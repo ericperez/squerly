@@ -39,11 +39,11 @@ class CRUD_Helper {
       }
       $actions = array(
         //TODO: add BASE_URL_PATH to the URLS!!
-        array("Delete" => "<a href='/{$model}/delete/{$id}'>Delete</a>"),
-        array("Edit" => "<a href='/{$model}/edit/{$id}'>Edit</a>"),
-        array("Copy" => "<a href='/{$model}/copy/{$id}'>Copy</a>"),
+        array("Load"    => "<a href='/{$model}/load/{$id}'>Load</a>"),
+        array("Edit"    => "<a href='/{$model}/edit/{$id}'>Edit</a>"),
+        array("Copy"    => "<a href='/{$model}/copy/{$id}'>Copy</a>"),
+        array("Delete"  => "<a href='/{$model}/delete/{$id}'>Delete</a>"),
         array("Details" => "<a href='/{$model}/view/{$id}'>View</a>"),
-
       );
       if(!empty($additional_actions)) { array_unshift($actions, $additional_actions); }
       foreach($actions as $action) {
