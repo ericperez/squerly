@@ -163,10 +163,10 @@ class Db_Meta {
   */
   public static function getNameColumn($table, $DBC = 'DB') {
     $table_cols = self::columns($table, false, $DBC);
-    $possible_name_fields = array('name', 'title', 'record_name'); //TODO: expand this
+    $possible_name_fields = array('name', 'title', 'record_name', 'email_address', 'id'); //TODO: expand this
     $possible_name_fields[] = $table . '_name';
     $possible_name_fields[] = $table . '_title';
-    $intersection = array_values(array_intersect($table_cols, $possible_name_fields));
+    $intersection = array_values(array_intersect($possible_name_fields, $table_cols));
     $name_fields = !empty($intersection) ? $intersection : array('');
     return $name_fields[0];
   }

@@ -42,7 +42,7 @@ abstract class Report_Abstract extends CRUD implements Report_Interface {
 
   /**
    *
-   * Preprocess query through PHP
+   * Pre-process query through PHP
    *    
    * @param $max_return_rows integer Maximum number of rows of data to be returned
    * @param $input_values array Array of input key-value pairs to plug into the report query

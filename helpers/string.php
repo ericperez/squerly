@@ -46,9 +46,9 @@ class String {
       '/Cpm/'        => 'CPM',
       '/Cpa/'        => 'CPA',
       '/Cpc/'        => 'CPC',
-      '/Cron/'       => 'CRON',
       '/Javascript/' => 'JavaScript',
     );
+    //TODO: detect acronyms by looking for 'words' with no vowels
     $output = $input;
     $output = ucwords(strtolower(str_replace('_', ' ', $output)));
     $output = preg_replace(array_keys($replacements), array_values($replacements), $output);
@@ -87,7 +87,7 @@ class String {
   *
   * Turns a model/table name into a class name
   *
-  * @param string $input Input string to format
+  * @param string $model 'Model' string to format
   * @return string Input string with comments stripped off
   * 
   */

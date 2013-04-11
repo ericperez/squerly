@@ -41,6 +41,7 @@ class Report_Controller extends Crud_Controller {
   *
   * @param object $report - Report object to render an input parameter form for
   * @param string $action - Report controller action the form action should point to
+  * @param array $form_vals - Key-Value Pairs for the report form values
   * @return string HTML markup
   *
   * @todo Make all form attributes configurable

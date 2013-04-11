@@ -44,6 +44,7 @@ class Report extends Report_Base {
   * This method uses the 'sub-class' property of the report to determine 
   *   which class to use and returns an instance of it
   *
+  * @param integer $id Report ID to load
   * @return object Instance of report sub-class
   *
   */

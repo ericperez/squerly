@@ -53,9 +53,14 @@ class Report_Xml extends Report_Base {
   /**
    *
    * Runs the report query against the XML data source and returns the results
-   * 
-   * @param $max_return_rows integer Maximum number of rows of data to be returned (0 is unlimited)
-   * @param $input_values array Array of input key-value pairs to plug into the report query
+   *
+   * @param integer $max_return_rows Maximum number of rows of data to be returned (0 is unlimited)
+   * @param array $input_values Array of input key-value pairs to plug into the report query
+   * @param string $transformation Data transformation to apply to report results
+   *
+   * @throws Exception if call to $this->getData fails
+   *
+   * @return Report results
    *
    */
   public function getResults($max_return_rows = 0, array $input_values = array(), $transformation = null) {

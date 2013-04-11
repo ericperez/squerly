@@ -43,8 +43,9 @@ class CRUD extends Axon {
   * This static method tried to determine the record's model + primary ID from $_GET and returns
   * a CRUD/Axon model object (in an array)
   *
-  * @param string $model - Name of whitelisted DB table
-  * @see Squerly.config.php - CRUD_TABLE_WHITELIST config item to see what tables are currently whitelisted
+  * @param string $model Name of whitelisted DB table
+  * @param integer $id Primary Key/ID of model instance to load
+  * @see Squerly.config.php CRUD_TABLE_WHITELIST config item to see what tables are currently whitelisted
   * @see Crud_Controller
   * @return array Array with one element containing a CRUD Model instance
   *
@@ -79,10 +80,12 @@ class CRUD extends Axon {
   * a collection of CRUD/Axon model object (in an array)
   *
   * @param string $fields Comma-delimited list of record fields to return
-  * @param int $limit Maximum number of records to be returned in one call
-  * @param int $page Pagination control (which 'page' of items is returns)
+  * @param integer $limit Maximum number of records to be returned in one call
+  * @param integer $page Pagination control (which 'page' of items is returns)
   * @param boolean $use_default_model if true, loads records from the 'default model' (@see squerly.config.php)
   * @param string $where SQL 'WHERE' clause (defaults to building a WHERE clause from $_GET if not explicitly set)
+  * @param string $order_by SQL 'ORDER BY' clause to append to query
+  *
   * @see Squerly.config.php - RECORDS_PER_PAGE to see/configure the default records per page (pagination) value
   * @see Crud_Controller
   * @return array Array with multiple elements each containing a CRUD Model instance
@@ -117,6 +120,8 @@ class CRUD extends Axon {
   * @param boolean $id_in_name If true, the ID of the model will be prepended on the name
   * @param string $where SQL query WHERE clause items to limit model instances that are matched
   * @param string $order_by SQL ORDER BY clause value that determined the order the records are returned in
+  * @param boolean $only_enabled If true, then modified the SELECT query to only return
+  *
   * @see SQL::DBOptionlist()
   * @return array Array containing key/value pairs for the specified table
   * 

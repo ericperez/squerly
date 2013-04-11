@@ -65,6 +65,8 @@ class Transform  {
   * @param string $transformation_type Determines which transformation helper gets called (defaults to no transformation)
   * @param array $config Array of configuration settings
   *
+  * @return Outputs the result of the transformation plugin
+  *
   */
   public static function run($data, $transformation_type = '', array $config = array()) {
     if(!$data) { $data = array(array()); }
