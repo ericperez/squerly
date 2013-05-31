@@ -22,6 +22,7 @@ class String {
   * @return string 'Human-friendly' string
   *
   * @todo Make this more robust
+  * @todo Clean up replacements list with regexes
   * 
   */
   public static function humanize($input) {
@@ -30,6 +31,7 @@ class String {
       '/Id/'         => 'ID',
       '/^Ip$/'       => 'IP',
       '/^Ip /'       => 'IP ',
+      '/Os/'         => 'OS',
       '/^Row/'       => '',
       '/Html/'       => 'HTML',
       '/Css/'        => 'CSS',
@@ -46,12 +48,18 @@ class String {
       '/Cpm/'        => 'CPM',
       '/Cpa/'        => 'CPA',
       '/Cpc/'        => 'CPC',
+      '/Php/'        => 'PHP',
+      '/Pst/'        => 'PST',
+      '/Mst/'        => 'MST',
+      '/Cst/'        => 'CST',
+      '/Est/'        => 'EST',
+      '/Dst/'        => 'DST',
+      '/Utc/'        => 'UTC',
       '/Javascript/' => 'JavaScript',
     );
-    //TODO: detect acronyms by looking for 'words' with no vowels
-    $output = $input;
-    $output = ucwords(strtolower(str_replace('_', ' ', $output)));
+    $output = ucwords(strtolower(str_replace('_', ' ', $input)));
     $output = preg_replace(array_keys($replacements), array_values($replacements), $output);
+    //TODO: detect acronyms by looking for 'words' with no vowels (and then capitalize them)
     return $output;
   }
 

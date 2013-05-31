@@ -21,7 +21,7 @@ class Mustache_Helper
    *
    * Returns an array of all template tags/substitution variables
    * 
-   * @param string $input 'tagged' input
+   * @param string $template 'tagged' input
    * @param string $prefix adds a prefix to each returned variable
    * @param string $suffix adds a suffix to each returned variable
    * @return array Contains all the inside contents of the template tags with or without a prefix
@@ -30,7 +30,7 @@ class Mustache_Helper
    *
    */
   public static function vars($template, $prefix = '', $suffix = '') {
-    preg_match_all('/{\[(\S+)\]}/', $template, $matches);
+    preg_match_all('/{\[([A-Za-z0-9_]+)\]}/', $template, $matches);
     if($prefix === '' && $suffix === '') { return $matches[1]; }
     $output = array();
     foreach($matches[1] as $var) {
@@ -64,6 +64,8 @@ class Mustache_Helper
    * 
    * @param object $object Object who's properties will be run through the templating engine
    * @param array $vars Array of tags => values to be substituted in $input
+   *
+   * @return object Object that was input as $object with properties run through template engine
    */
   public static function renderObject(&$object, array $vars) {
     //Special case for Axon classes (due to 'magic' nature of properties)
@@ -87,10 +89,10 @@ class Mustache_Helper
    *
    * Static method to render a SQL template and generate an array of bind parameters
    * 
-   * @param string $template 'Tagged' input template
+   * @param string $sql_template 'Tagged' input template
    * @param array $values Associative array with values to fill into $sql_template
-   * @param array $param_prefix Parameter replacement value prefix string (defaults to ':' which is what F3 is expecting)
-   * @param array $param_suffix Parameter replacement value suffix string
+   * @param string $param_prefix Parameter replacement value prefix string (defaults to ':' which is what F3 is expecting)
+   * @param string $param_suffix Parameter replacement value suffix string
    * @return array SQL query with tags replaced with bind parameter placeholders / array of bind parameters
    *
    */

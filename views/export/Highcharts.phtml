@@ -1,11 +1,14 @@
+<html>
+<head><title>{{@page_title}}</title></head>
+
 <div id='page_title_div'><h2>{{@page_title}}</h2></div>
 <div id='expand_form_div' onclick="$('#form_div').toggle();">[+/-] Show/Hide Options</div><br/>
 <div id='form_div' style='display: none;'>{{@form}}{{@navigation}}</div>
 <div id='report_results'></div>
 
 <!-- JS -->
-<script type="text/javascript" src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="/assets/js/highcharts/highcharts.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.1/jquery.min.js"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/highcharts/2.3.5/highcharts.min.js"></script>
 <script type="text/javascript" src="/assets/js/jQuery.unserializeForm.js"></script>
 <script type="text/javascript" src="/assets/js/squerly.js"></script>
 
@@ -17,3 +20,5 @@
     {{@report_results}}
   ); });
 </script>
+
+</html>

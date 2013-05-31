@@ -54,46 +54,4 @@ class Saved_Report extends CRUD {
     return $report->getResults($config['max_return_rows'], $saved_report_values, $config['transform']);
   }
 
-
- /**
-  *
-  * Enumerates all the saved report configurations and determines which ones need to be run now
-  *
-  * @return array Saved Report Configuration IDs
-  * @todo refactor this using new 'schedule / events' tables !!!!
-  *
-  */
-  public static function getConfigsScheduledToRun() {
-    $email_schedules = self::getEmailCronSchedules();
-    $cron_parser = new CronExpression();
-    $output = array();
-    foreach($config_schedules as $config_schedule) {
-      if($cron_parser->isDue($config_schedule['email_schedule'])) {
-        $output[] = $config_schedule['id'];
-      }
-    }
-    return $output;
-  }
-
-
- /**
-  *
-  * This method returns all (enabled) saved report configuration email schedules (in Crontab format)
-  *
-  * @return array Array of report configuration IDs and Cron schedules
-  * @todo refactor this using new 'schedule / events' tables !!!!
-  *
-  */
-  public static function getEmailCronSchedules() {
-    //TODO: update this query when data structure is finalized
-    return;
-    $sql = "
-      SELECT sr.id AS saved_report_id, email_schedule
-      FROM saved_report sr
-      INNER JOIN email_schedule es ON(sr.email_schedule_id = es.id)
-      WHERE sr.email_schedule_id > 0 AND sr.enabled = 1
-    ";
-    return DB::sql($sql, null, 59);
-  }
-
 }

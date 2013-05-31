@@ -40,7 +40,7 @@ class Export_Table implements Export_Interface {
     {
       $table .= '<tr>';
       foreach($row as $cell_content) {
-        $cell_content = trim($cell_content);
+        $cell_content = trim($cell_content); //TODO: htmlentities is necessary here in some cases
         if($cell_content === '') { $cell_content = '&nbsp;'; }
         $table .= "<td>{$cell_content}</td>";
       }

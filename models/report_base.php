@@ -22,13 +22,13 @@ class Report_Base extends Report_Abstract {
 
  /**
   *
-  * Syncronize the model with the DB
-  * 
-  * @todo Is this neccessary?
+  * Synchronize the model with the DB
+  *
+  * @todo Is this necessary?
   *
   */
-  public function __construct() {
-    $this->sync(F3::get('DB_TABLE_PREFIX') . self::$model);
+  public function __construct($db = null) {
+    $this->sync(self::$model);
   }
 
 

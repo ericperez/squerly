@@ -46,23 +46,39 @@ class Data_Source {
   * @param string $delimiter Character that delimits the CSV fields (defaults to a comma)
   * @return array 2D associative array holding a representation of the CSV data
   *
+  * @todo: Combine commonalities of this method with loadCSVString
   */
   public static function loadCSVFile($file_path, $max_rows = 0, $delimiter = ',') {
+    function process_row($row) {
+      //Deal with 'division by zero' string in Excel-generated CSV files
+      $row = str_replace('#DIV/0!', '0', $row);
+      return $row;
+    }
+
     ini_set("auto_detect_line_endings", "1");
     $output = array();
     if(($handle = fopen($file_path, "r")) !== FALSE) {
       $row = 1;
+
       while(($data = fgetcsv($handle, 0, $delimiter)) !== FALSE) {
         //Build the header/column names
         if($row === 1) {
-          $header = $data; 
+          //Make sure numeric header names are treated as strings
+          $header = array_map('strval', $data);
+          $header_len = sizeof($header);
           $row++;
           continue;
         }
-        $output[] = array_combine($header, array_map(function($input) { 
-            //Deal with 'division by zero' string in Excel-generated CSV files
-            return str_replace('#DIV/0!', '0', trim($input));
-          }, $data));
+
+        //Make sure that the header and the data are the same length
+        $data_len = sizeof($data);
+        if($data_len > $header_len) {
+          //Must generate unique field name for missing fields because this name will be used as an array key
+          $header = array_pad($header, sizeof($data), '[UNKNOWN_' . uniqid() . ']');
+        } else if($header_len > $data_len) {
+          $data = array_pad($data, sizeof($header), '');
+        }
+        $output[] = array_combine($header, $data);
         if($max_rows > 0 && $row++ > $max_rows) { break; }
       }
       fclose($handle);
@@ -82,9 +98,12 @@ class Data_Source {
   * @param int $max_rows Maximum number of rows of CSV data to load
   * @param string $delimiter Character that delimits the CSV fields (defaults to a comma)
   * @param array $header Array of field/header columns
-  * @param string $row_trim_charts String of characters to trim off of each row
+  * @param string $row_trim_chars String of characters to trim off of each row
   * @param int $ignore_lines Number of lines to skip
+  *
   * @return array 2D associative array holding a representation of the CSV data
+  *
+  * @todo: Combine commonalities of this method with loadCSVFile
   *
   */
   public static function loadCSVString($input, $max_rows = 0, $delimiter = ',', array $header = array(), $row_trim_chars = '', $ignore_lines = 0) {
@@ -99,14 +118,26 @@ class Data_Source {
 
       //Build the header/column names row
       if($row === 1 && empty($header)) {
+        //Make sure numeric headers are treated as strings
         $header = array_map('strval', $data);
         $row++;
         continue;
       }
 
+      $header_len = sizeof($header);
+
       //Build the data rows
-      if(!(sizeof($data) == 1 && empty($data[0]))) { 
-        $output[] = array_combine($header, array_map('trim', $data));
+      if(!(sizeof($data) == 1 && empty($data[0]))) {
+        $data_len = sizeof($data);
+
+        //Make sure that the header and the data are the same length
+        if($data_len > $header_len) {
+          //Must generate unique field name for missing fields because this name will be used as an array key
+          $header = array_pad($header, sizeof($data), '[UNKNOWN_' . uniqid() . ']');
+        } else if($header_len > $data_len) {
+          $data = array_pad($data, sizeof($header), '');
+        }
+        $output[] = array_combine($header, $data);
         if($max_rows > 0 && $row++ > $max_rows) { break; }
       }
     }

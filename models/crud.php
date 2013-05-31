@@ -26,12 +26,14 @@ class CRUD extends Axon {
   * @return object Instance of CRUD-subclass specified in $model
   *
   */
-  public static function load_model($model) {
+  public static function load_model($model, $db = null) {
+    if($db === null) { $db = 'DB'; }
+    $dbc = F3::get($db);
     $class_name = String::modelToClass($model);
     if(@class_exists($class_name) && @is_subclass_of($class_name, 'CRUD')) {
-      return new $class_name($model);
+      return new $class_name($model, $dbc);
     } else {
-      return new self($model);
+      return new self($model, $dbc);
     }
   }
 
@@ -128,14 +130,15 @@ class CRUD extends Axon {
   * @todo Switch 'order_by' to support arrays
   * 
   */
-  public static function pairs($model = null, $id_in_name = true, $where = '', $order_by = '') {
+  public static function pairs($model = null, $id_in_name = true, $where = '', $order_by = '', $only_enabled = true) {
     if(!$order_by) { $order_by = '`pkey` DESC'; }
     if($model === null) { list($model, $model_friendly) = CRUD_Helper::getModelName(false); }
     $primary_key = Db_Meta::getPrimaryKeys($model);
     $name_field = Db_Meta::getNameColumn($model);
     if(empty($primary_key)) { F3::error('', "Unable to determine primary key for model {$model}"); }
     if(empty($name_field)) { F3::error('', "Unable to determine 'name' field for model {$model}"); }
-    $where_clause = (empty($where)) ? '' : "WHERE {$where} ";
+    $where_enabled = ($only_enabled) ? " (enabled = 1 OR enabled = '1') AND " : '';
+    $where_clause = (empty($where)) ? '' : "WHERE {$where_enabled} {$where} ";
     $order_by_clause = (empty($order_by)) ? '' : "ORDER BY {$order_by} ";
 
     //TODO: Consolidate this code using the F3 'DB' class

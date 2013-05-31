@@ -48,7 +48,7 @@ class Report extends Report_Base {
   * @return object Instance of report sub-class
   *
   */
-  public static function load_model($id) {
+  public static function load_model($id, $db = null) {
     $report = new self();
     $report->load("id = {$id}");
     if($report->dry()) { 

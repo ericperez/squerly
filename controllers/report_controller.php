@@ -197,8 +197,10 @@ class Report_Controller extends Crud_Controller {
     }
     //TODO: run form validation and spit out messages on failure; clean this up
     //Load the data from the data source and render the results
-    $filename = String::machine($report->name) . '_results_' . date('m-d-Y');
+    //$filename = String::machine($report->name) . '_results_' . date('m-d-Y');
     $max_return_rows = (isset($_REQUEST['sqrl']['preview'])) ? $_REQUEST['sqrl']['preview'] : 0;
+    //Backwards compatability: either form_method or form_submit_method properties may be present
+    $report->form_method = isset($report->form_method) ? $report->form_method : isset($report->form_submit_method) ? $report->form_submit_method : '';  
     $form_method = isset($report->form_method) && in_array(strtolower(trim($report->form_method)), array('get', 'post')) ? $report->form_method : 'post';
     $request_method = ($form_method === 'get') ? $_GET : $_POST;
     $report_results = ($render_results && isset($request_method['sqrl']['run']) && strtolower($request_method['sqrl']['run']) === 'run') ? 

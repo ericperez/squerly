@@ -432,11 +432,11 @@ class CRUD_Helper {
   */
   public static function getBaseJavascript() {
     return array(
-      "http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.8.0.min.js",
-      "http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/jquery-ui.min.js",
-      "http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js",
-      "/assets/js/TableTools/media/js/TableTools.js",
-      "/assets/js/TableTools/media/js/ZeroClipboard.js",
+      "//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.1/jquery.min.js",
+      "//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js",
+      "//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/jquery.dataTables.min.js",
+      "//cdnjs.cloudflare.com/ajax/libs/datatables-tabletools/2.1.4/js/TableTools.min.js",
+      "//cdnjs.cloudflare.com/ajax/libs/datatables-tabletools/2.1.4/js/ZeroClipboard.min.js",
     );
   }
 
@@ -452,9 +452,10 @@ class CRUD_Helper {
   */
   public static function getBaseStylesheets() {
     return array(
-      "http://ajax.aspnetcdn.com/ajax/jquery.ui/1.8.22/themes/smoothness/jquery-ui.css",
-      "http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css",
-      "/assets/js/TableTools/media/css/TableTools.css",
+      "//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/css/base/jquery-ui.css",
+      "//cdnjs.cloudflare.com/ajax/libs/jquery.ui/1.8.22/themes/smoothness/jquery-ui.css",
+      "//cdnjs.cloudflare.com/ajax/libs/datatables/1.9.4/css/jquery.dataTables.css",
+      "//cdnjs.cloudflare.com/ajax/libs/datatables-tabletools/2.1.4/css/TableTools.min.css",
     );
   }
 
