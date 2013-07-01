@@ -44,9 +44,9 @@ class Report_Xml extends Report_Base {
    */
   protected function _preprocessQuery($max_return_rows = 0, $input_values = array()) {
     $this->_phpPreprocess(); // Run the query through PHP
-    //Replace any template vars/tags in the report input_data_uri property
-    $input_values = empty($input_values) ? $_REQUEST : $input_values;
-    $this->input_data_uri = Mustache_Helper::render($this->input_data_uri, $input_values, 'rawurlencode');
+    $input_values = (empty($input_values)) ? $_REQUEST : $input_values;
+    //Replace any template vars/tags in the report input_data_uri property and escape the value in the input_data_uri field
+    $this->input_data_uri = Mustache_Helper::renderURI($this->input_data_uri, $input_values);
   }
 
 

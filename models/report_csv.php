@@ -57,9 +57,8 @@ class Report_Csv extends Report_Base {
     //D3Linq doesn't support 'bind parameters' so instead of keeping them separate, they are going to be replaced into the query template
     $this->processed_query = Mustache_Helper::render($this->processed_query, array_map('addslashes', $this->bind_params));
 
-    //Replace any template vars/tags in the report input_data_uri property
-    $this->input_data_uri = Mustache_Helper::render($this->input_data_uri, $input_values, 'rawurlencode');
-
+    //Replace any template vars/tags in the report input_data_uri property and escape the value in the input_data_uri field
+    $this->input_data_uri = Mustache_Helper::renderURI($this->input_data_uri, $input_values);
   }
 
 
@@ -113,6 +112,7 @@ class Report_Csv extends Report_Base {
   public function getData($max_return_rows = 0) {
     //Run the data through D3Linq which semantically parses 'SQL' and applies it to 2D array data
     //TODO: abstract this code out and add it to JSON and XML reports
+
     if($this->processed_query !== '') {
       //Unfortunately the way that the D3Linq library is written, this data must go into $GLOBALS['data']
       $GLOBALS['data'] = Data_Source::loadCSVFile($this->input_data_uri, $max_return_rows);

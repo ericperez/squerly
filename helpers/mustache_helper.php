@@ -13,8 +13,8 @@ require __DIR__ . '/../vendor/Mustache/Loader/StringLoader.php';
 
 //TODO: namespace squerly;
 
-class Mustache_Helper
-{
+class Mustache_Helper {
+
   const EMPTY_TAG_PATTERN = "[[[**NO_VALUE**]]]";
 
   /**
@@ -51,7 +51,7 @@ class Mustache_Helper
    */
   public static function render($template, array $vars, $callback = null) {
     //Runs $callback method on every value in $vars that is a string (array $var values not currently supported)
-    if(!empty($callback)) { $vars = array_map($callback, array_filter($vars, 'is_string')); }  
+    if(!empty($callback)) { $vars = array_map($callback, array_filter($vars, 'is_string')); }
     $mustache = new Mustache_Engine();
     return $mustache->render($template, $vars);
   }
@@ -138,6 +138,27 @@ class Mustache_Helper
     }
     $bound_sql = trim($bound_sql, "\n\r\t ");
     return array($bound_sql, $template_tags);
+  }
+
+
+  /**
+   *
+   * Static method to render a URI template and apply appropriate escaping techniques based on the URI type
+   *
+   * @param string $template 'Tagged' input template
+   * @param array $vars Array of tags => values to be substituted in $input
+   * @todo Enhance this with more callbacks
+   * 
+   * @return string Properly escaped template with variables populated
+   */
+  public static function renderURI($template, array $vars) {
+    $callback = '';
+    if(preg_match('/^(ht|f)tp(s)?:/', $template)) { 
+      $callback = 'rawurlencode';
+    } elseif(preg_match('/(^file:)|(^\/)/', $template)) {
+      $callback = 'String::escapeFilePath';
+    }
+    return self::render($template, $vars, $callback);
   }
 
 }

@@ -55,9 +55,10 @@ class String {
       '/Est/'        => 'EST',
       '/Dst/'        => 'DST',
       '/Utc/'        => 'UTC',
+      '/Ssh/'        => 'SSH',
       '/Javascript/' => 'JavaScript',
     );
-    $output = ucwords(strtolower(str_replace('_', ' ', $input)));
+    $output = ucwords(strtolower(str_replace('_', ' ', $input))); //TODO: preg_replace('/[_]+/', ' ', $input)
     $output = preg_replace(array_keys($replacements), array_values($replacements), $output);
     //TODO: detect acronyms by looking for 'words' with no vowels (and then capitalize them)
     return $output;
@@ -148,6 +149,19 @@ class String {
       return substr_replace($subject,$substring,0,$position+1);
   }
 
+
+  /**
+   *
+   * Replaces spaces in a file path with an escaped 'space' character
+   *
+   * @param string $file_path File path to escape
+   *
+   * @return string $file_path with spaces converted to escaped "\x20" string and tabs/line breaks removed
+   *
+   */
+  public static function escapeFilePath($file_path) {
+    return trim(str_replace(array(" ", "\t\r\n"), array("\x20", ""), $file_path));
+  }
 
  /**
   *
