@@ -17,7 +17,7 @@ See the [Wiki](https://github.com/ericperez/squerly/wiki) for more information (
 
 -  Output the report results in a wide variety of formats, such as HTML Table, CSV, JSON, XML, KML (to map your data with Google Maps), Graphs/Charts, etc.
 
--  Report input parameters can be introduced by using a simple templating format in the report query.
+-  Report input parameters can be introduced by using simple template tags (in the format "{[tag]}") in the report query.
 
 -  Reports are easy to write and easy to deploy because they are all built in a unified fashion (as objects) so they can be easily serialized/stored/migrated.
 
@@ -26,9 +26,9 @@ See the [Wiki](https://github.com/ericperez/squerly/wiki) for more information (
 
 -  Saved Report--these will allow you to 'save' snapshots of report input parameters and recall them later
 
--  Scheduled Events--want to get the output of a report in your input on a recurring schedule? Scheduled events will allow you to do that
+-  Scheduled Events--want to get the output of a report in your inbox on a recurring basis? Scheduled events will allow you to do that
 
--  Input Validation--Input validation for reports still needs to be implemented
+-  Input Validation--Validation for report input parameters still needs to be implemented
 
 -  Data transformations--Aggregates, slicing & dicing of the data in various ways
 
