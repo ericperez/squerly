@@ -1,2 +1,4 @@
 .DS_Store
 config/squerly.config.php
+/docs/*
+.idea/*

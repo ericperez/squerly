@@ -23,7 +23,7 @@ class CRUD_Helper {
   * @return array Records with 'action' columns added
   * 
   */
-  public static function addActionColumns(array $records) {
+  public static function addActionColumns(array $records, array $additional_actions = array()) {
     list($model, $model_friendly) = self::getModelName();
     $class_name = String::modelToClass($model);
 
@@ -33,7 +33,7 @@ class CRUD_Helper {
     foreach($records as &$record) {
       $id = $record['id'];
       //TODO: find a faster way of doing this
-      $additional_actions = array();
+      //$additional_actions = array();
       if(class_exists($class_name)) { //TODO: && implements interface that defines getIndexActions!
         $additional_actions = @$class_name::getIndexActions($record) ?: array();
       }
@@ -108,8 +108,8 @@ class CRUD_Helper {
       $field_attribs = array(
         'name' => $model . '[' . $column_name . ']', //Namespace using model name
         'id' => $model . '_' . $column_name . '_input',
-        'type' => self::sqlFieldTypeMap($field['DATA_TYPE']),
-        'maxlength' => $field['LENGTH'],
+        'type' => self::sqlFieldTypeMap($field['DATA_TYPE'], $field['LENGTH']),
+        'maxlength' => is_null($field['LENGTH']) ? null : (int) $field['LENGTH'],
         'title' => isset($tooltips[$column_name]) ? $tooltips[$column_name] : '',
         //'size' => $field['LENGTH'],
       );
@@ -173,14 +173,26 @@ class CRUD_Helper {
 
         case 'textarea':
           $value = $field_attribs['value'];
-          $field_attribs['style'] = 'width: 800px; height: 300px;';
+          $max_height = 300;
+          $min_height = 100;
+          $height = $field_attribs['maxlength'] / 12;
+          $height = ($height >= $min_height) ? $height : $min_height;
+          $height = ($height <= $max_height) ? $height : $max_height;
+          $field_attribs['style'] = "width: 800px; height: {$height}px;";
           unset($field_attribs['value'], $field_attribs['type']);
           $output[$column_name] .= '<td>' . Form::textarea($field_attribs['name'], $value, $field_attribs) . "</td></tr>\n";
           break;
 
         default: //Handles number, date, datetime, time, and text fields
           $value = $field_attribs['value'];
-          if($field_attribs['type'] !== 'hidden') { $field_attribs['style'] = 'width: 400px;'; }
+          if($field_attribs['type'] !== 'hidden') {
+            $min_width = 50;
+            $max_width = 400;
+            $width = $field_attribs['type'] === 'number' ? $min_width : $field_attribs['maxlength'] * 10;
+            $width = ($width >= $min_width) ? $width : $min_width;
+            $width = ($width <= $max_width) ? $width : $max_width;
+            $field_attribs['style'] = "width: {$width}px;"; 
+          }
           $output[$column_name] .= '<td>' . Form::input($field_attribs['name'], $value, $field_attribs) . "</td></tr>\n";
           break;
       }
@@ -231,6 +243,8 @@ class CRUD_Helper {
     //TODO: finish this...
   }
 
+
+  //TODO: Add method getInstanceName()
 
  /**
   *
@@ -364,7 +378,7 @@ class CRUD_Helper {
 
  /**
   *
-  * Runs preprocessing on an array of CRUD records (resolving foreign keys + more later)
+  * Runs pre-processing on an array of CRUD records (resolving foreign keys + more later)
   *
   * @param array $records 2D array of CRUD record data
   * @return array 2D array of CRUD record data after processing
@@ -390,14 +404,16 @@ class CRUD_Helper {
   *
   * Converts SQL field types to their respective HTML input field type
   *
-  * @param string $sql_type SQL field type to map
+  * @param string $sql_field_type SQL field type to map
+  * @param integer|null $length Maximum length of data in field
+  * 
   * @return string Mapped HTML input field type
   * 
   * @todo Expand this
   * 
   */
-  public static function sqlFieldTypeMap($sql_type) {
-    $sql_type = preg_replace(array('/[^a-z]/', '/\(.*\)/'), '', strtolower($sql_type));
+  public static function sqlFieldTypeMap($sql_field_type, $length = null) {
+    $sql_field_type = preg_replace(array('/[^a-z]/', '/\(.*\)/'), '', strtolower($sql_field_type));
     $field_map = array(
       'int'       => 'number',
       'tinyint'   => 'boolean',
@@ -417,7 +433,14 @@ class CRUD_Helper {
       'varchar'   => 'text',
       'text'      => 'textarea',
     );
-    return array_key_exists($sql_type, $field_map) ? $field_map[$sql_type] : 'text';
+    $text_types = array('char', 'varchar');
+    $max_text_length = 255;
+    if(in_array($sql_field_type, $text_types) && $length > $max_text_length) {
+      $return = 'textarea';
+    } else {
+      $return = array_key_exists($sql_field_type, $field_map) ? $field_map[$sql_field_type] : 'text'; 
+    }
+    return $return;
   }
 
 

@@ -78,8 +78,28 @@ class Db_Meta {
       default:
         return Matrix::pick($tables, 'name');
       break;
+    }    
+  }
+
+
+ /**
+  *
+  * Returns an array of distinct values from one column in one table
+  * 
+  * @param string $table Database table name
+  * @param string $field Table field name
+  * @return array Array distinct field values
+  * 
+  * @todo Add pagination support
+  *
+  */
+  public static function getDistinctValues($table, $field, $DBC = 'DB') {
+    try {
+      $sql = "SELECT {$field} FROM {$table} GROUP BY {$field} ORDER BY {$field}";
+      return DB::sql($sql, null, 60, $DBC); //Cache result for one minute
+    } catch(exception $e) {
+      return array(); //todo: handle this better
     }
-    
   }
 
 
@@ -206,12 +226,13 @@ class Db_Meta {
   */
   public static function getForeignKeys($table, $DBC = 'DB') {
     $tables = self::getTables($DBC);
-    $columns = self::columns($table, false, $DBC);
+    $columns = self::columns($table, true, $DBC);
+    $int_field_types = array('INTEGER', 'INT', 'SMALLINT', 'TINYINT', 'MEDIUMINT', 'BIGINT');
     $foreign_keys = array();
     //Cycle through all the columns and see if they look like table names/references
-    foreach($columns as $col) {
+    foreach($columns as $col => $col_type) {
       $table_col = self::colToTable($col);
-      if($table_col !== $table && in_array($table_col, $tables)) {
+      if($table_col !== $table && in_array($col_type, $int_field_types) && in_array($table_col, $tables)) {
         $foreign_keys[] = $col;
       }
     }

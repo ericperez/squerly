@@ -56,6 +56,7 @@ class String {
       '/Dst/'        => 'DST',
       '/Utc/'        => 'UTC',
       '/Ssh/'        => 'SSH',
+      '/Smtp/'       => 'SMTP',
       '/Javascript/' => 'JavaScript',
     );
     $output = ucwords(strtolower(str_replace('_', ' ', $input))); //TODO: preg_replace('/[_]+/', ' ', $input)

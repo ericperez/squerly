@@ -47,6 +47,8 @@ class Data_Source {
   * @return array 2D associative array holding a representation of the CSV data
   *
   * @todo: Combine commonalities of this method with loadCSVString
+  * @todo: Add error-handling for when remote http host returns status other than 200-299
+  * 
   */
   public static function loadCSVFile($file_path, $max_rows = 0, $delimiter = ',') {
     function process_row($row) {
