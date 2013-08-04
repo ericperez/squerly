@@ -1,18 +1,12 @@
 {
+	"report": "Reports are the centerpiece of the Squerly architecture. Reports gather data from a data source such as a file, database, or URI and allow you to query, sort, and aggregate the data and then present the data in tabular or graphical form to end users. Using simple templates, you can allow users to input variable data into the reports (See the documentation for more details.)",
 	"name": "Enter a name for the report here <i>(255 chars max)</i>; this will be the name presented to end-users of the report",
-	"type": "Report Type (SQL, CSV, JSON, XML, etc.); this field determines which report 'class' gets loaded and what type of query gets executed against the report data source",
-	"description": "Enter a description for the report here <i>(1023 chars max)</i>",
-	"keywords": "A comma-separated list of keywords that describe this report",
-	"enabled": "",
-	"db_adapter": "For DB-based reports, this field is the 'key/name' of a database adapter that is defined in the <i>report_db_connections.json</i> config file (This field is mutually exclusive of 'input_data_uri')",
-	"input_data_uri": "For file-based report types (CSV, XML, JSON, etc.), this field holds the URI (with an optional PHP stream-handler prefix) where the source data is located. Template tags in the format: <b>{[example]}</b> can be used as input placeholders in this field. See documentation for more details. (This field mutually exclusive of 'db_adapter')",
+	"data_source_id": "References the source data (file, database, stream, etc.) for this report",
 	"query": "This field holds the query used to limit and filter the data from the data source. The query language is determined by the 'type' field. For database reports, this field should be a SQL 'SELECT' statement. For other report types, please consult the documentation. Template tags in the format: <b>{[example]}</b> can be used as input placeholders in this field.",
 	"postprocess_code": "This field holds PHP code to post-process the report results (filtering data, adding columns, performing aggregations, etc.) The variable '<b>$results</b>' contains a 2D associative array of the report results. The code in this field should return a 2D associative array to be valid.",
-	"hidden_from_ui": "If this value is set to Yes/True then this report will not show up in non-admin UI pages.",
-	"admin_only": "If set to Yes/True, this report is only available to be run by application admins.",
-	"default_refresh_time_in_seconds": "When this field is set to a number greater than zero, the report screen will automatically refresh the contents of the report after the specified number of seconds (Set as appropriate in conjunction with the 'Default Cache Time' field.)",
-	"default_cache_time_in_seconds": "Determines the number of seconds that the result of the report will be cached (for a given set of inputs.) If this field is not set, the default cache setting defined in the config file will apply.",
-	"default_output_format_id": "Determines which output format is set as the default when the report results are rendered in the user-interface.",
-	"form_submit_method": "Possible values: GET or POST; defaults to POST. Reports using GET inputs can be bookmarked and shared. POST is recommended for reports that use a lot of resources or take a long time to run."
+	"hidden_from_ui": "If this field is set to Yes then this report will not show up in non-admin UI pages.",
+	"admin_only": "If set to Yes, this report is only available to be run by administrators.",
+	"default_refresh_time_in_seconds": "When this field is set to a number greater than zero, the report results screen will automatically refresh after the specified number of seconds (Set as appropriate in conjunction with the 'Default Cache Time' field.)",
+	"default_cache_time_in_seconds": "Determines how many seconds that the results of the report will be cached (for a given set of inputs.) If this field is not set, the default cache setting defined in the config file will apply.",
+	"form_submit_method": "Possible values: GET or POST; defaults to POST. Reports using GET inputs can have their results page be bookmarked and shared. POST is recommended for reports that use a lot of resources or take a long time to run."
 }
-
