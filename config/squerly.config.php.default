@@ -4,7 +4,7 @@
   * Squerly - Application Configuration
   *
   * @author Eric Perez <ericperez@squerly.net>
-  * @copyright (c)2012 Squerly contributors (Eric Perez, et. al.)
+  * @copyright (c)2012-2013 Squerly contributors (Eric Perez, et al.)
   * @license GNU General Public License, version 3 or later
   * @license http://opensource.org/licenses/gpl-3.0.html
   * @link http://www.squerly.net
@@ -15,7 +15,7 @@
 
 /*
   [DB CONNECTION EXAMPLES]
-  @see: http://en.wikipedia.org/wiki/Database_Source_Name for more information on connection strings
+  @see: http://en.wikipedia.org/wiki/Database_Source_Name
 
   SQLite - F3::set('DB',new DB('sqlite:path/test.sqlite'));
   MySQL - F3::set('DB',new DB('mysql:host=localhost [;port=port] [;dbname=testdb]','userid','password'));
@@ -28,9 +28,16 @@
   -See config/db_connections.readme for information on database configuration settings for SQL report queries
   -Note: If you leave this as the default value, Squerly will use a SQLite database that ships with the application
 */
+
+//Choose a SQLite database to use based on the 'instance' specified in the URL path
+$request_uri = $_SERVER['REQUEST_URI'];
+$uri_pieces = explode('/', $request_uri);
+$instance = preg_replace('/[^A-Za-z]/', '', $uri_pieces[1]);
+$sqlite_filename = "data/{$instance}.sqlite";
+if(!file_exists(__DIR__ . '/../' . $sqlite_filename)) { F3::error(500, 'Invalid Instance'); }
 F3::set('DB',
   new DB(
-    'sqlite:data/squerly.default.sqlite', //DB Connection string/DSN
+    "sqlite:{$sqlite_filename}", //DB Connection string/DSN
     '', //Username
     ''  //Password
   )
@@ -45,13 +52,13 @@ F3::set('CACHE', true); //Enable or disable caching globally
 F3::set('PAGE_TITLE_BASE', ' - Squerly(tm)'); //Base 'HEAD' title suffix for HTML pages
 F3::set('URL_BASE_PATH', '/'); //Relative base path for all Squerly requests (TODO: allow more than '/')
 F3::set('RECORDS_PER_PAGE', 1000); //Max number of records to display per page on multi-record views
+F3::set('DEFAULT_INSTANCE', 'squerly'); //TODO: implement this
 F3::set('DEFAULT_MODEL', 'report');
 F3::set('CSRF_EXPIRY_HOURS', 8); //Number of hours the CSRF tokens remain valid (TODO: Implement)
 F3::set('DB_TABLE_PREFIX', ''); //Used in case DB tables have a common prefix (which wont be used on the URI path) (TODO: Implement)
-F3::set('REPORT_CACHE_EXPIRE', 300); //Number of seconds to cache SQL-based Report results (TODO: Expand to emcompass all reports)
+F3::set('REPORT_CACHE_EXPIRE', 300); //Default number of seconds to cache SQL-based Report results (TODO: Expand to emcompass all reports)
 
 //Locale Setup Variables
 putenv('LC_ALL=en_US');
 setlocale(LC_ALL, 'en_US');
 date_default_timezone_set('America/Denver'); //Change this to your own timezone
-

@@ -18,6 +18,7 @@ require __DIR__ . '/lib/base.php'; //Fat-Free Framework (F3) core code
 require __DIR__ . '/config/squerly.config.php'; //Squerly configuration settings
 require __DIR__ . '/vendor/autoload.php'; //Composer package management/autoloading
 
+
 //Fat-Free Framework vars
 F3::set('TEMP', 'tmp/');
 F3::set('IMPORTS', 'views/');
@@ -45,26 +46,28 @@ if(!function_exists('_')) {
   }
 }
 
-//Home Page route (currently reroutes to default model index)
-F3::route('GET ' . F3::get('URL_BASE_PATH'),
-  function() {
-    list($model, $model_friendly) = CRUD_Helper::getModelName(true);
-    F3::reroute(F3::get('URL_BASE_PATH') . $model);
-  }
-);
-
 //Array of data models that may be accessed through the CRUD routing interface
 //Format: 'Friendly Name' => 'model name'
 F3::set('CRUD_TABLE_WHITELIST', array(
-  'Report' => 'report',
+  'Report' =>   'report',
   'Saved Report Configuration' => 'saved_report',
+  'Form Field Tooltip' => 'form_field_tooltip',
+  'Schedule' => 'schedule',
+  'Email Sender' => 'email_sender',
+  'Email Recipient' => 'email_recipient',
   'Email Distribution List' => 'email_distribution_list',
-  'Email Schedule' => 'email_schedule',
-  //TODO: 'Event Schedule' => 'event_schedule',
+  'Email Distribution List Recipient' => 'email_distribution_list_recipient',
+  'Emailed Report Event' => 'event_email_saved_report_results',
+  'Data Source Type' => 'data_source_type',
+  'Data Source' => 'data_source',
+
+  'SSH Connection' => 'ssh_connection',
+  'Saved Report Group' => 'saved_report_group',
+  'Saved Report Group Element' => 'saved_report_group_element',
 ));
 
+Route::loadAll(); //Load all the application routes
 Report_DB_Connection::loadAll(); //Load all the reporting database connections
-Route::loadAll();
 
 //Determine if a simple bootstrap is required or a full application load
 if(!isset($bootstrap_only) || (isset($bootstrap_only) && !$bootstrap_only)) { 

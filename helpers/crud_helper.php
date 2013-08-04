@@ -37,13 +37,13 @@ class CRUD_Helper {
       if(class_exists($class_name)) { //TODO: && implements interface that defines getIndexActions!
         $additional_actions = @$class_name::getIndexActions($record) ?: array();
       }
+      $model_path = self::getModelPath();
       $actions = array(
-        //TODO: add BASE_URL_PATH to the URLS!!
-        array("Load"    => "<a href='/{$model}/load/{$id}'>Load</a>"),
-        array("Edit"    => "<a href='/{$model}/edit/{$id}'>Edit</a>"),
-        array("Copy"    => "<a href='/{$model}/copy/{$id}'>Copy</a>"),
-        array("Delete"  => "<a href='/{$model}/delete/{$id}'>Delete</a>"),
-        array("Details" => "<a href='/{$model}/view/{$id}'>View</a>"),
+        array("Load"    => "<a href='{$model_path}/load/{$id}'>Load</a>"),
+        array("Edit"    => "<a href='{$model_path}/edit/{$id}'>Edit</a>"),
+        array("Copy"    => "<a href='{$model_path}/copy/{$id}'>Copy</a>"),
+        array("Delete"  => "<a href='{$model_path}/delete/{$id}'>Delete</a>"),
+        array("Details" => "<a href='{$model_path}/view/{$id}'>View</a>"),
       );
       if(!empty($additional_actions)) { array_unshift($actions, $additional_actions); }
       foreach($actions as $action) {
@@ -113,7 +113,7 @@ class CRUD_Helper {
         'title' => isset($tooltips[$column_name]) ? $tooltips[$column_name] : '',
         //'size' => $field['LENGTH'],
       );
-
+  
       //Set HTML5 'required' attribute (on POST forms)
       if(strtolower($form_method) === 'post' && !$field['NULLABLE']) { 
         $field_attribs['required'] = 'required'; 
@@ -128,10 +128,12 @@ class CRUD_Helper {
         'recordid', 
         $field['TABLE_NAME'] . '_id', 
         $field['TABLE_NAME'] . 'id',
-        'created_by',
-        'created_at', //TODO: update these fields on back end instead of form
-        'updated_by',
+        'created_by_user_id', //TODO: update these fields on back end instead of form
+        'created_at',
+        'updated_by_user_id',
         'updated_at',
+        'deleted_by_user_id',
+        'deleted_at',
       ); 
       if(in_array($field['COLUMN_NAME'], $hidden_fields)) { 
         $field_attribs['type'] = 'hidden'; 
@@ -257,8 +259,8 @@ class CRUD_Helper {
   * 
   */
   public static function getModelName($use_default = false) {
-    $uri_path = explode('/', F3::get('PARAMS.0')); 
-    $model = $use_default ? F3::get('DEFAULT_MODEL') : F3::get('PARAMS.model') ?: $uri_path[1] ?: '';
+    $uri_path = explode('/', F3::get('PARAMS.0'));
+    $model = $use_default ? F3::get('DEFAULT_MODEL') : F3::get('PARAMS.model') ?: $uri_path[2] ?: '';
     $table = !empty($model) ? self::addTablePrefix($model) : '';
     $table = in_array($table, F3::get('CRUD_TABLE_WHITELIST')) ? $table : null;
     if(!$table) {
@@ -272,6 +274,21 @@ class CRUD_Helper {
   }
 
 
+  /**
+   *
+   * Gets the application 'instance' param from the URI path
+   *
+   * @param boolean $use_default - If true, gets the default model from the DEFAULT_MODEL config item
+   * @return string Application Instance Name
+   *
+   */
+  public static function getInstanceName($use_default = false) {
+    $uri_path = explode('/', F3::get('PARAMS.0'));
+    $instance = $use_default ? F3::get('DEFAULT_INSTANCE') : F3::get('PARAMS.instance') ?: $uri_path[1] ?: '';
+    return $instance;
+  }
+
+
  /**
   *
   * Determines the URL path for the current model
@@ -281,7 +298,8 @@ class CRUD_Helper {
   */
   public static function getModelPath() {
     list($model, $model_friendly) = self::getModelName();
-    return F3::get('URL_BASE_PATH') . $model;
+    $instance = self::getInstanceName();
+    return F3::get('URL_BASE_PATH') . $instance . '/' . $model;
   }
 
 

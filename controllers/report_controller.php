@@ -54,7 +54,9 @@ class Report_Controller extends Crud_Controller {
 
     //TODO: load form action from report property
     $form_method = isset($report->form_method) && in_array(strtolower(trim($report->form_method)), array('get', 'post')) ? $report->form_method : 'post';
-    $form_html = "<div style='padding: 5px;'>" . Form::open("/report/{$action}/{$report->id}", array('method' => $form_method, 'id' => 'report_form'));
+    //var_dump($form_method);exit;
+    $model_path = CRUD_Helper::getModelPath();
+    $form_html = "<div style='padding: 5px;'>" . Form::open("/{$model_path}/{$action}/{$report->id}", array('method' => $form_method, 'id' => 'report_form'));
     //Currently all fields are required; TODO: make this configurable
     $input_attribs = array('required' => 'required');
 
@@ -65,7 +67,7 @@ class Report_Controller extends Crud_Controller {
     $config_list = array('' => '(Select)') + Saved_Report::pairs('saved_report', true, $config_where);
     $config_attribs = array(
       'title' => 'Load a Saved Report Configuration',
-      'onchange' => 'squerly.saved_report.getValues(this.value);',
+      'onchange' => 'squerly.models.saved_report.getValues(this.value);',
     );
 
     //Build the drop down for the report rendering output formats
@@ -81,8 +83,9 @@ class Report_Controller extends Crud_Controller {
     //Save report config button attributes
     $save_config_attribs = array(
       'type' => 'button',
+      //'class' => 'topcoat-button--cta',
       'title' => 'Save the current report configuration',
-      'onclick' => 'squerly.saved_report.save();',
+      'onclick' => 'squerly.models.saved_report.save();',
     );
 
     //Cycle through all the form inputs and build the HTML markup for them
@@ -126,7 +129,7 @@ class Report_Controller extends Crud_Controller {
   *
   */
   public static function form($id = null) {
-    //TODO: Load a saved configuration
+    //TODO: Load a saved configuration ??
     //TODO: Validate form
     $report = self::_loadReport($id);
     echo self::renderParamsForm($report);
@@ -141,7 +144,7 @@ class Report_Controller extends Crud_Controller {
   public static function index() {
     F3::set('PARAMS.model', self::$_model); //TODO: put this in a better place
     //These are the fields that show up on the index page
-    $index_fields = 'id, type, db_adapter, name, enabled, hidden_from_ui, created_at, updated_at';
+    $index_fields = 'id, name, enabled, hidden_from_ui, created_at, updated_at';
     self::_getIndexRecords($index_fields);
     parent::index();
   }

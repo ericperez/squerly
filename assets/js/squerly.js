@@ -13,10 +13,12 @@
   *
   */
 
+//TODO: convert this to JSON?
 var squerly = {};
-squerly.report = {};
-squerly.saved_report = {};
-
+squerly.models = {};
+squerly.models.report = {};
+squerly.models.saved_report = {};
+squerly.options = {};
 
 /**
   *
@@ -28,7 +30,7 @@ squerly.saved_report = {};
   *
   */
 /*
-squerly.report.configureCodeMirror = function() {
+squerly.models.report.configureCodeMirror = function() {
   try {
     var report_type = $('#type').val(); 
   } catch(e) { return; }
@@ -55,7 +57,7 @@ squerly.report.configureCodeMirror = function() {
   * @return void
   *
   */
-squerly.saved_report.getValues = function(saved_report_id) {
+squerly.models.saved_report.getValues = function(saved_report_id) {
   $.get('/saved_report/getvalues/' + saved_report_id,
     function(input_values) {
       //TODO: memoize the report configuration values to reduce network traffic
@@ -71,13 +73,13 @@ squerly.saved_report.getValues = function(saved_report_id) {
   *
   * Saved Report/Report configuration method to retrieve an optionlist of saved report configurations by report ID
   *
-  * @param int saved_report_id Primary key of a report object
+  * @param int report_id Primary key of a report object
   * @return void
   *
   * @todo Make this more generic for all models
   * 
   */
-squerly.saved_report.loadOptionlist = function(report_id) {
+squerly.models.saved_report.loadOptionlist = function(report_id) {
   url = '/saved_report/optionlist/?report_id=' + report_id;
   var optionlist = $('[name="sqrl[config]"]');
   optionlist.load(url, '', function() { optionlist[0].selectedIndex = 1; })
@@ -94,7 +96,7 @@ squerly.saved_report.loadOptionlist = function(report_id) {
   *
   * @todo Abstract this out so it encompases all CRUD models/actions
   */
-squerly.saved_report.save = function(saved_report_id) {
+squerly.models.saved_report.save = function(saved_report_id) {
   var saved_report_name = window.prompt("Saved Report Name:", ""); //TODO: this does not work in IE; use JQuery modal instead
   if(!saved_report_name) { return; }
   var report_form = $('#report_form');
@@ -108,7 +110,7 @@ squerly.saved_report.save = function(saved_report_id) {
       report_config_obj,
       function() { 
         alert('Saved Report Configuration Added Successfully'); //TODO: make this more friendly.
-        squerly.saved_report.loadOptionlist(report_config_obj.report_id);
+        squerly.models.saved_report.loadOptionlist(report_config_obj.report_id);
       }
   );
 };
@@ -123,14 +125,10 @@ squerly.saved_report.save = function(saved_report_id) {
   *
   */
 $.fn.clearForm = function(only_text_inputs) {
-  return this.each(function() {
+   this.each(function() {
     var type = this.type;
     var tag = this.tagName.toLowerCase();
-    if(only_text_inputs === true) { 
-      var input_type = 'input:text';
-    } else { 
-      var input_type = ':input'; 
-    }
+    var input_type = (only_text_inputs === true) ? 'input:text' : ':input';
     if(tag === 'form') { return $(input_type, this).clearForm(); }
     if(type === 'text' || type === 'password' || tag === 'textarea') { this.value = ''; }
     if(type === 'checkbox' || type === 'radio') { this.checked = false; }

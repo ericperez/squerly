@@ -45,6 +45,7 @@ class Report extends Report_Base {
   *   which class to use and returns an instance of it
   *
   * @param integer $id Report ID to load
+  * @param TODO Add $db
   * @return object Instance of report sub-class
   *
   */

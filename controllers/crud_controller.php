@@ -32,7 +32,7 @@ class Crud_Controller implements Crud_Controller_Interface {
   *   
   */
   public static function init() {
-    self::setUpRoutes();
+    //TODO: add permissions check
     //TODO: use these to build JS/CSS blocks
     F3::set('javascript', CRUD_Helper::getBaseJavascript());
     F3::set('css', CRUD_Helper::getBaseStylesheets());
@@ -58,34 +58,6 @@ class Crud_Controller implements Crud_Controller_Interface {
       $records_name = Inflector::plural($model_friendly);
       F3::set('content', "No {$records_name} Found");
     }
-  }
-
-
- /**
-  *
-  * Set up all the CRUD routes
-  *   
-  */
-  public static function setUpRoutes() {
-    //TODO: add permissions handling
-    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/optionlist', 'Crud_Controller::optionlist', 10);
-    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model', 'Crud_Controller::index', 10);
-    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/add', 'Crud_Controller::add', 10);
-    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/delete/@id', 'Crud_Controller::delete', 10);
-    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/edit/@id', 'Crud_Controller::edit', 0);
-    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/copy/@id', 'Crud_Controller::copy', 0);
-    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/export', 'Crud_Controller::exportMultiple', 10);
-    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/export/@id', 'Crud_Controller::exportOne', 10);
-    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/migrate', 'Crud_Controller::migrate', 10);
-    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/search', 'Crud_Controller::search', 10);
-    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/searchresults', 'Crud_Controller::searchResults', 10);
-    F3::route('GET ' .  F3::get('URL_BASE_PATH') . '@model/view/@id', 'Crud_Controller::view', 10);
-    F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/add/token/@token', 'Crud_Controller::addEditProcess');
-    F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/edit/@id/token/@token', 'Crud_Controller::addEditProcess');
-    F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/delete/@id/token/@token', 'Crud_Controller::deleteProcess');
-    F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/add/token/@token/redirect/@redirect', 'Crud_Controller::addEditProcess');
-    F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/edit/@id/token/@token/redirect/@redirect', 'Crud_Controller::addEditProcess');
-    F3::route('POST ' . F3::get('URL_BASE_PATH') . '@model/delete/@id/token/@token/redirect/@redirect', 'Crud_Controller::deleteProcess');
   }
 
 
@@ -124,9 +96,10 @@ class Crud_Controller implements Crud_Controller_Interface {
     if(!F3::exists('title')) { F3::set('title', $title); }
     if(!F3::exists('page_title')) { F3::set('page_title', $title . F3::get('PAGE_TITLE_BASE')); }
     $csrf_token = 'QOFJq34igj3'; //TODO: generate real token
-    if(!F3::exists('form')) { 
+    if(!F3::exists('form')) {
+      $model_path = CRUD_Helper::getModelPath();
       $form_config = array(
-        'action' => F3::get('URL_BASE_PATH') . $model . "/add/token/{$csrf_token}/redirect/true",
+        'action' => $model_path . "/add/token/{$csrf_token}/redirect/true",
         'method' => 'post',
       );
       //Set the 'created_at' and 'updated_at' fields to current timestamp
@@ -163,9 +136,10 @@ class Crud_Controller implements Crud_Controller_Interface {
     $record = CRUD::loadRecord($model);
     $record[0]->id = null; //Unset the 'id' field; TODO: this should look up the 'actual' primary key
     $record[0]->copyTo('record');
-    if(!F3::exists('form')) { 
+    if(!F3::exists('form')) {
+      $model_path = CRUD_Helper::getModelPath();
       $form_config = array(
-        'action' => F3::get('URL_BASE_PATH') . $model . "/add/token/{$csrf_token}/redirect/true",
+        'action' => $model_path . "/add/token/{$csrf_token}/redirect/true",
         'method' => 'post',
       );
       //Set the 'updated_at' field to current date
@@ -195,9 +169,10 @@ class Crud_Controller implements Crud_Controller_Interface {
     $csrf_token = 'QOFJq34igj3'; //TODO: generate real token
     $record = CRUD::loadRecord($model);
     $record[0]->copyTo('record');
-    if(!F3::exists('form')) { 
+    if(!F3::exists('form')) {
+      $model_path = CRUD_Helper::getModelPath();
       $form_config = array(
-        'action' => F3::get('URL_BASE_PATH') . $model . "/edit/${id}/token/{$csrf_token}/redirect/true",
+        'action' => $model_path . "/edit/${id}/token/{$csrf_token}/redirect/true",
         'method' => 'post',
       );
       //Set the 'updated_at' field to current date
@@ -256,11 +231,12 @@ class Crud_Controller implements Crud_Controller_Interface {
     if(!F3::exists('PARAMS.redirect') || F3::get('PARAMS.redirect') !== 'true') { return true; }
 
     $record_id = $record->_id;
-    $action = ($id > 0 && $record->id > 0) ? 
-      "<a href='/{$model}/load/{$record->id}'>{$record->id}</a> updated" : 
-      "<a href='/{$model}/load/{$record_id}'>{$record_id}</a> added";
+    $model_path = CRUD_Helper::getModelPath();
+    $action = ($id > 0 && $record->id > 0) ?
+      "<a href='{$model_path}/load/{$record->id}'>{$record->id}</a> updated" :
+      "<a href='{$model_path}/load/{$record_id}'>{$record_id}</a> added";
     Notify::info("{$model_friendly} {$action} successfully.");
-    F3::reroute(F3::get('URL_BASE_PATH') . $model);
+    F3::reroute($model_path);
   }
 
 
@@ -297,7 +273,7 @@ class Crud_Controller implements Crud_Controller_Interface {
   public static function deleteProcess() {
     $id = (int) F3::get('PARAMS.id');
     list($model, $model_friendly) = CRUD_Helper::getModelName();
-    $model_path = F3::get('URL_BASE_PATH') . $model;
+    $model_path = CRUD_Helper::getModelPath();
     $delete_param = F3::get('POST.delete');
     //TODO: validate the CSRF token
     if($delete_param !== 'Yes') { 
@@ -387,8 +363,9 @@ class Crud_Controller implements Crud_Controller_Interface {
     if(!F3::exists('title')) { F3::set('title', $title); }
     if(!F3::exists('page_title')) { F3::set('page_title', $title . F3::get('PAGE_TITLE_BASE')); }
     if(!F3::exists('form')) {
+      $model_path = CRUD_Helper::getModelPath();
       $form_config = array(
-        'action' => F3::get('URL_BASE_PATH') . $model . "/searchresults",
+        'action' => $model_path . "/searchresults",
         'method' => 'get',
       );
       $form_markup_arr = CRUD_Helper::buildFormFromModel($model, array(), array(), $form_config);
@@ -410,9 +387,10 @@ class Crud_Controller implements Crud_Controller_Interface {
     $title = $model_friendly . ' Search Results';
     if(!F3::exists('title')) { F3::set('title', $title); }
     if(!F3::exists('page_title')) { F3::set('page_title', $title . F3::get('PAGE_TITLE_BASE')); }
-    if(!F3::exists('form')) { 
+    if(!F3::exists('form')) {
+      $model_path = CRUD_Helper::getModelPath();
       $form_config = array(
-        'action' => F3::get('URL_BASE_PATH') . $model . "/searchresults",
+        'action' => $model_path . "/searchresults",
         'method' => 'get',
         'header' => 'Perform Another Search',
         'collapsed' => true

@@ -78,7 +78,7 @@ class Data_Source {
           //Must generate unique field name for missing fields because this name will be used as an array key
           $header = array_pad($header, sizeof($data), '[UNKNOWN_' . uniqid() . ']');
         } else if($header_len > $data_len) {
-          $data = array_pad($data, sizeof($header), '');
+          $data = array_pad($data, sizeof($header), ' ');
         }
         $output[] = array_combine($header, $data);
         if($max_rows > 0 && $row++ > $max_rows) { break; }
@@ -137,7 +137,7 @@ class Data_Source {
           //Must generate unique field name for missing fields because this name will be used as an array key
           $header = array_pad($header, sizeof($data), '[UNKNOWN_' . uniqid() . ']');
         } else if($header_len > $data_len) {
-          $data = array_pad($data, sizeof($header), '');
+          $data = array_pad($data, sizeof($header), ' ');
         }
         $output[] = array_combine($header, $data);
         if($max_rows > 0 && $row++ > $max_rows) { break; }
