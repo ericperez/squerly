@@ -23,11 +23,17 @@ class Export_Json implements Export_Interface {
   *
   */
   public static function render(array $data, $filename = NULL, $config = array()) {
-    //Make sure 'integer' string values are converted into actual integers
+    //Make sure 'integer' and 'floating point' number string values are converted into actual integers/floats
+    //The constant flag JSON_NUMERIC_CHECK for json_encode is supposed to do this but I ran into problems using it
     foreach($data as &$row) {
-      foreach($row as $k => &$v) {
-        if(is_numeric($v) && (string) intval($v) === $v) {
-          $v = (int) $v;
+      foreach($row as &$v) {
+        if(is_numeric($v)) {
+          if((string) floatval($v) === $v) {
+            $v = (float) $v;
+          }
+          if((string) intval($v) === $v) {
+            $v = (int) $v;
+          }
         }
       }
     }
