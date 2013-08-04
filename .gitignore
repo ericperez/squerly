@@ -2,3 +2,4 @@
 config/squerly.config.php
 /docs/*
 .idea/*
+/data/*
