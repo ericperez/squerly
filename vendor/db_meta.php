@@ -88,9 +88,11 @@ class Db_Meta {
   * 
   * @param string $table Database table name
   * @param string $field Table field name
+  * @param string $DBC Database connection name
+  *
   * @return array Array distinct field values
   * 
-  * @todo Add pagination support
+  * @todo Add pagination support; finish this!
   *
   */
   public static function getDistinctValues($table, $field, $DBC = 'DB') {
@@ -109,12 +111,15 @@ class Db_Meta {
   * 
   * @param string $table Database table name
   * @param mixed $types String with one or array of multiple columns types
+  * @param string $DBC Database connection name
+  * @param boolean $return_type If true, returns an array containing field names as keys and field types as values
+  *
   * @return array Array of DB columns that match a given type
   * 
   * @todo Finish this
   *
   */
-  public static function getColumnsOfType($table, $types, $DBC = 'DB') {
+  public static function getColumnsOfType($table, $types, $DBC = 'DB', $return_type = false) {
     if(!is_array($types)) { $types = array($types); }
     $table_desc = self::describeTable($table, $DBC);
     $names = Matrix::pick($table_desc, 'COLUMN_NAME');
@@ -291,7 +296,7 @@ class Db_Meta {
     $primary_cols = array();
 
     //This nested loop is optimized by using variable referencing, memoization, and DB caching
-    foreach($record_data as $row => &$data) {
+    foreach($record_data as &$data) {
       foreach($data as $col => &$v) {
         //Don't bother iterating over all rows for a non-fk column
         if(isset($skip_cols[$col])) { continue; } //This is faster than using in_array
@@ -306,7 +311,7 @@ class Db_Meta {
         }
 
         //Column is a foreign key
-        $table = isset($fks[$col]) ? $fks[$col] : self::colToTable();
+        $table = isset($fks[$col]) ? $fks[$col] : self::colToTable($col);
         if(!$table || !in_array($table, $tables)) {
           continue;
         } else {

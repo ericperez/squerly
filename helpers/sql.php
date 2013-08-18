@@ -65,7 +65,7 @@ class SQL {
   public static function DBOptionlist($query, $DBC = 'DB') { 
     DB::sql($query, NULL, 0, $DBC);
     $output = array();
-    foreach(F3::get("${DBC}->result") as $row => $values) {
+    foreach(F3::get("${DBC}->result") as $values) {
       $val_temp = array_values($values);
       if(!isset($val_temp[0]) || !isset($val_temp[1])) { F3::error('', 'SQL::DBOptionlist query must return two columns.'); }
       $val_temp[0] = htmlentities($val_temp[0]);
@@ -84,7 +84,7 @@ class SQL {
    * @param string $table Database table name
    * @param array $query_params Array of key/value pairs to convert to 'WHERE' conditions
    * @param string $DBC Database connection name
-   * @return $array
+   * @return string WHERE clause
    * 
    * @todo Find a more appropriate place for this
    * @todo Update this to allow different conditional operators for each $query_params
@@ -119,7 +119,7 @@ class SQL {
    * Splits a SQL SELECT string by clauses
    * 
    * @param string $select_statement SQL SELECT statement
-   * @return $array Array of individual SELECT clauses
+   * @return array Array of individual SELECT clauses
    * 
    */
   public static function explodeSelectStatement($select_statement) {
@@ -150,7 +150,7 @@ class SQL {
    * Splits a SQL 'SELECT' clause string into individual fields
    * 
    * @param string $select_clause SQL SELECT clause
-   * @return $array Array of individual SELECT clause fields
+   * @return array Array of individual SELECT clause fields
    * 
    */
   public static function explodeSelectClause($select_clause) {

@@ -14,10 +14,9 @@
 //Check to make sure PHP version 5.3.7 or higher is being used; bail if not
 if(version_compare(phpversion(), '5.3.7', '<')) { die('ERROR: Squerly requires PHP 5.3.7 or higher to run.'); }
 
-require __DIR__ . '/lib/base.php'; //Fat-Free Framework (F3) core code
-require __DIR__ . '/config/squerly.config.php'; //Squerly configuration settings
-require __DIR__ . '/vendor/autoload.php'; //Composer package management/autoloading
-
+require_once __DIR__ . '/lib/base.php'; //Fat-Free Framework (F3) core code
+require_once __DIR__ . '/config/squerly.config.php'; //Squerly configuration settings
+require_once __DIR__ . '/vendor/autoload.php'; //Composer package management/autoloading
 
 //Fat-Free Framework vars
 F3::set('TEMP', 'tmp/');
@@ -46,25 +45,24 @@ if(!function_exists('_')) {
   }
 }
 
+//Choose a SQLite database to use based on the 'instance' specified in the URL path
+//TODO: flesh this out so that it supports other database types besides SQLite
+$request_uri = $_SERVER['REQUEST_URI'];
+$uri_pieces = explode('/', $request_uri);
+$instance = preg_replace('/[^A-Za-z0-9_]/', '', $uri_pieces[1]);
+$sqlite_filename = "data/{$instance}.sqlite";
+if(!file_exists(__DIR__ . DIRECTORY_SEPARATOR . $sqlite_filename)) { F3::error(500, 'There is no Squerly instance configured at this address. Make sure you have the correct URL.'); }
+F3::set('DB',
+  new DB(
+    "sqlite:{$sqlite_filename}", //DB Connection string/DSN
+    '', //Username
+    ''  //Password
+  )
+);
+
 //Array of data models that may be accessed through the CRUD routing interface
 //Format: 'Friendly Name' => 'model name'
-F3::set('CRUD_TABLE_WHITELIST', array(
-  'Report' =>   'report',
-  'Saved Report Configuration' => 'saved_report',
-  'Form Field Tooltip' => 'form_field_tooltip',
-  'Schedule' => 'schedule',
-  'Email Sender' => 'email_sender',
-  'Email Recipient' => 'email_recipient',
-  'Email Distribution List' => 'email_distribution_list',
-  'Email Distribution List Recipient' => 'email_distribution_list_recipient',
-  'Emailed Report Event' => 'event_email_saved_report_results',
-  'Data Source Type' => 'data_source_type',
-  'Data Source' => 'data_source',
-
-  'SSH Connection' => 'ssh_connection',
-  'Saved Report Group' => 'saved_report_group',
-  'Saved Report Group Element' => 'saved_report_group_element',
-));
+F3::set('CRUD_TABLE_WHITELIST', CRUD_Helper::$model_whitelist);
 
 Route::loadAll(); //Load all the application routes
 Report_DB_Connection::loadAll(); //Load all the reporting database connections

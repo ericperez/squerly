@@ -19,6 +19,7 @@ class Report_Sql extends Report_Base {
 
   public $bind_params = array();
   public $processed_query = '';
+  public $report_is_running = false;
   //TODO: figure out a better way of doing this
   public static $field_html_classes = array(
     'query' => 'codemirror_mysql',
@@ -26,29 +27,30 @@ class Report_Sql extends Report_Base {
   );
 
   const REPORT_DISALLOWED_KEYWORD = 'Disallowed keyword found in report; aborting.';
-  const REPORT_NOT_SELECT_STATEMENT = 'Report query must be a SELECT statment; aborting.';
+  const REPORT_NOT_SELECT_STATEMENT = 'Report query must be a SELECT statement; aborting.';
 
   /**
    *
    * _addReportIdentifierComment - Adds a comment to the query for easy identification in logs
    *
+   * @todo Add Squerly 'instance', username, and URL of report to the identifying comment
+   *
    */
   protected function _addReportIdentifierComment() {
-    $report_name = addslashes($this->name);
-    $report_run_time = strtotime("now");
-    $report_unique_id = md5($report_name . $report_run_time);
+    $report_id_name = '[' . $this->id . '] ' . addslashes($this->name);
+    $report_start_time = date("F j, Y @ g:i a T");
     $report_identifier_comment =
-    "
+    "\n
+    /* -==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-
 
-    /* -==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-
+          Powered by Squerly(tm) - http://www.squerly.net
 
-      Report Name: {$report_name}
-      Report Run Time: {$report_run_time}
-      Report Unique ID: {$report_unique_id}
+          Report ID/Name: {$report_id_name}
+          Report Start Time: {$report_start_time}
+          Report Unique ID: {$this->unique_id}
+          Host: {$_SERVER['SERVER_NAME']}
 
-    -==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==- */
-
-    ";
+       -==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==-==- */";
     $this->processed_query = $this->processed_query . $report_identifier_comment;
   }
 
@@ -56,7 +58,7 @@ class Report_Sql extends Report_Base {
   /**
    *
    * _isValid - checks report SQL for disallowed/descructive keywords
-   * @note - This is not completely comprehensive but should act as a basic sanity check for disallowed statments running
+   * @note - This is not completely comprehensive but should act as a basic sanity check for disallowed statements running
    *
    */
   protected function _isValid() {
@@ -119,13 +121,14 @@ class Report_Sql extends Report_Base {
    */
   public function getResults($max_return_rows = 0, array $input_values = array(), $transformation = null) {
     $this->_preprocessQuery($max_return_rows, $input_values); //Pre-process the query through various filters
-    if($this->_isValid())
-    {
+    if($this->_isValid()) {
       try {
+        $this->report_is_running = true;
         $this->getData();
-      }
-      catch(Exception $e) {
+        $this->report_is_running = false;
+      } catch(Exception $e) {
         //TODO: Handle exception - display error details in development; generic error message in production
+        $this->report_is_running = false;
         throw new Exception($e);
       }
     }
@@ -150,7 +153,7 @@ class Report_Sql extends Report_Base {
    *
    */
   public function getData() {
-    $db_adapter = !empty($this->db_adapter) ? 'DB_' . $this->db_adapter : 'DB_Report';
+    $db_adapter = !empty($this->db_adapter) ? 'DB_' . $this->db_adapter : 'DB_Report'; //TODO: move this to constructor
     $this->results = Data_Source::loadSQL($this->processed_query, $this->bind_params, $db_adapter);
   }
 

@@ -17,6 +17,7 @@ class Report_Base extends Report_Abstract {
   public $processed_query = '';
   public $results = array();
   public $clean_properties = array();
+  public $unique_id = '';
   public static $model = 'report';
 
 
@@ -28,6 +29,7 @@ class Report_Base extends Report_Abstract {
   *
   */
   public function __construct($db = null) {
+    $this->unique_id = md5(microtime(true) . uniqid('squerly_', true));
     $this->sync(self::$model);
   }
 

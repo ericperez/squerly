@@ -29,23 +29,10 @@
   -Note: If you leave this as the default value, Squerly will use a SQLite database that ships with the application
 */
 
-//Choose a SQLite database to use based on the 'instance' specified in the URL path
-$request_uri = $_SERVER['REQUEST_URI'];
-$uri_pieces = explode('/', $request_uri);
-$instance = preg_replace('/[^A-Za-z]/', '', $uri_pieces[1]);
-$sqlite_filename = "data/{$instance}.sqlite";
-if(!file_exists(__DIR__ . '/../' . $sqlite_filename)) { F3::error(500, 'Invalid Instance'); }
-F3::set('DB',
-  new DB(
-    "sqlite:{$sqlite_filename}", //DB Connection string/DSN
-    '', //Username
-    ''  //Password
-  )
-);
 
 //Fat-Free Framework Setup Variables
 F3::set('DEBUG', 3); //Debug output verbosity
-F3::set('CACHE', true); //Enable or disable caching globally
+F3::set('CACHE', false); //Enable or disable caching globally
 //F3::set('PLUGINS', '');
 
 //Squerly Setup Variables

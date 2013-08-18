@@ -23,6 +23,8 @@ class CRUD extends Axon {
   * CRUD Factory (makes CRUD haha)
   *
   * @param string $model CRUD model to instantiate
+  * @param string $db Name of database connection to use
+  *
   * @return object Instance of CRUD-subclass specified in $model
   *
   */

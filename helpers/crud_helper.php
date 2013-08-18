@@ -14,6 +14,23 @@
   */
 class CRUD_Helper {
 
+  static $model_whitelist = array(
+    'Report' => 'report',
+    'Saved Report Configuration' => 'saved_report',
+    'Form Field Tooltip' => 'form_field_tooltip',
+    'Schedule' => 'schedule',
+    'Email Sender' => 'email_sender',
+    'Email Recipient' => 'email_recipient',
+    'Email Distribution List' => 'email_distribution_list',
+    'Email Distribution List Recipient' => 'email_distribution_list_recipient',
+    'Emailed Report Event' => 'event_email_saved_report_results',
+    'Data Source Type' => 'data_source_type',
+    'Data Source' => 'data_source',
+    'SSH Connection' => 'ssh_connection',
+    'Saved Report Group' => 'saved_report_group',
+    'Saved Report Group Element' => 'saved_report_group_element',
+  );
+
 /**
   *
   * Adds 'action' columns to a record dataset
