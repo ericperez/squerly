@@ -38,8 +38,6 @@ class ComposerAutoloaderInit90a9bd216a549df006b91ec8ecd0cabb
 
         $loader->register(true);
 
-        require $vendorDir . '/thobbs/phpcassa/lib/autoload.php';
-
         return $loader;
     }
 }
