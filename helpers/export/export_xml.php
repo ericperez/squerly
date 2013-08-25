@@ -35,7 +35,7 @@ class Export_Xml implements Export_Interface {
       foreach($row as $key => $val) {
         $key = String::machine((string) $key, true) ?: 'NULL';
         if(is_numeric(substr($key, 0, 1))) { $key = 'x' . $key; }
-        $val = (string) $val;
+        $val = htmlspecialchars($val);
         $row_obj->addChild($key, $val);
       }
     }
