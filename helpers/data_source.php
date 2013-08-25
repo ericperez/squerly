@@ -1,18 +1,18 @@
 <?php
 /**
-  *
-  * Squerly - Data Source/Import Helpers
-  * 
-  * @author Eric Perez <ericperez@squerly.net>
-  * @copyright (c)2012-2013 Squerly contributors (Eric Perez, et al.)
-  * @license GNU General Public License, version 3 or later
-  * @license http://opensource.org/licenses/gpl-3.0.html
-  * @link http://www.squerly.net
-  * 
-  * @todo refactor this as a factory/plugin loader?
-  * @todo Add more import methods for Google Spreadsheets, MongoDB, CouchDB, etc.
-  * 
-  */
+ *
+ * Squerly - Data Source/Import Helpers
+ *
+ * @author Eric Perez <ericperez@squerly.net>
+ * @copyright (c)2012-2013 Squerly contributors (Eric Perez, et al.)
+ * @license GNU General Public License, version 3 or later
+ * @license http://opensource.org/licenses/gpl-3.0.html
+ * @link http://www.squerly.net
+ *
+ * @todo refactor this as a factory/plugin loader?
+ * @todo Add more import methods for Google Spreadsheets, MongoDB, CouchDB, etc.
+ *
+ */
 class Data_Source {
 
  /**
@@ -90,24 +90,24 @@ class Data_Source {
   }
 
 
-/**
-  *
-  * CSV String import method
-  * 
-  * Loads data from a CSV string and converts it into an associative array
-  * 
-  * @param string $input CSV string
-  * @param int $max_rows Maximum number of rows of CSV data to load
-  * @param string $delimiter Character that delimits the CSV fields (defaults to a comma)
-  * @param array $header Array of field/header columns
-  * @param string $row_trim_chars String of characters to trim off of each row
-  * @param int $ignore_lines Number of lines to skip
-  *
-  * @return array 2D associative array holding a representation of the CSV data
-  *
-  * @todo: Combine commonalities of this method with loadCSVFile
-  *
-  */
+  /**
+   *
+   * CSV String import method
+   *
+   * Loads data from a CSV string and converts it into an associative array
+   *
+   * @param string $input CSV string
+   * @param int $max_rows Maximum number of rows of CSV data to load
+   * @param string $delimiter Character that delimits the CSV fields (defaults to a comma)
+   * @param array $header Array of field/header columns
+   * @param string $row_trim_chars String of characters to trim off of each row
+   * @param int $ignore_lines Number of lines to skip
+   *
+   * @return array 2D associative array holding a representation of the CSV data
+   *
+   * @todo: Combine commonalities of this method with loadCSVFile
+   *
+   */
   public static function loadCSVString($input, $max_rows = 0, $delimiter = ',', array $header = array(), $row_trim_chars = '', $ignore_lines = 0) {
     $output = array();
     $input_rows = ($ignore_lines === 0) ? explode(PHP_EOL, $input) : array_slice(explode(PHP_EOL, $input), $ignore_lines); 
