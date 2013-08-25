@@ -314,7 +314,7 @@ class CRUD_Helper {
   * 
   */
   public static function getModelPath() {
-    list($model, $model_friendly) = self::getModelName();
+    list($model) = self::getModelName();
     $instance = self::getInstanceName();
     return F3::get('URL_BASE_PATH') . $instance . '/' . $model;
   }
@@ -424,12 +424,14 @@ class CRUD_Helper {
   public static function preprocessRecordData(array $records) {
     //XSS mitigation
     foreach($records as &$record) {
-      foreach($record as $key => &$val) {
+      foreach($record as &$val) {
         $val = htmlentities($val);
       }
     }
+    //TODO: pass $records by reference
     $records = Db_Meta::resolveForeignKeys($records);
     $records = self::addActionColumns($records);
+    $records = self::relativizeDateColumns($records);
     //$records = self::normalizeBooleanFields($records);
     return $records;
   }
@@ -477,6 +479,28 @@ class CRUD_Helper {
     }
     return $return;
   }
+
+
+  /**
+   *
+   * Changes the Created, Updated and Deleted At Columns to relative dates
+   *
+   * @param array $records 2D array of CRUD record data
+   * @return array 2D array of CRUD record data after processing
+   *
+   * @todo Pass $records by reference ??
+   *
+   */
+  public static function relativizeDateColumns(array $records) {
+    $date_fields = array('created_at', 'updated_at'); //, 'deleted_at'); //TODO: update this list
+    foreach($records as &$record) {
+      foreach($date_fields as &$date_field) {
+        $record[$date_field] = Date_Difference::getString(date_create($record[$date_field]));
+      }
+    }
+    return $records;
+  }
+
 
 
  /**
