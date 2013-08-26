@@ -147,7 +147,41 @@ class Data_Source {
   }
 
 
-/**
+  /**
+   *
+   * Spreadsheet File/URI import method
+   *
+   * Loads data from a Spreadsheet file/URI and converts it into an associative array
+   *
+   * @note Currently only loads data from the first sheet
+   * @note This load method uses PHPExcel which has the ability to detect Excel and OpenOffice spreadsheet documents and parse them
+   * @param string $file_path Local file path or URI that points to Spreadsheet data
+   *
+   * @return array 2D associative array holding a representation of the Spreadsheet data
+   *
+   * @todo Add Support for multiple sheets (sheets with index > 0)
+   * @todo Would it be more (memory) efficient to convert spreadsheet to CSV on load and then read the data in from that?
+   *
+   */
+  public static function loadSpreadsheet($file_path) {
+    $reader = PHPExcel_IOFactory::createReaderForFile($file_path);
+    $reader->setReadDataOnly(true);
+    $php_excel = $reader->load($file_path);
+    $sheet_data = $php_excel->getActiveSheet()->toArray();
+
+    //Free up some memory
+    $php_excel->disconnectWorksheets();
+    $php_excel = null;
+    $reader = null;
+    $column_headers = array_shift($sheet_data);
+    foreach($sheet_data as &$row) {
+      $row = array_combine($column_headers, array_values($row));
+    }
+    return $sheet_data;
+  }
+
+
+ /**
   *
   * JSON File/URI import method
   * 

@@ -1,47 +1,60 @@
 [
     {
-        "name": "thobbs/phpcassa",
-        "version": "dev-master",
-        "version_normalized": "9999999-dev",
+        "name": "phpoffice/phpexcel",
+        "version": "1.7.9",
+        "version_normalized": "1.7.9.0",
         "source": {
             "type": "git",
-            "url": "https://github.com/thobbs/phpcassa.git",
-            "reference": "9f6063f25b9bc8c57eb0e19ebaa62c7913907b22"
+            "url": "https://github.com/PHPOffice/PHPExcel.git",
+            "reference": "1.7.9"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/thobbs/phpcassa/zipball/9f6063f25b9bc8c57eb0e19ebaa62c7913907b22",
-            "reference": "9f6063f25b9bc8c57eb0e19ebaa62c7913907b22",
+            "url": "https://api.github.com/repos/PHPOffice/PHPExcel/zipball/1.7.9",
+            "reference": "1.7.9",
             "shasum": ""
         },
         "require": {
-            "php": ">=5.3.0"
+            "ext-xml": "*",
+            "php": ">=5.2.0"
         },
-        "suggest": {
-            "ext-thrift_protocol": "Enabling the thrift protocol extension is crucial for phpcassa's performance"
-        },
-        "time": "2013-05-28 15:48:59",
+        "time": "2013-05-24 11:57:42",
         "type": "library",
-        "installation-source": "source",
+        "installation-source": "dist",
         "autoload": {
-            "files": [
-                "lib/autoload.php"
-            ]
+            "psr-0": {
+                "PHPExcel": "Classes/"
+            }
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
-            "MIT"
+            "LGPL"
         ],
         "authors": [
             {
-                "name": "Tyler Hobbs",
-                "homepage": "https://github.com/thobbs/phpcassa"
+                "name": "Maarten Balliauw",
+                "homepage": "http://blog.maartenballiauw.be"
+            },
+            {
+                "name": "Mark Baker"
+            },
+            {
+                "name": "Franck Lefevre",
+                "homepage": "http://blog.rootslabs.net"
+            },
+            {
+                "name": "Erik Tilt"
             }
         ],
-        "description": "PHP Cassandra Library",
-        "homepage": "https://github.com/thobbs/phpcassa",
+        "description": "PHPExcel - OpenXML - Read, Create and Write Spreadsheet documents in PHP - Spreadsheet engine",
+        "homepage": "http://phpexcel.codeplex.com",
         "keywords": [
-            "cassandra"
+            "OpenXML",
+            "excel",
+            "php",
+            "spreadsheet",
+            "xls",
+            "xlsx"
         ]
     },
     {
@@ -51,12 +64,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/PHPMailer/PHPMailer.git",
-            "reference": "82cce95c28f1859c4cb2b62b76e71638b10de076"
+            "reference": "9d05b0d8edd8092dabf5d60080c0e26cafed3d51"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/82cce95c28f1859c4cb2b62b76e71638b10de076",
-            "reference": "82cce95c28f1859c4cb2b62b76e71638b10de076",
+            "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/9d05b0d8edd8092dabf5d60080c0e26cafed3d51",
+            "reference": "9d05b0d8edd8092dabf5d60080c0e26cafed3d51",
             "shasum": ""
         },
         "require": {
@@ -66,7 +79,7 @@
             "phpdocumentor/phpdocumentor": "*",
             "phpunit/phpunit": "*"
         },
-        "time": "2013-06-06 21:50:59",
+        "time": "2013-08-04 09:26:52",
         "type": "library",
         "installation-source": "source",
         "autoload": {

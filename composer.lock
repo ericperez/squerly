@@ -1,60 +1,22 @@
 {
-    "hash": "382f14e4bec5c8cb8a4a620408d0c84f",
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+    ],
+    "hash": "a0442a8e83372c5bd6be5a390fce2eff",
     "packages": [
-        {
-            "name": "mustache/mustache",
-            "version": "v2.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/bobthecow/mustache.php",
-                "reference": "v2.1.0"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://github.com/bobthecow/mustache.php/archive/v2.1.0.zip",
-                "reference": "v2.1.0",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.2.4"
-            },
-            "time": "2013-01-12 07:18:03",
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Mustache": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Justin Hileman",
-                    "email": "justin@justinhileman.info",
-                    "homepage": "http://justinhileman.com"
-                }
-            ],
-            "description": "A Mustache implementation in PHP.",
-            "homepage": "https://github.com/bobthecow/mustache.php",
-            "keywords": [
-                "mustache",
-                "templating"
-            ]
-        },
         {
             "name": "phpmailer/phpmailer",
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "git://github.com/Synchro/PHPMailer.git",
-                "reference": "a51a9e1818d7df805192acde167ed78d8114c243"
+                "url": "https://github.com/PHPMailer/PHPMailer.git",
+                "reference": "9d05b0d8edd8092dabf5d60080c0e26cafed3d51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Synchro/PHPMailer/zipball/a51a9e1818d7df805192acde167ed78d8114c243",
-                "reference": "a51a9e1818d7df805192acde167ed78d8114c243",
+                "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/9d05b0d8edd8092dabf5d60080c0e26cafed3d51",
+                "reference": "9d05b0d8edd8092dabf5d60080c0e26cafed3d51",
                 "shasum": ""
             },
             "require": {
@@ -64,7 +26,6 @@
                 "phpdocumentor/phpdocumentor": "*",
                 "phpunit/phpunit": "*"
             },
-            "time": "2013-02-02 20:10:17",
             "type": "library",
             "autoload": {
                 "classmap": [
@@ -94,15 +55,80 @@
                     "name": "Brent R. Matzelle"
                 }
             ],
-            "description": "PHPMailer is a full-featured email creation and transfer class for PHP"
+            "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
+            "time": "2013-08-04 09:26:52"
+        },
+        {
+            "name": "phpoffice/phpexcel",
+            "version": "1.7.9",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PHPOffice/PHPExcel.git",
+                "reference": "1.7.9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PHPOffice/PHPExcel/zipball/1.7.9",
+                "reference": "1.7.9",
+                "shasum": ""
+            },
+            "require": {
+                "ext-xml": "*",
+                "php": ">=5.2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "PHPExcel": "Classes/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL"
+            ],
+            "authors": [
+                {
+                    "name": "Maarten Balliauw",
+                    "homepage": "http://blog.maartenballiauw.be"
+                },
+                {
+                    "name": "Mark Baker"
+                },
+                {
+                    "name": "Franck Lefevre",
+                    "homepage": "http://blog.rootslabs.net"
+                },
+                {
+                    "name": "Erik Tilt"
+                }
+            ],
+            "description": "PHPExcel - OpenXML - Read, Create and Write Spreadsheet documents in PHP - Spreadsheet engine",
+            "homepage": "http://phpexcel.codeplex.com",
+            "keywords": [
+                "OpenXML",
+                "excel",
+                "php",
+                "spreadsheet",
+                "xls",
+                "xlsx"
+            ],
+            "time": "2013-05-24 11:57:42"
         }
     ],
-    "packages-dev": null,
+    "packages-dev": [
+
+    ],
     "aliases": [
 
     ],
     "minimum-stability": "stable",
     "stability-flags": {
         "phpmailer/phpmailer": 20
-    }
+    },
+    "platform": [
+
+    ],
+    "platform-dev": [
+
+    ]
 }

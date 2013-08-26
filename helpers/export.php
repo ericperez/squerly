@@ -74,6 +74,9 @@ class Export {
       'csv' => 'CSV',
       'json' => 'JSON',
       'xml' => 'XML',
+      'excel_2007' => 'Excel 2007+',
+      'excel_5' => 'Excel (Legacy)',
+
       'kml_points' => 'KML Points',
     );
   }

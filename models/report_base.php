@@ -117,7 +117,7 @@ class Report_Base extends Report_Abstract {
   protected function _postprocessResults($max_return_rows = 0, $transformation = null) {
     $postprocess_code = String::stripComments($this->postprocess_code);
     if(!empty($postprocess_code)) { $this->_phpPostprocess(); }
-    $this->results = Transform::run($this->results, $transformation);
+    if($transformation !== null) { $this->results = Transform::run($this->results, $transformation); }
     if($max_return_rows > 0 && sizeof($this->results) > $max_return_rows) { 
       $this->results = array_slice($this->results, 0, $max_return_rows); 
     }

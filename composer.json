@@ -1,5 +1,6 @@
 {
   "require": {
-  	"phpmailer/phpmailer": "dev-master"
+  	"phpmailer/phpmailer": "dev-master",
+    "phpoffice/phpexcel": "1.7.9"
   }
 }

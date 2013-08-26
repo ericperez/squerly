@@ -13,7 +13,7 @@
   * 
   */
 class String {
-  
+
  /**
   *
   * 'Humanize' a string formatted for a machine (e.g. 'field_name' -> 'Field Name')
@@ -57,7 +57,10 @@ class String {
       '/Utc/'        => 'UTC',
       '/Ssh/'        => 'SSH',
       '/Smtp/'       => 'SMTP',
+      '/Xls/'        => 'XLS',
       '/Javascript/' => 'JavaScript',
+      '/^Created At$/' => 'Created',
+      '/^Updated At$/' => 'Updated',
     );
     $output = ucwords(strtolower(str_replace('_', ' ', $input))); //TODO: preg_replace('/[_]+/', ' ', $input)
     $output = preg_replace(array_keys($replacements), array_values($replacements), $output);
