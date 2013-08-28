@@ -1,17 +1,17 @@
-<?php 
- /**
-  *
-  * Squerly - CRUD Helpers
-  * 
-  * The methods in CRUD_Helper are supporting functionality for the Squerly CRUD Controller & CRUD/Axon Models
-  *
-  * @author Eric Perez <ericperez@squerly.net>
-  * @copyright (c)2012-2013 Squerly contributors (Eric Perez, et al.)
-  * @license GNU General Public License, version 3 or later
-  * @license http://opensource.org/licenses/gpl-3.0.html
-  * @link http://www.squerly.net
-  *
-  */
+<?php
+/**
+ *
+ * Squerly - CRUD Helpers
+ *
+ * The methods in CRUD_Helper are supporting functionality for the Squerly CRUD Controller & CRUD/Axon Models
+ *
+ * @author Eric Perez <ericperez@squerly.net>
+ * @copyright (c)2012-2013 Squerly contributors (Eric Perez, et al.)
+ * @license GNU General Public License, version 3 or later
+ * @license http://opensource.org/licenses/gpl-3.0.html
+ * @link http://www.squerly.net
+ *
+ */
 class CRUD_Helper {
 
   static $model_whitelist = array(
@@ -31,21 +31,21 @@ class CRUD_Helper {
     'Saved Report Group Element' => 'saved_report_group_element',
   );
 
-/**
-  *
-  * Adds 'action' columns to a record dataset
-  *
-  * @param array $records 2D Array of CRUD records
-  * @param array $additional_actions Array 
-  * @return array Records with 'action' columns added
-  * 
-  */
+  /**
+   *
+   * Adds 'action' columns to a record dataset
+   *
+   * @param array $records 2D Array of CRUD records
+   * @param array $additional_actions Array
+   * @return array Records with 'action' columns added
+   *
+   */
   public static function addActionColumns(array $records, array $additional_actions = array()) {
     list($model, $model_friendly) = self::getModelName();
     $class_name = String::modelToClass($model);
 
     //For now, it's assumed that primary key is called 'id'
-    if(!isset($records[0]['id'])) { return $records; } 
+    if(!isset($records[0]['id'])) { return $records; }
 
     foreach($records as &$record) {
       $id = $record['id'];
@@ -71,36 +71,36 @@ class CRUD_Helper {
   }
 
 
- /**
-  *
-  * Adds the 'universal' prefix defined in the configuration to the model name
-  *
-  * @param string $model DB Table/model name
-  * @return string Prefix and Table name concatenated together
-  * 
-  * @todo Fix this! (Currently this method does nothing)
-  *
-  */
+  /**
+   *
+   * Adds the 'universal' prefix defined in the configuration to the model name
+   *
+   * @param string $model DB Table/model name
+   * @return string Prefix and Table name concatenated together
+   *
+   * @todo Fix this! (Currently this method does nothing)
+   *
+   */
   public static function addTablePrefix($model) {
     return F3::get('DB_TABLE_PREFIX') . $model;
   }
 
 
- /**
-  *
-  * Builds a basic HTML Form from a given model/database table based on it's structure
-  *
-  * @param string $model - DB Table/model name
-  * @param array $field_configs Field configuration settings (HTML attributes)
-  * @param array $values Mapping of field values
-  * @param array $form_config Configuration including URI string describing where the form values should be sent
-  * @param string Database connection variable name
-  * @return string HTML form that mirrors the data structure of DB table
-  * 
-  * @todo refactor this to use the depage-form model
-  * @todo separate table markup from form markup
-  * 
-  */
+  /**
+   *
+   * Builds a basic HTML Form from a given model/database table based on it's structure
+   *
+   * @param string $model - DB Table/model name
+   * @param array $field_configs Field configuration settings (HTML attributes)
+   * @param array $values Mapping of field values
+   * @param array $form_config Configuration including URI string describing where the form values should be sent
+   * @param string Database connection variable name
+   * @return string HTML form that mirrors the data structure of DB table
+   *
+   * @todo refactor this to use the depage-form model
+   * @todo separate table markup from form markup
+   *
+   */
   public static function buildFormFromModel($model, array $field_configs = array(), array $values = array(), array $form_config = array(), $DBC = 'DB') {
     $form_header = isset($form_config['header']) ? '<h3>' . $form_config['header'] . '</h3><br/>' : '';
     $form_method = isset($form_config['method']) ? $form_config['method'] : 'post';
@@ -109,11 +109,11 @@ class CRUD_Helper {
     $output['form_header_markup'] = Form::open($form_action, array('method' => $form_method));
     $output['form_header_markup'] .= $form_header . "<table class='datatable'><thead></thead><tbody>"; //TODO: add fields to thead!!!!
     $table_desc = Db_Meta::describeTable($model, $DBC);
-    
+
     //Array of fields to not render in the form
     //TODO: expand this list
     $skip_fields = array(); //'created_at', 'updated_at', 'edited_at', 'added_at', 'editstamp', 'updatestamp', 
-      //'edit_stamp', 'update_stamp', 'last_update', 'last_edit', 'last_edited_at', 'last_updated_at');
+    //'edit_stamp', 'update_stamp', 'last_update', 'last_edit', 'last_edited_at', 'last_updated_at');
 
     $foreign_keys = Db_Meta::getForeignKeys($model);
     $tooltips = self::getTooltipHTML($model);
@@ -130,20 +130,20 @@ class CRUD_Helper {
         'title' => isset($tooltips[$column_name]) ? $tooltips[$column_name] : '',
         //'size' => $field['LENGTH'],
       );
-  
+
       //Set HTML5 'required' attribute (on POST forms)
-      if(strtolower($form_method) === 'post' && !$field['NULLABLE']) { 
-        $field_attribs['required'] = 'required'; 
+      if(strtolower($form_method) === 'post' && !$field['NULLABLE']) {
+        $field_attribs['required'] = 'required';
       }
 
       //Make sure 'ID' fields are hidden
       //TODO: use table primary keys for $hidden_fields ??
       //TODO: make this more robust
       $hidden_fields = array(
-        'id', 
-        'record_id', 
-        'recordid', 
-        $field['TABLE_NAME'] . '_id', 
+        'id',
+        'record_id',
+        'recordid',
+        $field['TABLE_NAME'] . '_id',
         $field['TABLE_NAME'] . 'id',
         'created_by_user_id', //TODO: update these fields on back end instead of form
         'created_at',
@@ -151,9 +151,9 @@ class CRUD_Helper {
         'updated_at',
         'deleted_by_user_id',
         'deleted_at',
-      ); 
-      if(in_array($field['COLUMN_NAME'], $hidden_fields)) { 
-        $field_attribs['type'] = 'hidden'; 
+      );
+      if(in_array($field['COLUMN_NAME'], $hidden_fields)) {
+        $field_attribs['type'] = 'hidden';
         $output[$column_name] = "<tr style='display: none;'><td>&nbsp;</td>\n";
       } else {
         //Build the Field Label
@@ -210,7 +210,7 @@ class CRUD_Helper {
             $width = $field_attribs['type'] === 'number' ? $min_width : $field_attribs['maxlength'] * 10;
             $width = ($width >= $min_width) ? $width : $min_width;
             $width = ($width <= $max_width) ? $width : $max_width;
-            $field_attribs['style'] = "width: {$width}px;"; 
+            $field_attribs['style'] = "width: {$width}px;";
           }
           $output[$column_name] .= '<td>' . Form::input($field_attribs['name'], $value, $field_attribs) . "</td></tr>\n";
           break;
@@ -222,39 +222,39 @@ class CRUD_Helper {
   }
 
 
- /**
-  *
-  * Builds a basic HTML form for CRUD delete routes
-  *
-  * @param string $model - DB Table/model name
-  * @param string $id Primary key/ID value of record to delete
-  * @return string HTML form that POSTs to the record 'delete' route
-  * 
-  * @todo this is a temporary method until something better is built
-  * 
-  */
+  /**
+   *
+   * Builds a basic HTML form for CRUD delete routes
+   *
+   * @param string $model - DB Table/model name
+   * @param string $id Primary key/ID value of record to delete
+   * @return string HTML form that POSTs to the record 'delete' route
+   *
+   * @todo this is a temporary method until something better is built
+   *
+   */
   public static function buildDeleteForm($model, $id) {
     $model_path = self::getModelPath();
     $csrf_token = 'asdlfj4234oK'; //TODO: generate real token
     $redirect = 'true'; //TODO: read this from 'redirect' PARAM
     $form_action = "{$model_path}/delete/{$id}/token/{$csrf_token}/redirect/{$redirect}";
-    $output = 
+    $output =
       Form::open($form_action) . "\n" .
-      Form::submit('delete', 'Yes') . '&nbsp;' . "\n" .
-      Form::submit('delete', 'No') . "\n" . 
-      Form::close() . "\n";
+        Form::submit('delete', 'Yes') . '&nbsp;' . "\n" .
+        Form::submit('delete', 'No') . "\n" .
+        Form::close() . "\n";
     return $output;
   }
 
 
- /**
-  *
-  * Retrieves form markup based on a PHP class name
-  *
-  * @param string $class PHP class name that contains the form configuration info
-  * @return string Form markup
-  *
-  */
+  /**
+   *
+   * Retrieves form markup based on a PHP class name
+   *
+   * @param string $class PHP class name that contains the form configuration info
+   * @return string Form markup
+   *
+   */
   public static function getForm($class) {
     if(is_null($class)) { return null; }
     $class_implements = (@class_exists($class) && @class_implements($export_plugin)) ?: array();
@@ -265,23 +265,23 @@ class CRUD_Helper {
 
   //TODO: Add method getInstanceName()
 
- /**
-  *
-  * Gets the 'model' param from the URI path and checks it against the model whitelist
-  * 
-  * If it's in the whitelist the model name/friendly name is returned if found, otherwise sends 404 error
-  *
-  * @param boolean $use_default - If true, gets the default model from the DEFAULT_MODEL config item
-  * @return array ('Table Name' => 'Friendly Name')
-  * 
-  */
+  /**
+   *
+   * Gets the 'model' param from the URI path and checks it against the model whitelist
+   *
+   * If it's in the whitelist the model name/friendly name is returned if found, otherwise sends 404 error
+   *
+   * @param boolean $use_default - If true, gets the default model from the DEFAULT_MODEL config item
+   * @return array ('Table Name' => 'Friendly Name')
+   *
+   */
   public static function getModelName($use_default = false) {
     $uri_path = explode('/', F3::get('PARAMS.0'));
     $model = $use_default ? F3::get('DEFAULT_MODEL') : F3::get('PARAMS.model') ?: $uri_path[2] ?: '';
     $table = !empty($model) ? self::addTablePrefix($model) : '';
     $table = in_array($table, F3::get('CRUD_TABLE_WHITELIST')) ? $table : null;
     if(!$table) {
-      ob_clean(); 
+      ob_clean();
       F3::error('', 'Could not determine model name or table is not in the whitelist');
     } elseif(!in_array($table, Db_Meta::getTables())) {
       F3::error('', "Configuration Error: Table '{$table}' does not exist!");
@@ -306,13 +306,13 @@ class CRUD_Helper {
   }
 
 
- /**
-  *
-  * Determines the URL path for the current model
-  *
-  * @return string 'URL_BASE_PATH' config item concatenated with the model name
-  * 
-  */
+  /**
+   *
+   * Determines the URL path for the current model
+   *
+   * @return string 'URL_BASE_PATH' config item concatenated with the model name
+   *
+   */
   public static function getModelPath() {
     list($model) = self::getModelName();
     $instance = self::getInstanceName();
@@ -320,14 +320,14 @@ class CRUD_Helper {
   }
 
 
- /**
-  * 
-  * Fetches form field tooltips for all fields by table name and returns them as an array
-  * 
-  * @param string $table_name CRUD Database table name
-  * @return array Associative array in the format $field_name => $tooltip_html
-  * 
-  */
+  /**
+   *
+   * Fetches form field tooltips for all fields by table name and returns them as an array
+   *
+   * @param string $table_name CRUD Database table name
+   * @return array Associative array in the format $field_name => $tooltip_html
+   *
+   */
   public static function getTooltipHTML($table_name) {
     $tooltip_file = __DIR__ . "/tooltips/{$table_name}.json";
     if(!file_exists($tooltip_file)) { return array(); }
@@ -335,18 +335,18 @@ class CRUD_Helper {
   }
 
 
- /**
-  *
-  * Normalizes boolean-esque data into
-  *
-  * @param array $records 2D array of CRUD record data
-  * @return array 2D array of CRUD record data after processing
-  * 
-  */
+  /**
+   *
+   * Normalizes boolean-esque data into
+   *
+   * @param array $records 2D array of CRUD record data
+   * @return array 2D array of CRUD record data after processing
+   *
+   */
   public static function normalizeBooleanFields(
-    array $records, 
-    array $bool_cols = array(), 
-    $true_val = 'Yes', 
+    array $records,
+    array $bool_cols = array(),
+    $true_val = 'Yes',
     $false_val = 'No'
   ) {
     $columns = array_keys($records[0]);
@@ -358,19 +358,19 @@ class CRUD_Helper {
   }
 
 
- /**
-  *
-  * Generates basic navigation HTML for a given CRUD 'action/route'
-  * 
-  *
-  * @param string $action string CRUD 'action/route'
-  * @param $extra_nav array Additional navigation actions
-  * @return string HTML that allows for basic navigation around the site
-  * 
-  * @todo refactor this; permissions, etc.
-  * @todo set 'action' as a param and retrieve from F3::get('PARAMS.action');
-  * @todo allow $extra_nav to override defaults
-  */
+  /**
+   *
+   * Generates basic navigation HTML for a given CRUD 'action/route'
+   *
+   *
+   * @param string $action string CRUD 'action/route'
+   * @param $extra_nav array Additional navigation actions
+   * @return string HTML that allows for basic navigation around the site
+   *
+   * @todo refactor this; permissions, etc.
+   * @todo set 'action' as a param and retrieve from F3::get('PARAMS.action');
+   * @todo allow $extra_nav to override defaults
+   */
   public static function navigation($action, array $extra_nav = array()) {
     $id = (int) F3::get('PARAMS.id') ?: null;
     list($model, $model_friendly) = self::getModelName();
@@ -394,7 +394,7 @@ class CRUD_Helper {
     );
 
     //Remove unwanted navigation items depending on what action is currently
-    if(in_array($action, array_keys($record_nav)) || !in_array($action, array_keys($basic_nav))) { 
+    if(in_array($action, array_keys($record_nav)) || !in_array($action, array_keys($basic_nav))) {
       $nav = $basic_nav + $record_nav + $extra_nav;
       unset($nav[$action]);
     } else {
@@ -411,16 +411,16 @@ class CRUD_Helper {
   }
 
 
- /**
-  *
-  * Runs pre-processing on an array of CRUD records (resolving foreign keys + more later)
-  *
-  * @param array $records 2D array of CRUD record data
-  * @return array 2D array of CRUD record data after processing
-  * 
-  * @todo Pass $records by reference ??
-  * 
-  */
+  /**
+   *
+   * Runs pre-processing on an array of CRUD records (resolving foreign keys + more later)
+   *
+   * @param array $records 2D array of CRUD record data
+   * @return array 2D array of CRUD record data after processing
+   *
+   * @todo Pass $records by reference ??
+   *
+   */
   public static function preprocessRecordData(array $records) {
     //XSS mitigation
     foreach($records as &$record) {
@@ -437,18 +437,18 @@ class CRUD_Helper {
   }
 
 
- /**
-  *
-  * Converts SQL field types to their respective HTML input field type
-  *
-  * @param string $sql_field_type SQL field type to map
-  * @param integer|null $length Maximum length of data in field
-  * 
-  * @return string Mapped HTML input field type
-  * 
-  * @todo Expand this
-  * 
-  */
+  /**
+   *
+   * Converts SQL field types to their respective HTML input field type
+   *
+   * @param string $sql_field_type SQL field type to map
+   * @param integer|null $length Maximum length of data in field
+   *
+   * @return string Mapped HTML input field type
+   *
+   * @todo Expand this
+   *
+   */
   public static function sqlFieldTypeMap($sql_field_type, $length = null) {
     $sql_field_type = preg_replace(array('/[^a-z]/', '/\(.*\)/'), '', strtolower($sql_field_type));
     $field_map = array(
@@ -475,7 +475,7 @@ class CRUD_Helper {
     if(in_array($sql_field_type, $text_types) && $length > $max_text_length) {
       $return = 'textarea';
     } else {
-      $return = array_key_exists($sql_field_type, $field_map) ? $field_map[$sql_field_type] : 'text'; 
+      $return = array_key_exists($sql_field_type, $field_map) ? $field_map[$sql_field_type] : 'text';
     }
     return $return;
   }
@@ -503,15 +503,15 @@ class CRUD_Helper {
 
 
 
- /**
-  *
-  * Returns an array of the 'base' set of JavaScript files used on most pages
-  *
-  * @return array JavaScript file URIs
-  * 
-  * @todo Clean this up
-  * 
-  */
+  /**
+   *
+   * Returns an array of the 'base' set of JavaScript files used on most pages
+   *
+   * @return array JavaScript file URIs
+   *
+   * @todo Clean this up
+   *
+   */
   public static function getBaseJavascript() {
     return array(
       "//cdnjs.cloudflare.com/ajax/libs/jquery/2.0.1/jquery.min.js",
@@ -523,15 +523,15 @@ class CRUD_Helper {
   }
 
 
- /**
-  *
-  * Returns an array of the 'base' set of CSS files used on most pages
-  *
-  * @return array CSS file URIs
-  * 
-  * @todo Clean this up
-  * 
-  */
+  /**
+   *
+   * Returns an array of the 'base' set of CSS files used on most pages
+   *
+   * @return array CSS file URIs
+   *
+   * @todo Clean this up
+   *
+   */
   public static function getBaseStylesheets() {
     return array(
       "//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.3/css/base/jquery-ui.css",

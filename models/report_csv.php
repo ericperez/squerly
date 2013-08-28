@@ -1,27 +1,27 @@
 <?php
 /**
-  *
-  * Squerly - CSV-based report class
-  * 
-  * Report_Csv is used to load data from a CSV file/URI and use it within the rest of the reporting framework
-  * 
-  * You should not instantiate this class directly; instead instantiate class 'Report' which has the ability
-  * to delegate to/factory the proper report sub-class based on the 'type' property
-  *
-  * @author Eric Perez <ericperez@squerly.net>
-  * @copyright (c)2012-2013 Squerly contributors (Eric Perez, et al.)
-  * @license GNU General Public License, version 3 or later
-  * @license http://opensource.org/licenses/gpl-3.0.html
-  * @link http://www.squerly.net
-  *
-  */
+ *
+ * Squerly - CSV-based report class
+ *
+ * Report_Csv is used to load data from a CSV file/URI and use it within the rest of the reporting framework
+ *
+ * You should not instantiate this class directly; instead instantiate class 'Report' which has the ability
+ * to delegate to/factory the proper report sub-class based on the 'type' property
+ *
+ * @author Eric Perez <ericperez@squerly.net>
+ * @copyright (c)2012-2013 Squerly contributors (Eric Perez, et al.)
+ * @license GNU General Public License, version 3 or later
+ * @license http://opensource.org/licenses/gpl-3.0.html
+ * @link http://www.squerly.net
+ *
+ */
 class Report_Csv extends Report_Base {
   public $bind_params = array();
 
   /**
    *
    * Checks report/query validity
-   * 
+   *
    * @return boolean True is valid, False if invalid
    * @todo Finish this
    *
@@ -30,7 +30,7 @@ class Report_Csv extends Report_Base {
   {
     //TODO: this does not work for http URIs
     //if(is_readable($this->input_data_uri) && file_exists($this->input_data_uri)) { 
-      return true; 
+    return true;
     //} else {
     //  F3::error('', "Invalid CSV input or file does not exist: {$this->input_data_uri}."); //TODO: make class constant
     //}
@@ -41,7 +41,7 @@ class Report_Csv extends Report_Base {
   /**
    *
    *  Preprocess query with PHP
-   * 
+   *
    * @param $max_return_rows integer Maximum number of rows of data to be returned (0 is unlimited)
    * @param $input_values array Array of input key-value pairs to plug into the report query
    *
@@ -65,7 +65,7 @@ class Report_Csv extends Report_Base {
   /**
    *
    * Runs the report query against the CSV data source and returns the results
-   * 
+   *
    * @param integer $max_return_rows Maximum number of rows of data to be returned (0 is unlimited)
    * @param array $input_values Array of input key-value pairs to plug into the report query
    * @param string $transformation Data transformation to apply to report results
@@ -105,7 +105,7 @@ class Report_Csv extends Report_Base {
   /**
    *
    * Retrieves the initial results data from the data source
-   * 
+   *
    * @todo Should this be public?
    *
    */
