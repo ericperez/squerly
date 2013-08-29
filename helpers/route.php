@@ -27,7 +27,8 @@ class Route
       //CRUD Routes
       array('crud' =>
         array('GET '  . $base_path . '@model/optionlist', 'Crud_Controller::optionlist', 10),
-        array('GET '  . $base_path . '@model', 'Crud_Controller::index', 10),
+        array('GET '  . $base_path . '@model', 'Crud_Controller::index', 0),
+        array('GET '  . $base_path . '@model/index', 'Crud_Controller::index', 0),
         array('GET '  . $base_path . '@model/add', 'Crud_Controller::add', 10),
         array('GET '  . $base_path . '@model/delete/@id', 'Crud_Controller::delete', 10),
         array('GET '  . $base_path . '@model/edit/@id', 'Crud_Controller::edit', 0),
@@ -48,8 +49,8 @@ class Route
 
       //Report Routes
       array('report' =>
-        array('GET ' . $base_path . 'report', 'Report_Controller::index', 30),
-        array('GET ' . $base_path . 'report/index', 'Report_Controller::index', 30),
+        array('GET ' . $base_path . 'report', 'Report_Controller::index', 0),
+        array('GET ' . $base_path . 'report/index', 'Report_Controller::index', 0),
         //array('GET ' . $base_path . 'report/email/@id', 'Report_Controller::email', 0),
         array('GET ' . $base_path . 'report/form/@id', 'Report_Controller::form', 10),
         array('GET ' . $base_path . 'report/load/@id', 'Report_Controller::load', 10),

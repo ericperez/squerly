@@ -28,6 +28,7 @@ class Notify {
   * Allows for shorthand static calls e.g. Notify::warning('foo');
   *
   * @param string $type @see Notify::$msg_types
+  * @param array $args
   * @return boolean True on success; exception on failure
   *
   */
@@ -42,11 +43,12 @@ class Notify {
   *
   * @param string $message The message that you want to 
   * @param string $type @see Notify::$msg_types
+  * @throws Exception if message type is not valid
   * @return boolean True on success; exception on failure
   *
   */
   public static function set($message, $type = 'info') {
-    if(!in_array($type, self::$msg_types)) { throw new exception(self::INVALID_TYPE_MSG); }
+    if(!in_array($type, self::$msg_types)) { throw new Exception(self::INVALID_TYPE_MSG); }
     if(!isset($_SESSION[self::SESSION_VAR])) { $_SESSION[self::SESSION_VAR] = array(); }
     if(!isset($_SESSION[self::SESSION_VAR][$type])) { $_SESSION[self::SESSION_VAR][$type] = array(); }
     $_SESSION[self::SESSION_VAR][$type][] = $message;
@@ -64,13 +66,9 @@ class Notify {
   */
   public static function get($type) {
     if(!isset($_SESSION[self::SESSION_VAR]) || !isset($_SESSION[self::SESSION_VAR][$type])) { return ''; }
-
-    if(isset($_SESSION[self::SESSION_VAR]) && isset($_SESSION[self::SESSION_VAR][$type])) {
-      $msg = $_SESSION[self::SESSION_VAR][$type];
-      unset($_SESSION[self::SESSION_VAR][$type]); //clear out msgs after retrieving
-      return $msg;
-    }
-    return null;
+    $msg = $_SESSION[self::SESSION_VAR][$type];
+    unset($_SESSION[self::SESSION_VAR][$type]); //clear out msgs after retrieving
+    return $msg;
   }
 
 
@@ -79,11 +77,12 @@ class Notify {
   * Returns HTML DIVs with the class set to 'flash_' . $type for display in a browser
   *
   * @param string $type @see Notify::$msg_types
+  * @throws Exception if message type is not valid
   * @return string HTML output (DIVs containing the flash messages)
   *
   */
   public static function render($type) {
-    if(!in_array($type, self::$msg_types)) { throw new exception(self::INVALID_TYPE_MSG); }
+    if(!in_array($type, self::$msg_types)) { throw new Exception(self::INVALID_TYPE_MSG); }
     $output = '';
     $msgs = self::get($type);
     if(empty($msgs)) { return ''; }

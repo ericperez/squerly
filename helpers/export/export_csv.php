@@ -23,7 +23,7 @@ class Export_Csv implements Export_Interface {
   *
   */
   public static function render(array $data, $filename = 'export', $config = array()) {
-    $file = fopen('php://temp/maxmemory:'. (32*1024*1024), 'r+'); //32MB max before swap
+    $file = fopen('php://temp/maxmemory:'. (64*1024*1024), 'r+'); //64MB max before swap
 
     //Output the header row
     $header = array_keys($data[0]);

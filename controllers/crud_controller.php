@@ -16,7 +16,6 @@
   * @license http://opensource.org/licenses/gpl-3.0.html
   * @link http://www.squerly.net
   * 
-  * @todo Add a record 'copy' route
   * @todo Consolidate shared code that exists across routes/actions
   * 
   */
@@ -77,7 +76,7 @@ class Crud_Controller implements Crud_Controller_Interface {
       self::_getIndexRecords('*');
       //TODO: Set vars for pagination controls
     }
-    if(!F3::exists('flash_msgs') || F3::get('flash_msgs') == '') { F3::set('flash_msgs', Notify::renderAll()); }
+    CRUD_Helper::renderFlashMessages();
     echo Template::serve('layout.html');
   }
 
@@ -102,16 +101,11 @@ class Crud_Controller implements Crud_Controller_Interface {
         'action' => $model_path . "/add/token/{$csrf_token}/redirect/true",
         'method' => 'post',
       );
-      //Set the 'created_at' and 'updated_at' fields to current timestamp
-      //TODO: this should happen on the back end, not the form
-      $now = date('Y-m-d h:i:s');
-      $values = array('created_at' => $now, 'updated_at' => $now);
-
       $form_markup_arr = (isset(self::$_forms['add']) && Crud_Helper::getForm(self::$_forms['add']))
-        ?: CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
+        ?: CRUD_Helper::buildFormFromModel($model, array(), array(), $form_config);
       F3::set('form', join(PHP_EOL, $form_markup_arr), false, false);
     }
-    if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
+    CRUD_Helper::renderFlashMessages();
     echo Template::serve('layout.html');
   }
 
@@ -135,6 +129,7 @@ class Crud_Controller implements Crud_Controller_Interface {
     $csrf_token = 'QOFJq34igj3'; //TODO: generate real token
     $record = CRUD::loadRecord($model);
     $record[0]->id = null; //Unset the 'id' field; TODO: this should look up the 'actual' primary key
+    $record[0]->created_at = null;
     $record[0]->copyTo('record');
     if(!F3::exists('form')) {
       $model_path = CRUD_Helper::getModelPath();
@@ -142,13 +137,11 @@ class Crud_Controller implements Crud_Controller_Interface {
         'action' => $model_path . "/add/token/{$csrf_token}/redirect/true",
         'method' => 'post',
       );
-      //Set the 'updated_at' field to current date
-      $now = date('Y-m-d h:i:s');
-      $values = array('updated_at' => $now) + F3::get('record');
+      $values = F3::get('record');
       $form_markup_arr = CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
       F3::set('form', join(PHP_EOL, $form_markup_arr), false, false);
     }
-    if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
+    CRUD_Helper::renderFlashMessages();
     echo Template::serve('layout.html');
   }
 
@@ -175,13 +168,11 @@ class Crud_Controller implements Crud_Controller_Interface {
         'action' => $model_path . "/edit/${id}/token/{$csrf_token}/redirect/true",
         'method' => 'post',
       );
-      //Set the 'updated_at' field to current date
-      $now = date('Y-m-d h:m:s');
-      $values = array('updated_at' => $now) + F3::get('record');
+      $values = F3::get('record');
       $form_markup_arr = CRUD_Helper::buildFormFromModel($model, array(), $values, $form_config);
       F3::set('form', join(PHP_EOL, $form_markup_arr), false, false);
     }
-    if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
+    CRUD_Helper::renderFlashMessages();
     echo Template::serve('layout.html');
   }
 
@@ -227,6 +218,12 @@ class Crud_Controller implements Crud_Controller_Interface {
     } else {
       $record->copyFrom('POST'); //, $allowed_fields); //TODO: create blacklist of fields to not accept from POST      
     }
+
+    //Update timestamp fields
+    $now = date('Y-m-d H:i:s');
+    if(!$id) { $record->created_at = $now; }
+    $record->updated_at = $now;
+
     if(!$record->dry()) { $record->save(); }
     if(!F3::exists('PARAMS.redirect') || F3::get('PARAMS.redirect') !== 'true') { return true; }
 
@@ -260,7 +257,7 @@ class Crud_Controller implements Crud_Controller_Interface {
       $form = CRUD_Helper::buildDeleteForm($model, $id);
       F3::set('form', $form, false, false);
     }
-    if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
+    CRUD_Helper::renderFlashMessages();
     echo Template::serve('layout.html');
   }
 
@@ -371,7 +368,7 @@ class Crud_Controller implements Crud_Controller_Interface {
       $form_markup_arr = CRUD_Helper::buildFormFromModel($model, array(), array(), $form_config);
       F3::set('form', join(PHP_EOL, $form_markup_arr), false, false);
     }
-    if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
+    CRUD_Helper::renderFlashMessages();
     echo Template::serve('layout.html');
   }
 
@@ -409,7 +406,7 @@ class Crud_Controller implements Crud_Controller_Interface {
         F3::set('content', "No {$records_name} match the specified criteria.");
       }
     }
-    if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
+    CRUD_Helper::renderFlashMessages();
     echo Template::serve('layout.html');
   }
 
@@ -437,7 +434,7 @@ class Crud_Controller implements Crud_Controller_Interface {
       }
       F3::set('content', Export::render($field_values, '', 'table'), false, false); 
     }
-    if(!F3::exists('flash_msgs')) { F3::set('flash_msgs', Notify::renderAll()); }
+    CRUD_Helper::renderFlashMessages();
     echo Template::serve('layout.html');
   }
 

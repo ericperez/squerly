@@ -39,9 +39,11 @@ class CRUD_Helper {
    * @param array $additional_actions Array
    * @return array Records with 'action' columns added
    *
+   * @todo: Fix $additional_actions getting overwritten
+   *
    */
   public static function addActionColumns(array $records, array $additional_actions = array()) {
-    list($model, $model_friendly) = self::getModelName();
+    list($model) = self::getModelName();
     $class_name = String::modelToClass($model);
 
     //For now, it's assumed that primary key is called 'id'
@@ -49,12 +51,13 @@ class CRUD_Helper {
 
     foreach($records as &$record) {
       $id = $record['id'];
-      //TODO: find a faster way of doing this
+      //TODO: clean ths up and find a better way of doing this
       //$additional_actions = array();
       if(class_exists($class_name)) { //TODO: && implements interface that defines getIndexActions!
         $additional_actions = @$class_name::getIndexActions($record) ?: array();
       }
       $model_path = self::getModelPath();
+      //TODO: turn this into an 'actions' drop-down in one column instead of individual columns for each one
       $actions = array(
         array("Load"    => "<a href='{$model_path}/load/{$id}'>Load</a>"),
         array("Edit"    => "<a href='{$model_path}/edit/{$id}'>Edit</a>"),
@@ -64,7 +67,7 @@ class CRUD_Helper {
       );
       if(!empty($additional_actions)) { array_unshift($actions, $additional_actions); }
       foreach($actions as $action) {
-        $record = $record + $action;
+        $record += $action;
       }
     }
     return $records;
@@ -495,12 +498,24 @@ class CRUD_Helper {
     $date_fields = array('created_at', 'updated_at'); //, 'deleted_at'); //TODO: update this list
     foreach($records as &$record) {
       foreach($date_fields as &$date_field) {
-        $record[$date_field] = Date_Difference::getString(date_create($record[$date_field]));
+        $timestamp = $record[$date_field];
+        $timestamp = date_create($timestamp);
+        $record[$date_field] = Date_Difference::getString($timestamp);
       }
     }
     return $records;
   }
 
+
+  /**
+   *
+   * Render 'Flash' Messages
+   *
+   */
+  public static function renderFlashMessages() {
+    $flash_msgs = F3::get('flash_msgs');
+    F3::set('flash_msgs', $flash_msgs . Notify::renderAll());
+  }
 
 
   /**
