@@ -1,34 +1,34 @@
 <?php
 /**
-  *
-  * Squerly - Database/Table Metadata Helper class
-  * 
-  * Contains methods to help with the manipulation of SQL statements/strings 
-  * 
-  * @author Eric Perez <ericperez@squerly.net>
-  * @copyright (c)2012-2013 Squerly contributors (Eric Perez, et al.)
-  * @license GNU General Public License, version 3 or later
-  * @license http://opensource.org/licenses/gpl-3.0.html
-  * @link http://www.squerly.net
-  * 
-  */
+ *
+ * Squerly - Database/Table Metadata Helper class
+ *
+ * Contains methods to help with the manipulation of SQL statements/strings
+ *
+ * @author Eric Perez <ericperez@squerly.net>
+ * @copyright (c)2012-2013 Squerly contributors (Eric Perez, et al.)
+ * @license GNU General Public License, version 3 or later
+ * @license http://opensource.org/licenses/gpl-3.0.html
+ * @link http://www.squerly.net
+ *
+ */
 class Db_Meta {
 
   public static $numeric_column_types = array('int', 'tinyint', 'bigint', 'mediumint', 'smallint', 'number',
-      'float', 'decimal', 'numeric', 'float', 'double', 'long', 'integer', 'real');
+    'float', 'decimal', 'numeric', 'float', 'double', 'long', 'integer', 'real');
   public static $boolean_column_types = array('tinyint', 'bool', 'boolean');
 
 
- /**
-  *
-  * Determines which Zend_Db_Adapter class needs to be used based on the DB connection specificed in $DBC
-  * 
-  * @param string $DBC Database connection variable name
-  * @return class Instance of appropriate DB Adapter
-  * 
-  * @todo Use build-in fat-free framework methods to do this and remove this
-  *
-  */
+  /**
+   *
+   * Determines which Zend_Db_Adapter class needs to be used based on the DB connection specificed in $DBC
+   *
+   * @param string $DBC Database connection variable name
+   * @return class Instance of appropriate DB Adapter
+   *
+   * @todo Use build-in fat-free framework methods to do this and remove this
+   *
+   */
   public static function getDBAdapterClass($DBC = 'DB') {
     $db_type = F3::get("{$DBC}->backend");
     $db_class_map = array(
@@ -40,15 +40,15 @@ class Db_Meta {
   }
 
 
- /**
-  *
-  * Returns a standardized description of a database table for MySQL, PostgreSQL, and SQLite
-  * 
-  * @param string $table Database table name
-  * @param string $DBC Database connection variable name
-  * @return array Description of table properties/metadata
-  *
-  */
+  /**
+   *
+   * Returns a standardized description of a database table for MySQL, PostgreSQL, and SQLite
+   *
+   * @param string $table Database table name
+   * @param string $DBC Database connection variable name
+   * @return array Description of table properties/metadata
+   *
+   */
   public static function describeTable($table, $DBC = 'DB') {
     $adapter_class = self::getDBAdapterClass($DBC);
     if(!$adapter_class) { F3::error('', 'Unsupported Database'); }
@@ -56,14 +56,14 @@ class Db_Meta {
   }
 
 
- /**
-  *
-  * Returns an array of all database tables on a given database referenced by $DBC
-  * 
-  * @param string $DBC Database connection variable name
-  * @return array Array of tables that exist in the database
-  *
-  */
+  /**
+   *
+   * Returns an array of all database tables on a given database referenced by $DBC
+   *
+   * @param string $DBC Database connection variable name
+   * @return array Array of tables that exist in the database
+   *
+   */
   public static function getTables($DBC = 'DB') {
     $adapter_class = self::getDBAdapterClass($DBC);
     if(!$adapter_class) { F3::error('', 'Unsupported Database'); }
@@ -73,28 +73,28 @@ class Db_Meta {
     switch($db_type) {
       case 'mysql':
         return Matrix::pick($tables, 'Tables_in_' . $db_name);
-      break;
+        break;
 
       default:
         return Matrix::pick($tables, 'name');
-      break;
-    }    
+        break;
+    }
   }
 
 
- /**
-  *
-  * Returns an array of distinct values from one column in one table
-  * 
-  * @param string $table Database table name
-  * @param string $field Table field name
-  * @param string $DBC Database connection name
-  *
-  * @return array Array distinct field values
-  * 
-  * @todo Add pagination support; finish this!
-  *
-  */
+  /**
+   *
+   * Returns an array of distinct values from one column in one table
+   *
+   * @param string $table Database table name
+   * @param string $field Table field name
+   * @param string $DBC Database connection name
+   *
+   * @return array Array distinct field values
+   *
+   * @todo Add pagination support; finish this!
+   *
+   */
   public static function getDistinctValues($table, $field, $DBC = 'DB') {
     try {
       $sql = "SELECT {$field} FROM {$table} GROUP BY {$field} ORDER BY {$field}";
@@ -105,20 +105,20 @@ class Db_Meta {
   }
 
 
- /**
-  *
-  * Returns an array of DB columns of type $types
-  * 
-  * @param string $table Database table name
-  * @param mixed $types String with one or array of multiple columns types
-  * @param string $DBC Database connection name
-  * @param boolean $return_type If true, returns an array containing field names as keys and field types as values
-  *
-  * @return array Array of DB columns that match a given type
-  * 
-  * @todo Finish this
-  *
-  */
+  /**
+   *
+   * Returns an array of DB columns of type $types
+   *
+   * @param string $table Database table name
+   * @param mixed $types String with one or array of multiple columns types
+   * @param string $DBC Database connection name
+   * @param boolean $return_type If true, returns an array containing field names as keys and field types as values
+   *
+   * @return array Array of DB columns that match a given type
+   *
+   * @todo Finish this
+   *
+   */
   public static function getColumnsOfType($table, $types, $DBC = 'DB', $return_type = false) {
     if(!is_array($types)) { $types = array($types); }
     $table_desc = self::describeTable($table, $DBC);
@@ -128,16 +128,16 @@ class Db_Meta {
   }
 
 
- /**
-  *
-  * Returns an array of (column name => type) or (column name) for a given database table
-  * 
-  * @param string $table Database table name
-  * @param boolean $return_type If true, sets the values of the return array to the column type
-  * @param string $DBC Database connection variable name
-  * @return array Array of DB columns that match a given type
-  *
-  */
+  /**
+   *
+   * Returns an array of (column name => type) or (column name) for a given database table
+   *
+   * @param string $table Database table name
+   * @param boolean $return_type If true, sets the values of the return array to the column type
+   * @param string $DBC Database connection variable name
+   * @return array Array of DB columns that match a given type
+   *
+   */
   public static function columns($table, $return_type = true, $DBC = 'DB') {
     $table_desc = self::describeTable($table, $DBC);
     $names = Matrix::pick($table_desc, 'COLUMN_NAME');
@@ -146,46 +146,46 @@ class Db_Meta {
   }
 
 
- /**
-  *
-  * Determines if a given column type is a boolean
-  * 
-  * @param string $type Type of DB field to test if boolean
-  * @return boolean True if type is boolean; false if not
-  *
-  */
+  /**
+   *
+   * Determines if a given column type is a boolean
+   *
+   * @param string $type Type of DB field to test if boolean
+   * @return boolean True if type is boolean; false if not
+   *
+   */
   public static function isBooleanColumnType($type) {
     return in_array($type, self::$boolean_column_types);
   }
 
 
- /**
-  *
-  * Determines if a given column type is numeric
-  * 
-  * @param string $type Type of DB field to test if boolean
-  * @return boolean True if type is boolean; false if not
-  * 
-  * @todo Find a better way of determining this
-  *
-  */
+  /**
+   *
+   * Determines if a given column type is numeric
+   *
+   * @param string $type Type of DB field to test if boolean
+   * @return boolean True if type is boolean; false if not
+   *
+   * @todo Find a better way of determining this
+   *
+   */
   public static function isNumericColumnType($type) {
     return in_array($type, self::$numeric_column_types);
   }
 
 
- /**
-  *
-  * Returns a 'best-guess' at the 'name' column of a DB table
-  * 
-  * @param string $table Database table name
-  * @param string $DBC Database connection variable name
-  * @return string Name Field if one is found; empty string if not
-  * 
-  * @todo Enhance this with more possible 'name' fields
-  * @todo Add DBC var
-  *
-  */
+  /**
+   *
+   * Returns a 'best-guess' at the 'name' column of a DB table
+   *
+   * @param string $table Database table name
+   * @param string $DBC Database connection variable name
+   * @return string Name Field if one is found; empty string if not
+   *
+   * @todo Enhance this with more possible 'name' fields
+   * @todo Add DBC var
+   *
+   */
   public static function getNameColumn($table, $DBC = 'DB') {
     $table_cols = self::columns($table, false, $DBC);
     $possible_name_fields = array('name', 'title', 'record_name', 'email_address', 'id'); //TODO: expand this
@@ -197,15 +197,15 @@ class Db_Meta {
   }
 
 
- /**
-  *
-  * Tries to determine the primary keys for a given database table
-  * 
-  * @param string $table Database table name
-  * @param string $DBC Database connection variable name
-  * @return string Name Field if one is found; empty string if not
-  * 
-  */
+  /**
+   *
+   * Tries to determine the primary keys for a given database table
+   *
+   * @param string $table Database table name
+   * @param string $DBC Database connection variable name
+   * @return string Name Field if one is found; empty string if not
+   *
+   */
   public static function getPrimaryKeys($table, $DBC = 'DB') {
     $table_desc = self::describeTable($table, $DBC);
     $primary_keys = array();
@@ -218,17 +218,17 @@ class Db_Meta {
   }
 
 
- /**
-  *
-  * Tries to determine which table columns are foreign keys to another table by simple naming convention
-  * 
-  * @param string $table Database table name
-  * @param string $DBC Database connection variable name
-  * @return string Name Field if one is found; empty string if not
-  * 
-  * @todo Make this more robust; better identification of FKs, etc.
-  * 
-  */
+  /**
+   *
+   * Tries to determine which table columns are foreign keys to another table by simple naming convention
+   *
+   * @param string $table Database table name
+   * @param string $DBC Database connection variable name
+   * @return string Name Field if one is found; empty string if not
+   *
+   * @todo Make this more robust; better identification of FKs, etc.
+   *
+   */
   public static function getForeignKeys($table, $DBC = 'DB') {
     $tables = self::getTables($DBC);
     $columns = self::columns($table, true, $DBC);
@@ -245,17 +245,17 @@ class Db_Meta {
   }
 
 
- /**
-  *
-  * Attempts to convert a column name into a Table name (for foreign keys)
-  * 
-  * @param string $col Database column name
-  * @param string $DBC Database connection variable name
-  * @return string Database table name match; false if not
-  * 
-  * @todo Make this more robust; better identification of FKs, etc.
-  * 
-  */
+  /**
+   *
+   * Attempts to convert a column name into a Table name (for foreign keys)
+   *
+   * @param string $col Database column name
+   * @param string $DBC Database connection variable name
+   * @return string Database table name match; false if not
+   *
+   * @todo Make this more robust; better identification of FKs, etc.
+   *
+   */
   public static function colToTable($col, $DBC = 'DB') {
     $tables = self::getTables($DBC);
     //Sort by length of table name descending
@@ -267,7 +267,7 @@ class Db_Meta {
     //Deal with any prefixes on table names (such as 'primary_', etc.)
     foreach($tables as $table_name) {
       $regex = "/{$table_name}$/";
-      if(preg_match($regex, $col_no_suffix, $col_table_match)) { 
+      if(preg_match($regex, $col_no_suffix, $col_table_match)) {
         return $col_table_match[0];
       }
     }
@@ -276,18 +276,18 @@ class Db_Meta {
 
 
 
- /**
-  *
-  * Resolves foreign keys on record result set to convert foreign IDs to names/labels
-  * 
-  * @param array $record_data
-  * @param boolean $id_in_name - If true, the ID of the model will be prepended on the name
-  * @param string $DBC Database connection variable name
-  * @return array Record Data with foreign keys IDs resolved to names/labels
-  * 
-  * @todo Clean this up
-  * 
-  */
+  /**
+   *
+   * Resolves foreign keys on record result set to convert foreign IDs to names/labels
+   *
+   * @param array $record_data
+   * @param boolean $id_in_name - If true, the ID of the model will be prepended on the name
+   * @param string $DBC Database connection variable name
+   * @return array Record Data with foreign keys IDs resolved to names/labels
+   *
+   * @todo Clean this up
+   *
+   */
   public static function resolveForeignKeys(array $record_data, $id_in_name = true, $DBC = 'DB') {
     $tables = Db_Meta::getTables($DBC);
     $skip_cols = array();
@@ -334,17 +334,17 @@ class Db_Meta {
         switch($db_type) {
           case 'pgsql':
           case 'sqlite':
-            $sql = ($id_in_name) ? 
+            $sql = ($id_in_name) ?
               "SELECT '[{$v}] ' || {$name_col} AS {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val" :
               "SELECT {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val";
-          break;
+            break;
 
           case 'mysql':
           default:
-            $sql = ($id_in_name) ? 
+            $sql = ($id_in_name) ?
               "SELECT CONCAT('[', '{$v}', '] ', {$name_col}) AS {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val" :
               "SELECT {$name_col} FROM {$table} WHERE {$primary_key} = :pk_val";
-          break;   
+            break;
         }
 
         DB::sql($sql, array(':pk_val' => $v), 60, $DBC); //Cache result for one minute
