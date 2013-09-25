@@ -39,7 +39,7 @@ class Report_Php extends Report_Base {
 
   /**
    *
-   * getColumns - Returns the column names for a given report
+   * Returns the column names for a given report
    *
    */
   public function getColumns() {
@@ -49,7 +49,7 @@ class Report_Php extends Report_Base {
 
   /**
    *
-   * getData - Stub
+   * Stub
    *
    * @note A 2D Array should be returned by PHP code that is implemented in the report->postprocess_code property
    *
@@ -59,7 +59,7 @@ class Report_Php extends Report_Base {
 
   /**
    *
-   * getFormConfig - Returns the form configuration for a given report
+   * Returns the form configuration for a given report
    *
    */
   public function getFormConfig() {
