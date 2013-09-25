@@ -104,6 +104,7 @@ class Report_Base extends Report_Abstract {
    *
    */
   protected function _phpPostprocess() {
+    $this->postprocess_code = str_replace("<?php", '', $this->postprocess_code); //Remove opening PHP tag if present
     $postprocess_function = create_function('$results', $this->postprocess_code);
     $this->results = $postprocess_function($this->results);
   }
