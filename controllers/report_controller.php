@@ -1,17 +1,17 @@
 <?php
 /**
-  *
-  * Squerly - Report Controller
-  * 
-  * This file contains all the additional routes and supporting code that is specific to reports
-  * 
-  * @author Eric Perez <ericperez@squerly.net>
-  * @copyright (c)2012-2013 Squerly contributors (Eric Perez, et al.)
-  * @license GNU General Public License, version 3 or later
-  * @license http://opensource.org/licenses/gpl-3.0.html
-  * @link http://www.squerly.net
-  * 
-  */
+ *
+ * Squerly - Report Controller
+ *
+ * This file contains all the additional routes and supporting code that is specific to reports
+ *
+ * @author Eric Perez <ericperez@squerly.net>
+ * @copyright (c)2012-2013 Squerly contributors (Eric Perez, et al.)
+ * @license GNU General Public License, version 3 or later
+ * @license http://opensource.org/licenses/gpl-3.0.html
+ * @link http://www.squerly.net
+ *
+ */
 
 
 class Report_Controller extends Crud_Controller {
@@ -19,14 +19,14 @@ class Report_Controller extends Crud_Controller {
   public static $_model = 'report';
   protected static $_forms = array('add' => 'Form_Report_Add');
 
- /**
-  *
-  * Load a report
-  *
-  * @param int $id Report ID to load
-  * @return object Report object from the report factory based on 'type' field
-  *
-  */
+  /**
+   *
+   * Load a report
+   *
+   * @param int $id Report ID to load
+   * @return object Report object from the report factory based on 'type' field
+   *
+   */
   protected static function _loadReport($id = null) {
     $id = is_int($id) ? $id : (int) F3::get('PARAMS.id') ?: null;
     if(!$id) { F3::reroute(F3::get('URL_BASE_PATH') . '/report'); }
@@ -35,19 +35,19 @@ class Report_Controller extends Crud_Controller {
   }
 
 
- /**
-  *
-  * Extracts all of the template vars out of a report and builds an HTML form
-  *
-  * @param object $report - Report object to render an input parameter form for
-  * @param string $action - Report controller action the form action should point to
-  * @param array $form_vals - Key-Value Pairs for the report form values
-  * @return string HTML markup
-  *
-  * @todo Make all form attributes configurable
-  * @todo Add date widgets to date fields, etc
-  * 
-  */
+  /**
+   *
+   * Extracts all of the template vars out of a report and builds an HTML form
+   *
+   * @param object $report - Report object to render an input parameter form for
+   * @param string $action - Report controller action the form action should point to
+   * @param array $form_vals - Key-Value Pairs for the report form values
+   * @return string HTML markup
+   *
+   * @todo Make all form attributes configurable
+   * @todo Add date widgets to date fields, etc
+   *
+   */
   public static function renderParamsForm($report, $action = 'render', array $form_vals = array()) {
     //TODO: loop through all properties for template/form vars instead of just query and input_data_uri?
     //TODO: Use form library to generate/validate form elements
@@ -90,8 +90,8 @@ class Report_Controller extends Crud_Controller {
 
     //Cycle through all the form inputs and build the HTML markup for them
     $vars = array_unique(
-      Mustache_Helper::vars($report->clean_properties['query']) + 
-      Mustache_Helper::vars($report->clean_properties['input_data_uri'])
+      Mustache_Helper::vars($report->clean_properties['query']) +
+        Mustache_Helper::vars($report->clean_properties['input_data_uri'])
     );
     $vals = !empty($form_vals) ? $form_vals : $_REQUEST;
     foreach($vars as $var) {
@@ -100,34 +100,34 @@ class Report_Controller extends Crud_Controller {
     }
 
     $form_html .= '<br>';
-    $form_html .= 
-      Form::label('sqrl[config]', 'Load a Saved Configuration: ') . 
-      Form::select('sqrl[config]', $config_list, '', $config_attribs) . '&nbsp;' .
-      Form::label('sqrl[context]', 'Output Format: ') . 
-      Form::select('sqrl[context]', $output_formats, $output_val, $output_attribs) . '&nbsp;' .
-      Form::label('sqrl[transform]', 'Data Transformation: ') .
-      Form::select('sqrl[transform]', $transform, $transform_val , $transform_attribs) . '&nbsp;' .
-      Form::label('sqrl[preview]', 'Preview?') . 
-      Form::checkbox('sqrl[preview]', '10') . '&nbsp;' .
-      Form::button('sqrl[save_config]', 'Save Config', $save_config_attribs) .
-      Form::hidden('sqrl[report_id]', $report_id) .
-      Form::hidden('sqrl[api_version]', '1.0') . //TODO: turn this into a class constant
-      Form::submit('sqrl[run]', 'Run', array('value' => 'run', 'title' => 'Run the report and render the results'));
+    $form_html .=
+      Form::label('sqrl[config]', 'Load a Saved Configuration: ') .
+        Form::select('sqrl[config]', $config_list, '', $config_attribs) . '&nbsp;' .
+        Form::label('sqrl[context]', 'Output Format: ') .
+        Form::select('sqrl[context]', $output_formats, $output_val, $output_attribs) . '&nbsp;' .
+        Form::label('sqrl[transform]', 'Data Transformation: ') .
+        Form::select('sqrl[transform]', $transform, $transform_val , $transform_attribs) . '&nbsp;' .
+        Form::label('sqrl[preview]', 'Preview?') .
+        Form::checkbox('sqrl[preview]', '10') . '&nbsp;' .
+        Form::button('sqrl[save_config]', 'Save Config', $save_config_attribs) .
+        Form::hidden('sqrl[report_id]', $report_id) .
+        Form::hidden('sqrl[api_version]', '1.0') . //TODO: turn this into a class constant
+        Form::submit('sqrl[run]', 'Run', array('value' => 'run', 'title' => 'Run the report and render the results'));
     $form_html  .= '</div>' . Form::close();
     return $form_html;
   }
 
 
- /**
-  *
-  * 'Form Action'
-  * 
-  * AJAX action to render the input parameters form for a given report by ID
-  *
-  * @param int $id Report ID to load
-  * @todo Update this to use the depage-forms library
-  *
-  */
+  /**
+   *
+   * 'Form Action'
+   *
+   * AJAX action to render the input parameters form for a given report by ID
+   *
+   * @param int $id Report ID to load
+   * @todo Update this to use the depage-forms library
+   *
+   */
   public static function form($id = null) {
     //TODO: Load a saved configuration ??
     //TODO: Validate form
@@ -136,11 +136,11 @@ class Report_Controller extends Crud_Controller {
   }
 
 
- /**
-  *
-  * 'List Records/Index' action
-  *   
-  */
+  /**
+   *
+   * 'List Records/Index' action
+   *
+   */
   public static function index() {
     F3::set('PARAMS.model', self::$_model); //TODO: put this in a better place
     //These are the fields that show up on the index page
@@ -150,29 +150,29 @@ class Report_Controller extends Crud_Controller {
   }
 
 
- /**
-  *
-  * Load action (proxies to 'render' action);
-  *   
-  */
+  /**
+   *
+   * Load action (proxies to 'render' action);
+   *
+   */
   public static function load() {
     self::render(null, false);
   }
 
 
- /**
-  *
-  * 'HTML Select' Action - Echos ID/name value pairs for a given model as an HTML select element
-  * 
-  * This can be used in AJAX calls to populate the innerHTML of a DIV with the list of available model instances
-  * 
-  * @param array $config Form select element configuration
-  * @param string $where unused
-  * @param string $order_by unused
-  * 
-  * @todo: Allow config to be passed in or read from GET params
-  *
-  */
+  /**
+   *
+   * 'HTML Select' Action - Echos ID/name value pairs for a given model as an HTML select element
+   *
+   * This can be used in AJAX calls to populate the innerHTML of a DIV with the list of available model instances
+   *
+   * @param array $config Form select element configuration
+   * @param string $where unused
+   * @param string $order_by unused
+   *
+   * @todo: Allow config to be passed in or read from GET params
+   *
+   */
   public static function optionlist($config = null, $where = '', $order_by = '') {
     $hidden_from_ui_where = " (hidden_from_ui = 0 OR hidden_from_ui = 'false') ";
     $where = empty($where) ? $hidden_from_ui_where : $where . ' AND ' . $hidden_from_ui_where;
@@ -180,18 +180,18 @@ class Report_Controller extends Crud_Controller {
   }
 
 
- /**
-  *
-  * Render report results/output (AJAX) action
-  * 
-  * In contrast to 'results,' this action will load any front-end plugins necessary to render the report 
-  *   results; if no render template is available, this method will returns the same data as 'results'
-  * 
-  * @param int $id Report ID to load
-  * @param boolean $render_results Determines whether the report is run against the data source and the results rendered
-  * @param $input_values array Array of input key-value pairs to plug into the report query
-  *
-  */
+  /**
+   *
+   * Render report results/output (AJAX) action
+   *
+   * In contrast to 'results,' this action will load any front-end plugins necessary to render the report
+   *   results; if no render template is available, this method will returns the same data as 'results'
+   *
+   * @param int $id Report ID to load
+   * @param boolean $render_results Determines whether the report is run against the data source and the results rendered
+   * @param $input_values array Array of input key-value pairs to plug into the report query
+   *
+   */
   public static function render($id = null, $render_results = true, $input_values = array()) {
     session_write_close(); //Open sessions will block concurrent requests
     $report = self::_loadReport($id);
@@ -203,10 +203,10 @@ class Report_Controller extends Crud_Controller {
     //$filename = String::machine($report->name) . '_results_' . date('m-d-Y');
     $max_return_rows = (isset($_REQUEST['sqrl']['preview'])) ? $_REQUEST['sqrl']['preview'] : 0;
     //Backwards compatability: either form_method or form_submit_method properties may be present
-    $report->form_method = isset($report->form_method) ? $report->form_method : isset($report->form_submit_method) ? $report->form_submit_method : '';  
+    $report->form_method = isset($report->form_method) ? $report->form_method : isset($report->form_submit_method) ? $report->form_submit_method : '';
     $form_method = isset($report->form_method) && in_array(strtolower(trim($report->form_method)), array('get', 'post')) ? $report->form_method : 'post';
     $request_method = ($form_method === 'get') ? $_GET : $_POST;
-    $report_results = ($render_results && isset($request_method['sqrl']['run']) && strtolower($request_method['sqrl']['run']) === 'run') ? 
+    $report_results = ($render_results && isset($request_method['sqrl']['run']) && strtolower($request_method['sqrl']['run']) === 'run') ?
       Export::render($report->getResults($max_return_rows, $input_values)) : '';
     F3::set('report_results', $report_results);
     F3::set('page_title', $report->name);
@@ -222,13 +222,13 @@ class Report_Controller extends Crud_Controller {
   }
 
 
- /**
-  *
-  * Report results/output (AJAX) action
-  *
-  * @param int $id Report ID to load
-  *
-  */
+  /**
+   *
+   * Report results/output (AJAX) action
+   *
+   * @param int $id Report ID to load
+   *
+   */
   public static function results($id = null) {
     session_write_close(); //Open sessions will block concurrent requests
     $report = self::_loadReport($id);
@@ -240,15 +240,15 @@ class Report_Controller extends Crud_Controller {
   }
 
 
- /**
-  *
-  * Report validation (AJAX) action
-  *
-  * @param int $id Report ID to load
-  * 
-  * @todo Finish this
-  *
-  */
+  /**
+   *
+   * Report validation (AJAX) action
+   *
+   * @param int $id Report ID to load
+   *
+   * @todo Finish this
+   *
+   */
   public static function validate($id = null) {
     session_write_close(); //Open sessions will block concurrent requests
     //Load the report
