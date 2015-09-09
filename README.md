@@ -3,16 +3,16 @@ Squerly
 
 Squerly (a portmanteau of 'SQL' and 'Query') is a light-weight, unified reporting and data visualization framework written in PHP. What does that mean? Just like PHP application frameworks like Zend Framework, Symfony, etc. attempt to build [generic tools](http://fewagainstmany.com/blog/frameworks-dont-have-to-do-everything-and-more) that all Web applications need or share in common (80% of the code) and let the developer focus on the actual issues specific to your application (the other 20%,) Squerly attempts to do the same thing with reports--it takes care of the most common 80% of what reports need to do and allow the report developer to focus on the 20% that is specific to their needs. Writing, organizing, and publishing Reports such as business intelligence, system monitoring, exception, etc., and presenting the results in tabular and/or graphical form is what Squerly does best--all using a simple RESTful API.
 
-Note: Squerly is currently under active development and likely contains many bugs! It should be considered 'pre-alpha' software at this time and is not suitable for prodution environments. Unfortunately, the documentation on the site is also getting out of date. __If you're brave enough to try out the software in it's current state and you get stuck (and you will!) feel free to shoot me an email: eperez[@]squerly.net and I'll be happy to answer any questions you have about the software.__
+Note: Squerly should be considered 'alpha' software at this time and is not suitable for customer-facing environments. Unfortunately, the documentation on the site is also getting out of date. __If you're brave enough to try out the software in it's current state and you get stuck (and you will!) feel free to shoot me an email: eperez[@]squerly.net and I'll be happy to answer any questions you have about the software.__
 
 
 #Notice
 
-I am currently working on migrating Squerly from 'Fat-Free Framework' to 'Laravel 4.' This will likely take a few months to get everything straightened out, including database migrations, unit-tests, routing, etc. Once that is in a working state then most the current code (and database structure) will be deprecated. This will likely not be complete until sometime in mid 2014.
+This project has not been updated in about two years. I wrote it as a proof-of-concept and it does some pretty cool things in it's current state. I think the idea is solid and the code has been in production use for a few years with no major issues being reported. At some point I might try to re-write it on Node.js in the future but at this point it's unlikely that I will get to any of the TODO items (below) or write unit tests for it. I just noticed that under the GitHub code stats that it lists 80% of the code as being JavaScript (mostly libraries) so I guess that bodes well for a Node re-write. Code provided AS-IS, but it is open-source so hack away if you feel like it. :)
 
 
 #More Information
-Please see the [WIKI](/ericperez/squerly/wiki) for more information about this application (background, system requirements, installation instructions, etc.)
+Please see the [WIKI](https://github.com/ericperez/squerly/wiki) for more information about this application (background, system requirements, installation instructions, etc.)
 
 
 #Features
