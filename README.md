@@ -12,7 +12,7 @@ Note: Squerly should be considered 'beta' software at this time and is not suita
 
 #Notice
 
-This project has not been updated in a while. I wrote it as a proof-of-concept and it does some pretty cool things even though it lacks some UI polish and (sadly) does not have any unit tests written for it. In the future I might try to do a complete re-write in Node.js but as far as this version is concerned it's unlikely that I will get to any of the TODO items (below) or write unit tests for it. I noticed that under the GitHub code stats that it lists 70%+ of the code as being JavaScript (mostly libraries) so I guess that bodes well for a Node re-write. Code provided AS-IS, but it is open-source so hack away if you feel like it. :)
+I started this project a number of years ago and it has not been updated in a while. There are a lot of things I would change about it but I wrote it as a proof-of-concept and it does some pretty cool things even though it lacks UI polish and (sadly) does not have any unit tests written for it (even though I completely understand their importance!) In the future I might try to do a complete re-write in Node.js but as far as this version is concerned it's unlikely that I will get to any of the TODO items (below) or write unit tests for it. I noticed that under the GitHub code stats that it lists 70%+ of the code as being JavaScript (mostly libraries) so I guess that bodes well for a Node re-write. Code provided AS-IS, but it is open-source so hack away if you feel like it. :)
 
 
 #More Information
